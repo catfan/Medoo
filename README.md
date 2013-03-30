@@ -5,7 +5,6 @@ The Lightest PHP database framework to accelerate development
 
 Main Features
 ----------------
-
 ### Lightweight ###
 Only 7.8KB, one file included.
 
@@ -18,10 +17,8 @@ Support various common SQL queries.
 ### Compatible ###
 Support various SQL database, including MySQL, MSSQL, SQLite and more.
 
-
 ### Security ###
 Prevent SQL injection.
-
 
 ### Free ###
 Under MIT license, you can use it anywhere if you want.
@@ -43,3 +40,8 @@ $database->insert('account', [
 	'lang' => ['en', 'fr', 'jp', 'cn']
 ]);
 ```
+Links
+------
+Official website: [http://medoo.in](http://medoo.in)
+
+Documentation: [http://medoo.in/doc](http://medoo.in/doc)
