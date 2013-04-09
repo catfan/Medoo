@@ -36,7 +36,7 @@ Get Started
 require_once 'medoo.php';
 
 // Initialize
-$database = new medoo( 'mysql' ,  'my_database_name' , 'm=y_database_username' , 'my_database_password' );
+$database = new medoo( 'mysql' ,  'my_database_name' , 'my_database_username' , 'my_database_password' );
 
 // Enjoy
 $database->insert('account', [
