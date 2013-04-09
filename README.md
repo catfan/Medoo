@@ -23,6 +23,12 @@ Prevent SQL injection.
 ### Free ###
 Under MIT license, you can use it anywhere if you want.
 
+Usage
+-------
+```
+$database = new medoo( string $database_type , string $database_name [, string $database_username = null [, string $database_password = null [, string $database_server = 'localhost' ]]] );
+```
+
 Get Started
 -------------
 ```
@@ -30,7 +36,7 @@ Get Started
 require_once 'medoo.php';
 
 // Initialize
-$database = new medoo('my_database');
+$database = new medoo( 'mysql' ,  'my_database_name' , 'm=y_database_username' , 'my_database_password' );
 
 // Enjoy
 $database->insert('account', [
@@ -40,6 +46,7 @@ $database->insert('account', [
 	'lang' => ['en', 'fr', 'jp', 'cn']
 ]);
 ```
+
 Links
 ------
 Official website: [http://medoo.in](http://medoo.in)

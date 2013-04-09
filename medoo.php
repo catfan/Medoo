@@ -8,42 +8,34 @@
  */
 class medoo
 {
-	protected $database_type = 'mysql';
 
-	// For MySQL, MSSQL, Sybase
-	protected $server = 'localhost';
-	
-	protected $username = 'username';
-	
-	protected $password = 'password';
-	
-	public function __construct($database_name)
+	public function __construct($database_type,$database_name,$database_username=null,$database_password=null,$database_server='localhost')
 	{
 		try {
-			$type = strtolower($this->database_type);
-			switch ($type)
+			$database_type = strtolower($database_type);
+			switch ($database_type)
 			{
 				case 'mysql':
 				case 'pgsql':
 					$this->pdo = new PDO(
-						$type . ':host=' . $this->server . ';dbname=' . $database_name, 
-						$this->username,
-						$this->password
+						$database_type . ':host=' . $database_server . ';dbname=' . $database_name, 
+						$database_username,
+						$database_password
 					);
 					break;
 
 				case 'mssql':
 				case 'sybase':
 					$this->pdo = new PDO(
-						$type . ':host=' . $this->server . ';dbname=' . $database_name . ',' .
-						$this->username . ',' .
-						$this->password
+						$database_type . ':host=' . $database_server . ';dbname=' . $database_name . ',' .
+						$database_username . ',' .
+						$database_password
 					);
 					break;
 
 				case 'sqlite':
 					$this->pdo = new PDO(
-						$type . ':' . $database_name
+						$database_type . ':' . $database_name
 					);
 					break;
 			}
