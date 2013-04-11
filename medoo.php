@@ -406,5 +406,10 @@ class medoo
 	{
 		return $this->pdo->getAttribute(PDO::ATTR_SERVER_INFO);
 	}
+	
+	public function close()
+	{
+		$this->pdo = null;
+	}
 }
 ?>
