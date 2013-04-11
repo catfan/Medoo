@@ -406,5 +406,10 @@ class medoo
 	{
 		return $this->pdo->getAttribute(PDO::ATTR_SERVER_INFO);
 	}
+	
+	public function get_database_type() 
+	{
+        	return $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+    	}
 }
 ?>
