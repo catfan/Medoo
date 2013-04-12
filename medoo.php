@@ -17,6 +17,10 @@ class medoo
 			{
 				case 'mysql':
 				case 'pgsql':
+					if( strpos( $database_server , ':/' )!==false ){
+						$bits = explode( $database_server , ':' , 2 );
+						$database_server = $bits[0].';unix_socket='.$bits[1];
+					}
 					$this->pdo = new PDO(
 						$database_type . ':host=' . $database_server . ';dbname=' . $database_name, 
 						$database_username,
