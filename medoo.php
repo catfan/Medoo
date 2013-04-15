@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * http://medoo.in
- * 
+ *
  * Copyright 2013, Angel Lai
  * Released under the MIT license
  */
@@ -12,11 +12,11 @@ class medoo
 
 	// For MySQL, MSSQL, Sybase
 	protected $server = 'localhost';
-	
+
 	protected $username = 'username';
-	
+
 	protected $password = 'password';
-	
+
 	public function __construct($database_name)
 	{
 		try {
@@ -26,7 +26,7 @@ class medoo
 				case 'mysql':
 				case 'pgsql':
 					$this->pdo = new PDO(
-						$type . ':host=' . $this->server . ';dbname=' . $database_name, 
+						$type . ':host=' . $this->server . ';dbname=' . $database_name,
 						$this->username,
 						$this->password
 					);
@@ -52,11 +52,11 @@ class medoo
 			echo $e->getMessage();
 		}
 	}
-	
+
 	public function query($query)
 	{
 		$this->queryString = $query;
-		
+
 		return $this->pdo->query($query);
 	}
 
@@ -82,7 +82,7 @@ class medoo
 
 		return implode($temp, ',');
 	}
-	
+
 	protected function inner_conjunct($data, $conjunctor, $outer_conjunctor)
 	{
 		$haystack = array();
@@ -245,7 +245,7 @@ class medoo
 
 		return $where_clause;
 	}
-		
+
 	public function select($table, $columns, $where = null)
 	{
 		if (is_callable($where) && $callback == null)
@@ -262,7 +262,7 @@ class medoo
 			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
 		) : false;
 	}
-		
+
 	public function insert($table, $data)
 	{
 		$keys = implode(',', array_keys($data));
@@ -272,10 +272,10 @@ class medoo
 			$values[] = is_array($value) ? serialize($value) : $value;
 		}
 		$this->query('INSERT INTO ' . $table . ' (' . $keys . ') VALUES (' . $this->data_implode(array_values($values), ',') . ')');
-		
+
 		return $this->pdo->lastInsertId();
 	}
-	
+
 	public function update($table, $data, $where = null)
 	{
 		$fields = array();
@@ -301,15 +301,15 @@ class medoo
 				}
 			}
 		}
-		
+
 		return $this->exec('UPDATE ' . $table . ' SET ' . implode(',', $fields) . $this->where_clause($where));
 	}
-	
+
 	public function delete($table, $where)
 	{
 		return $this->exec('DELETE FROM ' . $table . $this->where_clause($where));
 	}
-	
+
 	public function replace($table, $columns, $search = null, $replace = null, $where = null)
 	{
 		if (is_array($columns))
@@ -385,6 +385,23 @@ class medoo
 	public function sum($table, $column, $where = null)
 	{
 		return 0 + ($this->query('SELECT SUM(' . $column . ') FROM ' . $table . $this->where_clause($where))->fetchColumn());
+	}
+
+	public function begin_transaction(){
+	    return $this->pdo->beginTransaction();
+	}
+
+	public function commit(){
+	    return $this->pdo->commit();
+	}
+
+	public function rollback(){
+	    try{
+	        return $this->pdo->rollBack();
+	    }catch(PDOException $ex){
+	        echo $ex->getMessage();
+	        return false;
+	    }
 	}
 
 	public function error()
