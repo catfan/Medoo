@@ -1,6 +1,7 @@
 <?php
 /*!
  * Medoo database framework
+ * Version 0.8.1
  * http://medoo.in
  * 
  * Copyright 2013, Angel Lai
@@ -397,14 +398,15 @@ class medoo
 		return $this->queryString;
 	}
 
-	public function version()
-	{
-		return $this->pdo->getAttribute(PDO::ATTR_SERVER_VERSION);
-	}
-
 	public function info()
 	{
-		return $this->pdo->getAttribute(PDO::ATTR_SERVER_INFO);
+		return array(
+			'server' =>$this->pdo->getAttribute(PDO::ATTR_SERVER_INFO),
+			'client' => $this->pdo->getAttribute(PDO::ATTR_CLIENT_VERSION),
+			'driver' => $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME),
+			'version' => $this->pdo->getAttribute(PDO::ATTR_SERVER_VERSION),
+			'connection' => $this->pdo->getAttribute(PDO::ATTR_CONNECTION_STATUS)
+		);
 	}
 }
 ?>
