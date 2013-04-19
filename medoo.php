@@ -1,7 +1,6 @@
 <?php
 /*!
  * Medoo database framework
- * Version 0.8.1
  * http://medoo.in
  * 
  * Copyright 2013, Angel Lai
@@ -17,6 +16,8 @@ class medoo
 	protected $username = 'username';
 	
 	protected $password = 'password';
+
+	protected $charset = 'utf8';
 	
 	public function __construct($database_name)
 	{
@@ -48,6 +49,7 @@ class medoo
 					);
 					break;
 			}
+			$this->pdo->exec('SET NAMES \'' . $this->charset . '\'');
 		}
 		catch (PDOException $e) {
 			echo $e->getMessage();
