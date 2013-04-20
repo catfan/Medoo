@@ -13,6 +13,8 @@ class medoo
 	// For MySQL, MSSQL, Sybase
 	protected $server = 'localhost';
 	
+	protected $port = '3306';
+	
 	protected $username = 'username';
 	
 	protected $password = 'password';
@@ -26,7 +28,7 @@ class medoo
 				case 'mysql':
 				case 'pgsql':
 					$this->pdo = new PDO(
-						$type . ':host=' . $this->server . ';dbname=' . $database_name, 
+						$type . ':host=' . $this->server . ';port=' .$this->port. ';dbname=' . $database_name, 
 						$this->username,
 						$this->password
 					);
@@ -248,11 +250,11 @@ class medoo
 		
 	public function select($table, $columns, $where = null)
 	{
-		if (is_callable($where) && $callback == null)
+		/*if (is_callable($where) && $callback == null)
 		{
 			$callback = $where;
 			$where = '';
-		}
+		}*/
 
 		$query = $this->query('SELECT ' . (
 			is_array($columns) ? implode(', ', $columns) : $columns
