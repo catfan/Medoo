@@ -6,7 +6,7 @@ The Lightest PHP database framework to accelerate development
 Main Features
 ----------------
 ### Lightweight ###
-Only 7.8KB, one file included.
+Only 8KB, one file included.
 
 ### Easy ###
 Extremely easy to learn and use, friendly construction.
