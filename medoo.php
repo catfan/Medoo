@@ -2,6 +2,7 @@
 /*!
  * Medoo database framework
  * http://medoo.in
+ * Version 0.8.1
  * 
  * Copyright 2013, Angel Lai
  * Released under the MIT license
@@ -17,6 +18,7 @@ class medoo
 	
 	protected $password = 'password';
 
+	// Optional
 	protected $charset = 'utf8';
 	
 	public function __construct($database_name)
