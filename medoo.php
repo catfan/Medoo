@@ -253,12 +253,6 @@ class medoo
 		
 	public function select($table, $columns, $where = null)
 	{
-		if (is_callable($where) && $callback == null)
-		{
-			$callback = $where;
-			$where = '';
-		}
-
 		$query = $this->query('SELECT ' . (
 			is_array($columns) ? implode(', ', $columns) : $columns
 		) . ' FROM ' . $table . $this->where_clause($where));
