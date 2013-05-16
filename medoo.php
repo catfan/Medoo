@@ -399,7 +399,7 @@ class medoo
 	public function info()
 	{
 		return array(
-			'server' =>$this->pdo->getAttribute(PDO::ATTR_SERVER_INFO),
+			'server' => $this->pdo->getAttribute(PDO::ATTR_SERVER_INFO),
 			'client' => $this->pdo->getAttribute(PDO::ATTR_CLIENT_VERSION),
 			'driver' => $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME),
 			'version' => $this->pdo->getAttribute(PDO::ATTR_SERVER_VERSION),
