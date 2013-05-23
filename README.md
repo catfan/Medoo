@@ -1,47 +1,39 @@
-Medoo
-=====
+# Medoo
 
 The Lightest PHP database framework to accelerate development
 
-Main Features
-----------------
-### Lightweight ###
-Only 8KB, one file included.
+### Main Features
 
-### Easy ###
-Extremely easy to learn and use, friendly construction.
+* **Lightweight** - Only 8KB, one file included.
 
-### Powerful ###
-Support various common SQL queries.
+* **Easy** - Extremely easy to learn and use, friendly construction.
 
-### Compatible ###
-Support various SQL database, including MySQL, MSSQL, SQLite and more.
+* **Powerful** - Support various common SQL queries.
 
-### Security ###
-Prevent SQL injection.
+* **Compatible** - Support various SQL database, including MySQL, MSSQL, SQLite and more.
 
-### Free ###
-Under MIT license, you can use it anywhere if you want.
+* **Security** - Prevent SQL injection.
 
-Get Started
--------------
-```
-// Include Medoo
-require_once 'medoo.php';
+* **Free** - Under MIT license, you can use it anywhere if you want.
 
-// Initialize
-$database = new medoo('my_database');
+### Get Started
 
-// Enjoy
-$database->insert('account', [
-	'user_name' => 'foo'
-	'email' => 'foo@bar.com',
-	'age' => 25,
-	'lang' => ['en', 'fr', 'jp', 'cn']
-]);
-```
-Links
-------
-Official website: [http://medoo.in](http://medoo.in)
+    // Include Medoo
+    require_once 'medoo.php';
+    
+    // Initialize
+    $database = new medoo('my_database');
+    
+    // Enjoy
+    $database->insert('account', [
+        'user_name' => 'foo'
+    	'email' => 'foo@bar.com',
+    	'age' => 25,
+    	'lang' => ['en', 'fr', 'jp', 'cn']
+    ]);
 
-Documentation: [http://medoo.in/doc](http://medoo.in/doc)
+### Links
+
+* Official website: [http://medoo.in](http://medoo.in)
+
+* Documentation: [http://medoo.in/doc](http://medoo.in/doc)
