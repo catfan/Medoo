@@ -152,9 +152,16 @@ class medoo
 					{
 						if ($match[3] == '<>')
 						{
-							if (is_array($value) && is_numeric($value[0]) && is_numeric($value[1]))
+							if (is_array($value))
 							{
-								$wheres[] = $match[1] . ' BETWEEN ' . $value[0] . ' AND ' . $value[1];
+								if (is_numeric($value[0]) && is_numeric($value[1]))
+								{
+									$wheres[] = $match[1] . ' BETWEEN ' . $value[0] . ' AND ' . $value[1];
+								}
+								else
+								{
+									$wheres[] = $match[1] . ' BETWEEN ' . $this->quote($value[0]) . ' AND ' . $this->quote($value[1]);
+								}
 							}
 						}
 						else
