@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * http://medoo.in
- * Version 0.8.1
+ * Version 0.8.2
  * 
  * Copyright 2013, Angel Lai
  * Released under the MIT license
@@ -18,36 +18,65 @@ class medoo
 	
 	protected $password = 'password';
 
+	// For SQLite
+	protected $database_file = '';
+
 	// Optional
 	protected $charset = 'utf8';
+	protected $database_name = '';
+	protected $option = array();
 	
-	public function __construct($database_name)
+	public function __construct($options)
 	{
 		try {
+			$type = strtolower($this->database_type);
+
+			if (is_string($options))
+			{
+				if ($type == 'sqlite')
+				{
+					$this->database_file = $options;
+				}
+				else
+				{
+					$this->database_name = $options;
+				}
+			}
+			else
+			{
+				foreach ($options as $option => $value)
+				{
+					$this->$option = $value;
+				}
+			}
+
 			$type = strtolower($this->database_type);
 			switch ($type)
 			{
 				case 'mysql':
 				case 'pgsql':
 					$this->pdo = new PDO(
-						$type . ':host=' . $this->server . ';dbname=' . $database_name, 
+						$type . ':host=' . $this->server . ';dbname=' . $this->database_name, 
 						$this->username,
-						$this->password
+						$this->password,
+						$this->option
 					);
 					break;
 
 				case 'mssql':
 				case 'sybase':
 					$this->pdo = new PDO(
-						$type . ':host=' . $this->server . ';dbname=' . $database_name . ',' .
+						$type . ':host=' . $this->server . ';dbname=' . $this->database_name . ',' .
 						$this->username . ',' .
-						$this->password
+						$this->password,
+						$this->option
 					);
 					break;
 
 				case 'sqlite':
 					$this->pdo = new PDO(
-						$type . ':' . $database_name
+						$type . ':' . $this->database_file,
+						$this->option
 					);
 					break;
 			}
@@ -112,7 +141,7 @@ class medoo
 			}
 			else
 			{
-				preg_match('/([\w]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>)\])?/i', $key, $match);
+				preg_match('/([\w\.]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>)\])?/i', $key, $match);
 				if (isset($match[3]))
 				{
 					if ($match[3] == '' || $match[3] == '!')
@@ -123,9 +152,16 @@ class medoo
 					{
 						if ($match[3] == '<>')
 						{
-							if (is_array($value) && is_numeric($value[0]) && is_numeric($value[1]))
+							if (is_array($value))
 							{
-								$wheres[] = $match[1] . ' BETWEEN ' . $value[0] . ' AND ' . $value[1];
+								if (is_numeric($value[0]) && is_numeric($value[1]))
+								{
+									$wheres[] = $match[1] . ' BETWEEN ' . $value[0] . ' AND ' . $value[1];
+								}
+								else
+								{
+									$wheres[] = $match[1] . ' BETWEEN ' . $this->quote($value[0]) . ' AND ' . $this->quote($value[1]);
+								}
 							}
 						}
 						else
@@ -399,7 +435,7 @@ class medoo
 	public function info()
 	{
 		return array(
-			'server' =>$this->pdo->getAttribute(PDO::ATTR_SERVER_INFO),
+			'server' => $this->pdo->getAttribute(PDO::ATTR_SERVER_INFO),
 			'client' => $this->pdo->getAttribute(PDO::ATTR_CLIENT_VERSION),
 			'driver' => $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME),
 			'version' => $this->pdo->getAttribute(PDO::ATTR_SERVER_VERSION),
