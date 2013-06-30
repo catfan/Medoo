@@ -10,7 +10,7 @@
 	],
 	"require": {
 		"php": ">=5.1",
-		"ext-pdo": "*",
+		"ext-pdo": "*"
 	},
 	"suggest": {
 		"ext-pdo-mysql": "For MySQL databases",
