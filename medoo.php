@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * http://medoo.in
- * Version 0.8.5
+ * Version 0.8.6 develop
  * 
  * Copyright 2013, Angel Lai
  * Released under the MIT license
@@ -306,14 +306,12 @@ class medoo
 		return $where_clause;
 	}
 		
-	public function select($table, $columns, $where = null)
+	public function select($table, $join, $columns = null, $where = null)
 	{
-		$where_clause = $this->where_clause($where);
-
-		preg_match('/([a-zA-Z0-9_-]*)\s*(\[(\<|\>|\>\<|\<\>)\])?\s*([a-zA-Z0-9_-]*)/i', $table, $match);
-
-		if ($match[3] != '' && $match[4] != '')
+		if ($where)
 		{
+			$table_join = array();
+
 			$join_array = array(
 				'>' => 'LEFT',
 				'<' => 'RIGHT',
@@ -321,9 +319,44 @@ class medoo
 				'><' => 'INNER'
 			);
 
-			$table = $match[1] . ' ' . $join_array[ $match[3] ] . ' JOIN ' . $match[4] . ' ON ';
-			$where_clause = str_replace(' WHERE ', '', $where_clause);
+			foreach($join as $sub_table => $relation)
+			{
+				preg_match('/(\[(\<|\>|\>\<|\<\>)\])?([a-zA-Z0-9_-]*)/', $sub_table, $match);
+
+				if ($match[2] != '' && $match[3] != '')
+				{
+					if (is_string($relation))
+					{
+						$relation = "USING ('" . $relation . "')";
+					}
+
+					if (is_array($relation))
+					{
+						// For ['column1', 'column2']
+						if (isset($relation[0]))
+						{
+							$relation = "USING ('" . implode($relation, "', '") . "')";
+						}
+						// For ['column1' => 'column2']
+						else
+						{
+							$relation = 'USING ' . $table . '.' . key($relation) . ' = ' . $match[3] . '.' . current($relation);
+						}
+					}
+
+					$table_join[] = $join_array[ $match[2] ] . ' JOIN ' . $match[3] . ' ' . $relation;
+				}
+			}
+
+			$table .= ' ' . implode($table_join, ' ');
 		}
+		else
+		{
+			$where = $columns;
+			$columns = $join;
+		}
+
+		$where_clause = $this->where_clause($where);
 
 		$query = $this->query('SELECT ' . (
 			is_array($columns) ? implode(', ', $columns) : $columns
@@ -470,7 +503,13 @@ class medoo
 
 	public function last_query()
 	{
-		return $this->queryString;
+		return trim(preg_replace([
+			'/(SELECT|INSERT INTO|UPDATE|(DELETE )?FROM|(LEFT|RIGHT|FULL|INNER) JOIN|WHERE|ORDER BY|LIMIT)/',
+			"/(?<=[^']),/"
+		], [
+			"\n$1",
+			",\n\t"
+		], $this->queryString));
 	}
 
 	public function info()
