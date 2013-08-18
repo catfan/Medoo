@@ -173,6 +173,13 @@ class medoo
 							{
 								$wheres[] = $match[1] . ' ' . $match[3] . ' ' . $value;
 							}
+
+							$datetime = strtotime($value);
+
+							if ($datetime)
+							{
+								$wheres[] = $match[1] . ' ' . $match[3] . ' ' . $this->quote(date('Y-m-d H:i:s', $datetime));
+							}
 						}
 					}
 				}
