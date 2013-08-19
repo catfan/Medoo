@@ -14,6 +14,8 @@ class medoo
 	// For MySQL, MSSQL, Sybase
 	protected $server = 'localhost';
 	
+	protected $database_port = '1234';
+	
 	protected $username = 'username';
 	
 	protected $password = 'password';
@@ -56,7 +58,7 @@ class medoo
 				case 'mysql':
 				case 'pgsql':
 					$this->pdo = new PDO(
-						$type . ':host=' . $this->server . ';dbname=' . $this->database_name, 
+						$type . ':host=' . $this->server . ';port='.$this->database_port.';dbname=' . $this->database_name, 
 						$this->username,
 						$this->password,
 						$this->option
