@@ -83,7 +83,7 @@ class medoo
 			$this->pdo->exec('SET NAMES \'' . $this->charset . '\'');
 		}
 		catch (PDOException $e) {
-			echo $e->getMessage();
+			throw new Exception($e->getMessage());
 		}
 	}
 	
