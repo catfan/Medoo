@@ -173,12 +173,14 @@ class medoo
 							{
 								$wheres[] = $match[1] . ' ' . $match[3] . ' ' . $value;
 							}
-
-							$datetime = strtotime($value);
-
-							if ($datetime)
+							else
 							{
-								$wheres[] = $match[1] . ' ' . $match[3] . ' ' . $this->quote(date('Y-m-d H:i:s', $datetime));
+								$datetime = strtotime($value);
+
+								if ($datetime)
+								{
+									$wheres[] = $match[1] . ' ' . $match[3] . ' ' . $this->quote(date('Y-m-d H:i:s', $datetime));
+								}
 							}
 						}
 					}
@@ -199,6 +201,10 @@ class medoo
 
 							case 'array':
 								$wheres[] = $match[1] . ' IN (' . $this->array_quote($value) . ')';
+								break;
+
+							case 'integer':
+								$wheres[] = $match[1] . ' = ' . $value;
 								break;
 
 							default:
