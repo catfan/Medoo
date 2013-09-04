@@ -513,6 +513,21 @@ class medoo
 	{
 		return $this->pdo->errorInfo();
 	}
+	
+	public function commit()
+        {
+                return $this->pdo->commit();
+        }
+
+        public function beginTransaction()
+        {
+                return $this->pdo->beginTransaction();
+        }
+
+        public function rollback()
+        {
+                return $this->pdo->rollBack();
+        }
 
 	public function last_query()
 	{
