@@ -513,6 +513,16 @@ class medoo
 	{
 		return $this->pdo->errorInfo();
 	}
+	
+        public function disable_autocommit()
+        {
+                return 0 + ($this->pdo->query('SET autocommit=0'));
+        }
+
+        public function enable_autocommit()
+        {
+                return 0 + ($this->pdo->query('SET autocommit=1'));
+        }
 
 	public function last_query()
 	{
