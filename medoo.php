@@ -470,10 +470,12 @@ class medoo
 
 	public function get($table, $columns, $where = null)
 	{
-		if (is_array($where))
+		if (!isset($where))
 		{
-			$where['LIMIT'] = 1;
+			$where = array();
 		}
+		$where['LIMIT'] = 1;
+
 		$data = $this->select($table, $columns, $where);
 
 		return isset($data[0]) ? $data[0] : false;
