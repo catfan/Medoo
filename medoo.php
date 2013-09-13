@@ -387,7 +387,8 @@ class medoo
 
 		foreach ($data as $key => $value)
 		{
-			$values[] = is_array($value) ? serialize($value) : $value;
+			if (is_array($value)) $values[] = serialize($value);
+			elseif (is_null($value)) $values[] = 'NULL';
 		}
 
 		$this->exec('INSERT INTO ' . $table . ' (' . $keys . ') VALUES (' . $this->data_implode(array_values($values), ',') . ')');
@@ -404,6 +405,10 @@ class medoo
 			if (is_array($value))
 			{
 				$fields[] = $key . '=' . $this->quote(serialize($value));
+			}
+			elseif (is_null($value))
+			{
+				$fields[] = $key . '= NULL';
 			}
 			else
 			{
