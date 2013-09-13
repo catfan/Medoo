@@ -1,0 +1,24 @@
+{
+	"name": "catfan/medoo",
+	"type": "framework",
+	"description": "The Lightest PHP database framework to accelerate development",
+	"keywords": ["database", "SQL", "MySQL"],
+	"homepage": "http://medoo.in",
+	"license": "MIT",
+	"authors": [
+		{"name": "Angel Lai", "email": "angel.lai.cat@gmail.com"}
+	],
+	"require": {
+		"php": ">=5.1",
+		"ext-pdo": "*"
+	},
+	"suggest": {
+		"ext-pdo-mysql": "For MySQL databases",
+		"ext-pdo-mssql": "For MSSQL databases",
+		"ext-pdo-pqsql": "For PostgreSQL databases",
+		"ext-pdo-sqlite": "For SQLite databases"
+	},
+	"autoload": {
+		"files": ["medoo.php"]
+	}
+}
