@@ -207,7 +207,7 @@ class medoo
 								$wheres[] = $match[1] . ' = ' . $value;
 								break;
 
-							default:
+							case 'string':
 								$wheres[] = $match[1] . ' = ' . $this->quote($value);
 								break;
 						}
@@ -340,7 +340,7 @@ class medoo
 				{
 					if (is_string($relation))
 					{
-						$relation = "USING ('" . $relation . "')";
+						$relation = 'USING (' . $this->quote($relation) . ')';
 					}
 
 					if (is_array($relation))
@@ -371,9 +371,9 @@ class medoo
 
 		$where_clause = $this->where_clause($where);
 
-		$query = $this->query('SELECT ' . (
-			is_array($columns) ? implode(', ', $columns) : $columns
-		) . ' FROM ' . $table . $where_clause);
+		$columns = is_array($columns) ? implode(', ', $columns) : $columns;
+
+		$query = $this->query('SELECT ' . $columns . ' FROM ' . $table . $where_clause);
 
 		return $query ? $query->fetchAll(
 			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
@@ -382,15 +382,29 @@ class medoo
 		
 	public function insert($table, $data)
 	{
-		$keys = implode(',', array_keys($data));
+		$keys = implode(', ', array_keys($data));
 		$values = array();
 
 		foreach ($data as $key => $value)
 		{
-			$values[] = is_array($value) ? serialize($value) : $value;
+			switch (gettype($value))
+			{
+				case 'NULL':
+					$values[] = 'NULL';
+					break;
+
+				case 'array':
+					$values[] = $this->quote(serialize($value));
+					break;
+
+				case 'integer':
+				case 'string':
+					$values[] = $this->quote($value);
+					break;
+			}
 		}
 
-		$this->exec('INSERT INTO ' . $table . ' (' . $keys . ') VALUES (' . $this->data_implode(array_values($values), ',') . ')');
+		$this->exec('INSERT INTO ' . $table . ' (' . $keys . ') VALUES (' . implode($values, ', ') . ')');
 		
 		return $this->pdo->lastInsertId();
 	}
@@ -417,12 +431,26 @@ class medoo
 				}
 				else
 				{
-					$fields[] = $key . ' = ' . $this->quote($value);
+					switch (gettype($value))
+					{
+						case 'NULL':
+							$fields[] = $key . ' = NULL';
+							break;
+
+						case 'array':
+							$fields[] = $key . ' = ' . $this->quote(serialize($value));
+							break;
+
+						case 'integer':
+						case 'string':
+							$fields[] = $key . ' = ' . $this->quote($value);
+							break;
+					}
 				}
 			}
 		}
 		
-		return $this->exec('UPDATE ' . $table . ' SET ' . implode(',', $fields) . $this->where_clause($where));
+		return $this->exec('UPDATE ' . $table . ' SET ' . implode(', ', $fields) . $this->where_clause($where));
 	}
 	
 	public function delete($table, $where)
