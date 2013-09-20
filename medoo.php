@@ -13,6 +13,7 @@ class medoo
 
 	// For MySQL, MSSQL, Sybase
 	protected $server = 'localhost';
+	protected $port = 3306;
 	
 	protected $username = 'username';
 	
@@ -51,12 +52,21 @@ class medoo
 			}
 
 			$type = strtolower($this->database_type);
+
+			if (
+				isset($this->port) &&
+				is_int($this->port * 1)
+			)
+			{
+				$port = 'port=' . $this->port . ';';
+			}
+
 			switch ($type)
 			{
 				case 'mysql':
 				case 'pgsql':
 					$this->pdo = new PDO(
-						$type . ':host=' . $this->server . ';dbname=' . $this->database_name, 
+						$type . ':host=' . $this->server . ';' . $port . 'dbname=' . $this->database_name, 
 						$this->username,
 						$this->password,
 						$this->option
@@ -66,7 +76,7 @@ class medoo
 				case 'mssql':
 				case 'sybase':
 					$this->pdo = new PDO(
-						$type . ':host=' . $this->server . ';dbname=' . $this->database_name . ',' .
+						$type . ':host=' . $this->server . ';' . $port . 'dbname=' . $this->database_name . ',' .
 						$this->username . ',' .
 						$this->password,
 						$this->option
