@@ -13,9 +13,9 @@ class medoo
 
 	// For MySQL, MSSQL, Sybase
 	protected $server = 'localhost';
-	
+
 	protected $username = 'username';
-	
+
 	protected $password = 'password';
 
 	// For SQLite
@@ -25,7 +25,9 @@ class medoo
 	protected $charset = 'utf8';
 	protected $database_name = '';
 	protected $option = array();
-	
+
+	protected $queryString;
+
 	public function __construct($options)
 	{
 		try {
@@ -86,11 +88,11 @@ class medoo
 			echo $e->getMessage();
 		}
 	}
-	
+
 	public function query($query)
 	{
 		$this->queryString = $query;
-		
+
 		return $this->pdo->query($query);
 	}
 
@@ -117,7 +119,7 @@ class medoo
 
 		return implode($temp, ',');
 	}
-	
+
 	protected function inner_conjunct($data, $conjunctor, $outer_conjunctor)
 	{
 		$haystack = array();
@@ -305,7 +307,7 @@ class medoo
 
 		return $where_clause;
 	}
-		
+
 	public function select($table, $columns, $where = null)
 	{
 		$where_clause = $this->where_clause($where);
@@ -333,7 +335,7 @@ class medoo
 			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
 		) : false;
 	}
-		
+
 	public function insert($table, $data)
 	{
 		$keys = implode(',', array_keys($data));
@@ -345,10 +347,10 @@ class medoo
 		}
 
 		$this->exec('INSERT INTO ' . $table . ' (' . $keys . ') VALUES (' . $this->data_implode(array_values($values), ',') . ')');
-		
+
 		return $this->pdo->lastInsertId();
 	}
-	
+
 	public function update($table, $data, $where = null)
 	{
 		$fields = array();
@@ -375,15 +377,15 @@ class medoo
 				}
 			}
 		}
-		
+
 		return $this->exec('UPDATE ' . $table . ' SET ' . implode(',', $fields) . $this->where_clause($where));
 	}
-	
+
 	public function delete($table, $where)
 	{
 		return $this->exec('DELETE FROM ' . $table . $this->where_clause($where));
 	}
-	
+
 	public function replace($table, $columns, $search = null, $replace = null, $where = null)
 	{
 		if (is_array($columns))
