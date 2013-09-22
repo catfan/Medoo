@@ -13,7 +13,6 @@ class medoo
 
 	// For MySQL, MSSQL, Sybase
 	protected $server = 'localhost';
-	protected $port = 3306;
 	
 	protected $username = 'username';
 	
@@ -23,8 +22,12 @@ class medoo
 	protected $database_file = '';
 
 	// Optional
+	protected $port = 3306;
+
 	protected $charset = 'utf8';
+
 	protected $database_name = '';
+	
 	protected $option = array();
 	
 	public function __construct($options)
