@@ -395,7 +395,7 @@ class medoo
 		
 	public function insert($table, $data)
 	{
-		$keys = implode(', ', array_keys($data));
+		$keys = implode("', '", array_keys($data));
 		$values = array();
 
 		foreach ($data as $key => $value)
@@ -417,7 +417,7 @@ class medoo
 			}
 		}
 
-		$this->exec('INSERT INTO ' . $table . ' (' . $keys . ') VALUES (' . implode($values, ', ') . ')');
+		$this->exec('INSERT INTO ' . $table . ' (\'' . $keys . '\') VALUES (' . implode($values, ', ') . ')');
 		
 		return $this->pdo->lastInsertId();
 	}
