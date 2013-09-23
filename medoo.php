@@ -353,7 +353,7 @@ class medoo
 				{
 					if (is_string($relation))
 					{
-						$relation = 'USING (' . $this->quote($relation) . ')';
+						$relation = 'USING (' . $relation . ')';
 					}
 
 					if (is_array($relation))
@@ -361,12 +361,12 @@ class medoo
 						// For ['column1', 'column2']
 						if (isset($relation[0]))
 						{
-							$relation = "USING ('" . implode($relation, "', '") . "')";
+							$relation = "USING (" . implode($relation, ", ") . ")";
 						}
 						// For ['column1' => 'column2']
 						else
 						{
-							$relation = 'USING ' . $table . '.' . key($relation) . ' = ' . $match[3] . '.' . current($relation);
+							$relation = 'ON ' . $table . '.' . key($relation) . ' = ' . $match[3] . '.' . current($relation);
 						}
 					}
 
@@ -384,9 +384,7 @@ class medoo
 
 		$where_clause = $this->where_clause($where);
 
-		$columns = is_array($columns) ? implode(', ', $columns) : $columns;
-
-		$query = $this->query('SELECT ' . $columns . ' FROM ' . $table . $where_clause);
+		$query = $this->query('SELECT ' . (is_array($columns) ? implode(', ', $columns) : $columns) . ' FROM ' . $table . $where_clause);
 
 		return $query ? $query->fetchAll(
 			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
