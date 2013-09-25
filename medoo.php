@@ -119,6 +119,11 @@ class medoo
 		return $this->pdo->quote($string);
 	}
 
+	protected function column_quote($string)
+	{
+		return '`' . str_replace('.', '`.`', $string) . '`';
+	}
+
 	protected function array_quote($array)
 	{
 		$temp = array();
@@ -129,11 +134,6 @@ class medoo
 		}
 
 		return implode($temp, ',');
-	}
-
-	protected function column_quote($string)
-	{
-		return '`' . str_replace('.', '`.`', $string) . '`';
 	}
 	
 	protected function inner_conjunct($data, $conjunctor, $outer_conjunctor)
@@ -308,11 +308,17 @@ class medoo
 			}
 			if (isset($where['GROUP']))
 			{
-				$where_clause .= ' GROUP BY ' . $where['GROUP'];
+				$where_clause .= ' GROUP BY ' . $this->column_quote($where['GROUP']);
 			}
 			if (isset($where['ORDER']))
 			{
-				$where_clause .= ' ORDER BY ' . $where['ORDER'];
+				function order_quote($match)
+				{
+					return '`' . str_replace('.', '`.`', $match[0]) . '`';
+				}
+
+				$where_clause .= ' ORDER BY ' . preg_replace_callback('/(^[a-zA-Z0-9_\-\.]*)/', 'order_quote', $where['ORDER']);
+
 				if (isset($where['HAVING']))
 				{
 					$where_clause .= ' HAVING ' . $this->data_implode($where['HAVING'], '');
@@ -362,7 +368,7 @@ class medoo
 
 			foreach($join as $sub_table => $relation)
 			{
-				preg_match('/(\[(\<|\>|\>\<|\<\>)\])?([a-zA-Z0-9_-]*)/', $sub_table, $match);
+				preg_match('/(\[(\<|\>|\>\<|\<\>)\])?([a-zA-Z0-9_\-]*)/', $sub_table, $match);
 
 				if ($match[2] != '' && $match[3] != '')
 				{
@@ -581,13 +587,7 @@ class medoo
 
 	public function last_query()
 	{
-		return trim(preg_replace([
-			'/(SELECT|INSERT INTO|UPDATE|(DELETE )?FROM|(LEFT|RIGHT|FULL|INNER) JOIN|WHERE|ORDER BY|LIMIT)/',
-			"/(?<=[^']),/"
-		], [
-			"\n$1",
-			",\n\t"
-		], $this->queryString));
+		return $this->queryString;
 	}
 
 	public function info()
