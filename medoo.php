@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * http://medoo.in
- * Version 0.8.1
+ * Version 0.8.5
  * 
  * Copyright 2013, Angel Lai
  * Released under the MIT license
@@ -18,36 +18,65 @@ class medoo
 	
 	protected $password = 'password';
 
+	// For SQLite
+	protected $database_file = '';
+
 	// Optional
 	protected $charset = 'utf8';
+	protected $database_name = '';
+	protected $option = array();
 	
-	public function __construct($database_name)
+	public function __construct($options)
 	{
 		try {
+			$type = strtolower($this->database_type);
+
+			if (is_string($options))
+			{
+				if ($type == 'sqlite')
+				{
+					$this->database_file = $options;
+				}
+				else
+				{
+					$this->database_name = $options;
+				}
+			}
+			else
+			{
+				foreach ($options as $option => $value)
+				{
+					$this->$option = $value;
+				}
+			}
+
 			$type = strtolower($this->database_type);
 			switch ($type)
 			{
 				case 'mysql':
 				case 'pgsql':
 					$this->pdo = new PDO(
-						$type . ':host=' . $this->server . ';dbname=' . $database_name, 
+						$type . ':host=' . $this->server . ';dbname=' . $this->database_name, 
 						$this->username,
-						$this->password
+						$this->password,
+						$this->option
 					);
 					break;
 
 				case 'mssql':
 				case 'sybase':
 					$this->pdo = new PDO(
-						$type . ':host=' . $this->server . ';dbname=' . $database_name . ',' .
+						$type . ':host=' . $this->server . ';dbname=' . $this->database_name . ',' .
 						$this->username . ',' .
-						$this->password
+						$this->password,
+						$this->option
 					);
 					break;
 
 				case 'sqlite':
 					$this->pdo = new PDO(
-						$type . ':' . $database_name
+						$type . ':' . $this->database_file,
+						$this->option
 					);
 					break;
 			}
@@ -80,6 +109,7 @@ class medoo
 	protected function array_quote($array)
 	{
 		$temp = array();
+
 		foreach ($array as $value)
 		{
 			$temp[] = is_int($value) ? $value : $this->pdo->quote($value);
@@ -91,6 +121,7 @@ class medoo
 	protected function inner_conjunct($data, $conjunctor, $outer_conjunctor)
 	{
 		$haystack = array();
+
 		foreach ($data as $value)
 		{
 			$haystack[] = '(' . $this->data_implode($value, $conjunctor) . ')';
@@ -102,6 +133,7 @@ class medoo
 	protected function data_implode($data, $conjunctor, $outer_conjunctor = null)
 	{
 		$wheres = array();
+
 		foreach ($data as $key => $value)
 		{
 			if (($key == 'AND' || $key == 'OR') && is_array($value))
@@ -123,9 +155,16 @@ class medoo
 					{
 						if ($match[3] == '<>')
 						{
-							if (is_array($value) && is_numeric($value[0]) && is_numeric($value[1]))
+							if (is_array($value))
 							{
-								$wheres[] = $match[1] . ' BETWEEN ' . $value[0] . ' AND ' . $value[1];
+								if (is_numeric($value[0]) && is_numeric($value[1]))
+								{
+									$wheres[] = $match[1] . ' BETWEEN ' . $value[0] . ' AND ' . $value[1];
+								}
+								else
+								{
+									$wheres[] = $match[1] . ' BETWEEN ' . $this->quote($value[0]) . ' AND ' . $this->quote($value[1]);
+								}
 							}
 						}
 						else
@@ -145,8 +184,20 @@ class medoo
 					}
 					else
 					{
-						$wheres[] = is_array($value) ? $match[1] . ' IN (' . $this->array_quote($value) . ')' :
-							$match[1] . ' = ' . $this->quote($value);
+						switch (gettype($value))
+						{
+							case 'NULL':
+								$wheres[] = $match[1] . ' IS null';
+								break;
+
+							case 'array':
+								$wheres[] = $match[1] . ' IN (' . $this->array_quote($value) . ')';
+								break;
+
+							default:
+								$wheres[] = $match[1] . ' = ' . $this->quote($value);
+								break;
+						}
 					}
 				}
 			}
@@ -158,11 +209,13 @@ class medoo
 	public function where_clause($where)
 	{
 		$where_clause = '';
+
 		if (is_array($where))
 		{
 			$single_condition = array_diff_key($where, array_flip(
-				array('AND', 'OR', 'GROUP', 'ORDER', 'HAVING', 'LIMIT', 'LIKE', 'MATCH')
+				explode(' ', 'AND OR GROUP ORDER HAVING LIMIT LIKE MATCH')
 			));
+
 			if ($single_condition != array())
 			{
 				$where_clause = ' WHERE ' . $this->data_implode($single_condition, '');
@@ -180,10 +233,12 @@ class medoo
 				$like_query = $where['LIKE'];
 				if (is_array($like_query))
 				{
-					if (isset($like_query['OR']) || isset($like_query['AND']))
+					$is_OR = isset($like_query['OR']);
+
+					if ($is_OR || isset($like_query['AND']))
 					{
-						$connector = isset($like_query['OR']) ? 'OR' : 'AND';
-						$like_query = isset($like_query['OR']) ? $like_query['OR'] : $like_query['AND'];
+						$connector = $is_OR ? 'OR' : 'AND';
+						$like_query = $is_OR ? $like_query['OR'] : $like_query['AND'];
 					}
 					else
 					{
@@ -253,9 +308,26 @@ class medoo
 		
 	public function select($table, $columns, $where = null)
 	{
+		$where_clause = $this->where_clause($where);
+
+		preg_match('/([a-zA-Z0-9_-]*)\s*(\[(\<|\>|\>\<|\<\>)\])?\s*([a-zA-Z0-9_-]*)/i', $table, $match);
+
+		if ($match[3] != '' && $match[4] != '')
+		{
+			$join_array = array(
+				'>' => 'LEFT',
+				'<' => 'RIGHT',
+				'<>' => 'FULL',
+				'><' => 'INNER'
+			);
+
+			$table = $match[1] . ' ' . $join_array[ $match[3] ] . ' JOIN ' . $match[4] . ' ON ';
+			$where_clause = str_replace(' WHERE ', '', $where_clause);
+		}
+
 		$query = $this->query('SELECT ' . (
 			is_array($columns) ? implode(', ', $columns) : $columns
-		) . ' FROM ' . $table . $this->where_clause($where));
+		) . ' FROM ' . $table . $where_clause);
 
 		return $query ? $query->fetchAll(
 			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
@@ -266,11 +338,13 @@ class medoo
 	{
 		$keys = implode(',', array_keys($data));
 		$values = array();
+
 		foreach ($data as $key => $value)
 		{
 			$values[] = is_array($value) ? serialize($value) : $value;
 		}
-		$this->query('INSERT INTO ' . $table . ' (' . $keys . ') VALUES (' . $this->data_implode(array_values($values), ',') . ')');
+
+		$this->exec('INSERT INTO ' . $table . ' (' . $keys . ') VALUES (' . $this->data_implode(array_values($values), ',') . ')');
 		
 		return $this->pdo->lastInsertId();
 	}
@@ -278,6 +352,7 @@ class medoo
 	public function update($table, $data, $where = null)
 	{
 		$fields = array();
+
 		foreach ($data as $key => $value)
 		{
 			if (is_array($value))
@@ -314,6 +389,7 @@ class medoo
 		if (is_array($columns))
 		{
 			$replace_query = array();
+
 			foreach ($columns as $column => $replacements)
 			{
 				foreach ($replacements as $replace_search => $replace_replacement)
@@ -329,6 +405,7 @@ class medoo
 			if (is_array($search))
 			{
 				$replace_query = array();
+
 				foreach ($search as $replace_search => $replace_replacement)
 				{
 					$replace_query[] = $columns . ' = REPLACE(' . $columns . ', ' . $this->quote($replace_search) . ', ' . $this->quote($replace_replacement) . ')';
