@@ -312,12 +312,9 @@ class medoo
 			}
 			if (isset($where['ORDER']))
 			{
-				function order_quote($match)
-				{
-					return '`' . str_replace('.', '`.`', $match[0]) . '`';
-				}
+				preg_match('/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/', $where['ORDER'], $order_match);
 
-				$where_clause .= ' ORDER BY ' . preg_replace_callback('/(^[a-zA-Z0-9_\-\.]*)/', 'order_quote', $where['ORDER']);
+				$where_clause .= ' ORDER BY `' . str_replace('.', '`.`', $order_match[1]) . '` ' . $order_match[3];
 
 				if (isset($where['HAVING']))
 				{
