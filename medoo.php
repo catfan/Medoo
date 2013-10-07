@@ -303,7 +303,7 @@ class medoo
 				$match_query = $where['MATCH'];
 				if (is_array($match_query) && isset($match_query['columns']) && isset($match_query['keyword']))
 				{
-					$where_clause .= ($where_clause != '' ? ' AND ' : ' WHERE ') . ' MATCH (`' . implode($match_query['columns'], '`, `') . '`) AGAINST (' . $this->quote($match_query['keyword']) . ')';
+					$where_clause .= ($where_clause != '' ? ' AND ' : ' WHERE ') . ' MATCH (`' . str_replace('.', '`.`', implode($match_query['columns'], '`, `')) . '`) AGAINST (' . $this->quote($match_query['keyword']) . ')';
 				}
 			}
 			if (isset($where['GROUP']))
@@ -314,7 +314,7 @@ class medoo
 			{
 				preg_match('/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/', $where['ORDER'], $order_match);
 
-				$where_clause .= ' ORDER BY `' . str_replace('.', '`.`', $order_match[1]) . '` ' . $order_match[3];
+				$where_clause .= ' ORDER BY `' . str_replace('.', '`.`', $order_match[1]) . '` ' . (isset($order_match[3]) ? $order_match[3] : '');
 
 				if (isset($where['HAVING']))
 				{
