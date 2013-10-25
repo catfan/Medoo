@@ -168,9 +168,32 @@ class medoo
 				preg_match('/([\w\.]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>)\])?/i', $key, $match);
 				if (isset($match[3]))
 				{
-					if ($match[3] == '' || $match[3] == '!')
+					if ($match[3] == '')
 					{
 						$wheres[] = $this->column_quote($match[1]) . ' ' . $match[3] . '= ' . $this->quote($value);
+					}
+					elseif($match[3] == '!')
+					{
+						$column = $this->column_quote($match[1]);
+						
+						switch (gettype($value))
+						{
+							case 'NULL':
+								$wheres[] = $column . ' IS NOT null';
+								break;
+
+							case 'array':
+								$wheres[] = $column . ' NOT IN (' . $this->array_quote($value) . ')';
+								break;
+
+							case 'integer':
+								$wheres[] = $column . ' != ' . $value;
+								break;
+
+							case 'string':
+								$wheres[] = $column . ' != ' . $this->quote($value);
+								break;
+						}
 					}
 					else
 					{
