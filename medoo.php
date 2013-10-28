@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * http://medoo.in
- * Version 0.8.8
+ * Version 0.8.9
  * 
  * Copyright 2013, Angel Lai
  * Released under the MIT license
@@ -74,6 +74,7 @@ class medoo
 						$this->password,
 						$this->option
 					);
+					$this->pdo->exec('SET NAMES \'' . $this->charset . '\'');
 					break;
 
 				case 'mssql':
@@ -84,16 +85,18 @@ class medoo
 						$this->password,
 						$this->option
 					);
+					$this->pdo->exec('SET NAMES \'' . $this->charset . '\'');
 					break;
 
 				case 'sqlite':
 					$this->pdo = new PDO(
 						$type . ':' . $this->database_file,
+						null,
+						null,
 						$this->option
 					);
 					break;
 			}
-			$this->pdo->exec('SET NAMES \'' . $this->charset . '\'');
 		}
 		catch (PDOException $e) {
 			throw new Exception($e->getMessage());
