@@ -175,14 +175,14 @@ class medoo
 					{
 						$wheres[] = $this->column_quote($match[1]) . ' ' . $match[3] . '= ' . $this->quote($value);
 					}
-					elseif($match[3] == '!')
+					elseif ($match[3] == '!')
 					{
 						$column = $this->column_quote($match[1]);
 						
 						switch (gettype($value))
 						{
 							case 'NULL':
-								$wheres[] = $column . ' IS NOT null';
+								$wheres[] = $column . ' IS NOT NULL';
 								break;
 
 							case 'array':
@@ -244,7 +244,7 @@ class medoo
 						switch (gettype($value))
 						{
 							case 'NULL':
-								$wheres[] = $column . ' IS null';
+								$wheres[] = $column . ' IS NULL';
 								break;
 
 							case 'array':
