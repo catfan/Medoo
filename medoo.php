@@ -516,6 +516,19 @@ class medoo
 		
 		return $this->exec('UPDATE `' . $table . '` SET ' . implode(', ', $fields) . $this->where_clause($where));
 	}
+
+	public function toggle($table, $data, $where = null)
+	{
+		$fields = array();
+
+		foreach ($data as $key => $value)
+		{
+			$value = '`' . $value . '`';
+			$fields[] = $value . ' = NOT ' . $value;
+		}
+		
+		return $this->exec('UPDATE `' . $table . '` SET ' . implode(', ', $fields) . $this->where_clause($where));
+	}
 	
 	public function delete($table, $where)
 	{
