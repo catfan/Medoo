@@ -442,33 +442,46 @@ class medoo
 		) : false;
 	}
 		
-	public function insert($table, $data)
+	public function insert($table, $datas)
 	{
-		$keys = implode("`, `", array_keys($data));
-		$values = array();
+		$lastId = array();
 
-		foreach ($data as $key => $value)
+		// Check indexed or associative array
+		if (!isset( $datas[ 0 ] ))
 		{
-			switch (gettype($value))
-			{
-				case 'NULL':
-					$values[] = 'NULL';
-					break;
-
-				case 'array':
-					$values[] = $this->quote(serialize($value));
-					break;
-
-				case 'integer':
-				case 'string':
-					$values[] = $this->quote($value);
-					break;
-			}
+			$datas = array( $datas );
 		}
 
-		$this->exec('INSERT INTO `' . $table . '` (`' . $keys . '`) VALUES (' . implode($values, ', ') . ')');
+		foreach ($datas as $data)
+		{
+			$keys = implode("`, `", array_keys($data));
+			$values = array();
+
+			foreach ($data as $key => $value)
+			{
+				switch (gettype($value))
+				{
+					case 'NULL':
+						$values[] = 'NULL';
+						break;
+
+					case 'array':
+						$values[] = $this->quote(serialize($value));
+						break;
+
+					case 'integer':
+					case 'string':
+						$values[] = $this->quote($value);
+						break;
+				}
+			}
+
+			$this->exec('INSERT INTO `' . $table . '` (`' . $keys . '`) VALUES (' . implode($values, ', ') . ')');
+
+			$lastId[] = $this->pdo->lastInsertId();
+		}
 		
-		return $this->pdo->lastInsertId();
+		return count($lastId)  > 1 ? $lastId : $lastId[ 0 ];
 	}
 	
 	public function update($table, $data, $where = null)
