@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * http://medoo.in
- * Version 0.8.8
+ * Version 0.9
  * 
  * Copyright 2013, Angel Lai
  * Released under the MIT license
@@ -74,6 +74,7 @@ class medoo
 						$this->password,
 						$this->option
 					);
+					$this->pdo->exec('SET NAMES \'' . $this->charset . '\'');
 					break;
 
 				case 'mssql':
@@ -84,16 +85,18 @@ class medoo
 						$this->password,
 						$this->option
 					);
+					$this->pdo->exec('SET NAMES \'' . $this->charset . '\'');
 					break;
 
 				case 'sqlite':
 					$this->pdo = new PDO(
 						$type . ':' . $this->database_file,
+						null,
+						null,
 						$this->option
 					);
 					break;
 			}
-			$this->pdo->exec('SET NAMES \'' . $this->charset . '\'');
 		}
 		catch (PDOException $e) {
 			throw new Exception($e->getMessage());
@@ -168,9 +171,32 @@ class medoo
 				preg_match('/([\w\.]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>)\])?/i', $key, $match);
 				if (isset($match[3]))
 				{
-					if ($match[3] == '' || $match[3] == '!')
+					if ($match[3] == '')
 					{
 						$wheres[] = $this->column_quote($match[1]) . ' ' . $match[3] . '= ' . $this->quote($value);
+					}
+					elseif ($match[3] == '!')
+					{
+						$column = $this->column_quote($match[1]);
+						
+						switch (gettype($value))
+						{
+							case 'NULL':
+								$wheres[] = $column . ' IS NOT NULL';
+								break;
+
+							case 'array':
+								$wheres[] = $column . ' NOT IN (' . $this->array_quote($value) . ')';
+								break;
+
+							case 'integer':
+								$wheres[] = $column . ' != ' . $value;
+								break;
+
+							case 'string':
+								$wheres[] = $column . ' != ' . $this->quote($value);
+								break;
+						}
 					}
 					else
 					{
@@ -218,7 +244,7 @@ class medoo
 						switch (gettype($value))
 						{
 							case 'NULL':
-								$wheres[] = $column . ' IS null';
+								$wheres[] = $column . ' IS NULL';
 								break;
 
 							case 'array':
@@ -351,8 +377,9 @@ class medoo
 	public function select($table, $join, $columns = null, $where = null)
 	{
 		$table = '`' . $table . '`';
+		$join_key = array_keys($join);
 
-		if ($where)
+		if (strpos($join_key[0], '[') !== false)
 		{
 			$table_join = array();
 
@@ -416,33 +443,46 @@ class medoo
 		) : false;
 	}
 		
-	public function insert($table, $data)
+	public function insert($table, $datas)
 	{
-		$keys = implode("`, `", array_keys($data));
-		$values = array();
+		$lastId = array();
 
-		foreach ($data as $key => $value)
+		// Check indexed or associative array
+		if (!isset($datas[0]))
 		{
-			switch (gettype($value))
-			{
-				case 'NULL':
-					$values[] = 'NULL';
-					break;
-
-				case 'array':
-					$values[] = $this->quote(serialize($value));
-					break;
-
-				case 'integer':
-				case 'string':
-					$values[] = $this->quote($value);
-					break;
-			}
+			$datas = array($datas);
 		}
 
-		$this->exec('INSERT INTO `' . $table . '` (`' . $keys . '`) VALUES (' . implode($values, ', ') . ')');
+		foreach ($datas as $data)
+		{
+			$keys = implode("`, `", array_keys($data));
+			$values = array();
+
+			foreach ($data as $key => $value)
+			{
+				switch (gettype($value))
+				{
+					case 'NULL':
+						$values[] = 'NULL';
+						break;
+
+					case 'array':
+						$values[] = $this->quote(serialize($value));
+						break;
+
+					case 'integer':
+					case 'string':
+						$values[] = $this->quote($value);
+						break;
+				}
+			}
+
+			$this->exec('INSERT INTO `' . $table . '` (`' . $keys . '`) VALUES (' . implode($values, ', ') . ')');
+
+			$lastId[] = $this->pdo->lastInsertId();
+		}
 		
-		return $this->pdo->lastInsertId();
+		return count($lastId)  > 1 ? $lastId : $lastId[ 0 ];
 	}
 	
 	public function update($table, $data, $where = null)
