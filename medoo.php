@@ -378,7 +378,7 @@ class medoo
 	{
 		$table = '`' . $table . '`';
 
-		if ($where)
+		if (strpos(array_keys($join)[0], '[') !== false)
 		{
 			$table_join = array();
 
