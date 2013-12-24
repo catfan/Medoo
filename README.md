@@ -4,13 +4,13 @@ The Lightest PHP database framework to accelerate development
 
 ### Main Features
 
-* **Lightweight** - Only 8KB, one file included.
+* **Lightweight** - Only 10KB with one file.
 
 * **Easy** - Extremely easy to learn and use, friendly construction.
 
 * **Powerful** - Support various common SQL queries.
 
-* **Compatible** - Support various SQL database, including MySQL, MSSQL, SQLite and more.
+* **Compatible** - Support various SQL database, including MySQL, MSSQL, SQLite, MariaDB and more.
 
 * **Security** - Prevent SQL injection.
 
