@@ -377,8 +377,9 @@ class medoo
 	public function select($table, $join, $columns = null, $where = null)
 	{
 		$table = '`' . $table . '`';
+		$join_key = array_keys($join);
 
-		if (strpos(array_keys($join)[0], '[') !== false)
+		if (strpos($join_key[0], '[') !== false)
 		{
 			$table_join = array();
 
@@ -447,9 +448,9 @@ class medoo
 		$lastId = array();
 
 		// Check indexed or associative array
-		if (!isset( $datas[ 0 ] ))
+		if (!isset($datas[0]))
 		{
-			$datas = array( $datas );
+			$datas = array($datas);
 		}
 
 		foreach ($datas as $data)
