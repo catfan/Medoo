@@ -377,7 +377,7 @@ class medoo
 	public function select($table, $join, $columns = null, $where = null)
 	{
 		$table = '`' . $table . '`';
-		$join_key = array_keys($join);
+		$join_key = is_array($join) ? array_keys($join) : null;
 
 		if (strpos($join_key[0], '[') !== false)
 		{
