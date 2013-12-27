@@ -54,8 +54,6 @@ class medoo
 				}
 			}
 
-			$type = strtolower($this->database_type);
-
 			if (
 				isset($this->port) &&
 				is_int($this->port * 1)
