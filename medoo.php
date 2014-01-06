@@ -127,6 +127,11 @@ class medoo
 		return '`' . str_replace('.', '`.`', $string) . '`';
 	}
 
+	protected function column_quote_as($string)
+    	{
+            return str_replace('.', '`.`', $string);
+    	}
+    
 	protected function array_quote($array)
 	{
 		$temp = array();
@@ -429,10 +434,20 @@ class medoo
 
 		$where_clause = $this->where_clause($where);
 
+		if (is_array($columns)){
+			foreach($columns AS $Columns){
+				$columnsTemp =explode('[>]',$Columns);
+				$columnsVal = ($columnsTemp[1]!='') ? '\'' . $columnsTemp[0] . ' AS '\'' . $columnsTemp[1] . '\'':'\'' .$columnsTemp[0] . '\'';
+				$ColumnsEnd[] = $columnsVal;
+			}
+		}else{
+			$ColumnsEnd[]='\'' .$columns . '\'';
+		}
+
 		$query =
 			$this->query('SELECT ' .
 				(
-					is_array($columns) ? $this->column_quote( implode('`, `', $columns) ) :
+					 is_array($ColumnsEnd) ? $this->column_quote_as( implode(', ', $ColumnsEnd) ) :
 					($columns == '*' ? '*' : '`' . $columns . '`')
 				) .
 				' FROM ' . $table . $where_clause
