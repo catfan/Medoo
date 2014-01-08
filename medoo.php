@@ -273,9 +273,7 @@ class medoo
 
 		if (is_array($where))
 		{
-			$single_condition = array_diff_key($where, array_flip(
-				explode(' ', 'AND OR GROUP ORDER HAVING LIMIT LIKE MATCH')
-			));
+			$single_condition = array_diff_key($where, explode(' ', 'AND OR GROUP ORDER HAVING LIMIT LIKE MATCH'));
 
 			if ($single_condition != array())
 			{
