@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * http://medoo.in
- * Version 0.9
+ * Version 0.9.1
  * 
  * Copyright 2013, Angel Lai
  * Released under the MIT license
@@ -125,6 +125,40 @@ class medoo
 	protected function column_quote($string)
 	{
 		return '`' . str_replace('.', '`.`', $string) . '`';
+	}
+
+	protected function column_push($columns)
+	{
+		if ($columns == '*')
+		{
+			return $columns;
+		}
+
+		if (is_string($columns))
+		{
+			$columns = array($columns);
+		}
+
+		$stack = array();
+
+		foreach ($columns as $key => $value)
+		{
+			preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
+
+			if (
+				isset($match[1]) &&
+				isset($match[2])
+			)
+			{
+				array_push($stack, $this->column_quote( $match[1] ) . ' AS ' . $this->column_quote( $match[2] ));
+			}
+			else
+			{
+				array_push($stack, $this->column_quote( $value ));
+			}
+		}
+
+		return implode($stack, ',');
 	}
 
 	protected function array_quote($array)
@@ -427,16 +461,7 @@ class medoo
 			$columns = $join;
 		}
 
-		$where_clause = $this->where_clause($where);
-
-		$query =
-			$this->query('SELECT ' .
-				(
-					is_array($columns) ? $this->column_quote( implode('`, `', $columns) ) :
-					($columns == '*' ? '*' : '`' . $columns . '`')
-				) .
-				' FROM ' . $table . $where_clause
-			);
+		$query = $this->query('SELECT ' . $this->column_push($columns) . ' FROM ' . $table . $this->where_clause($where));
 
 		return $query ? $query->fetchAll(
 			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
