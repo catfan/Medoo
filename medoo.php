@@ -275,6 +275,7 @@ class medoo
 					else
 					{
 						$column = $this->column_quote($match[1]);
+
 						switch (gettype($value))
 						{
 							case 'NULL':
@@ -529,24 +530,26 @@ class medoo
 				{
 					if (is_numeric($value))
 					{
-						$fields[] = $match[1] . ' = ' . $match[1] . ' ' . $match[3] . ' ' . $value;
+						$fields[] = $this->column_quote($match[1]) . ' = ' . $this->column_quote($match[1]) . ' ' . $match[3] . ' ' . $value;
 					}
 				}
 				else
 				{
+					$column = $this->column_quote($key);
+
 					switch (gettype($value))
 					{
 						case 'NULL':
-							$fields[] = $key . ' = NULL';
+							$fields[] = $column . ' = NULL';
 							break;
 
 						case 'array':
-							$fields[] = $key . ' = ' . $this->quote(serialize($value));
+							$fields[] = $column . ' = ' . $this->quote(serialize($value));
 							break;
 
 						case 'integer':
 						case 'string':
-							$fields[] = $key . ' = ' . $this->quote($value);
+							$fields[] = $column . ' = ' . $this->quote($value);
 							break;
 					}
 				}
