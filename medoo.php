@@ -524,7 +524,7 @@ class medoo
 			}
 			else
 			{
-				preg_match('/([\w]+)(\[(\+|\-)\])?/i', $key, $match);
+				preg_match('/([\w]+)(\[(\+|\-|\*|\/)\])?/i', $key, $match);
 				if (isset($match[3]))
 				{
 					if (is_numeric($value))
