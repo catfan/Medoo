@@ -29,7 +29,11 @@ class medoo
 	protected $database_name = '';
 	
 	protected $option = array();
-	
+
+    //for debug
+    protected $logQueries = true;
+    public $queryHistory = [];
+
 	public function __construct($options)
 	{
 		try {
@@ -106,6 +110,7 @@ class medoo
 	public function query($query)
 	{
 		$this->queryString = $query;
+        $this->addQueryToHistory($query);
 		
 		return $this->pdo->query($query);
 	}
@@ -113,6 +118,7 @@ class medoo
 	public function exec($query)
 	{
 		$this->queryString = $query;
+        $this->addQueryToHistory($query);
 
 		return $this->pdo->exec($query);
 	}
@@ -637,5 +643,28 @@ class medoo
 			'connection' => $this->pdo->getAttribute(PDO::ATTR_CONNECTION_STATUS)
 		);
 	}
+
+    protected function addQueryToHistory($query, $timestamp=true)
+    {
+        if($this->logQueries == false) {
+            return;
+        }
+         if($timestamp) {
+             $date = new DateTime();
+             $query = $date->format("Y-m-d H:i:s:u") . $query;
+         }
+
+        $this->queryHistory[] = $query;
+    }
+
+    public function enableLogQueries()
+    {
+        $this->logQueries = true;
+    }
+
+    public function disableLogQueries()
+    {
+        $this->logQueries = false;
+    }
 }
 ?>
