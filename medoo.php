@@ -535,8 +535,6 @@ class medoo
 
 		foreach ($data as $key => $value)
 		{
-			$key = '`' . $key . '`';
-
 			if (is_array($value))
 			{
 				$fields[] = $key . '=' . $this->quote(serialize($value));
