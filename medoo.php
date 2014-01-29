@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * http://medoo.in
- * Version 0.9.1
+ * Version 0.9.2
  * 
  * Copyright 2013, Angel Lai
  * Released under the MIT license
@@ -30,6 +30,11 @@ class medoo
 	
 	protected $option = array();
 	
+	/**
+	 * @var string
+	 */
+	protected $queryString;
+
 	public function __construct($options)
 	{
 		try {
@@ -62,6 +67,10 @@ class medoo
 			)
 			{
 				$port = 'port=' . $this->port . ';';
+			}
+			else
+			{
+				$port = '';
 			}
 
 			switch ($type)
@@ -141,7 +150,7 @@ class medoo
 
 		$stack = array();
 
-		foreach ($columns as $key => $value)
+		foreach ($columns as $value)
 		{
 			preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
 
@@ -185,8 +194,10 @@ class medoo
 		return implode($outer_conjunctor . ' ', $haystack);
 	}
 
-	protected function data_implode($data, $conjunctor, $outer_conjunctor = null)
+
+	protected function data_implode($data, $conjunctor)
 	{
+		//TODO Review "$outer_conjunctor = null" for method definition
 		$wheres = array();
 
 		foreach ($data as $key => $value)
@@ -384,20 +395,9 @@ class medoo
 			}
 			if (isset($where['LIMIT']))
 			{
-				if (is_numeric($where['LIMIT']))
-				{
-					$where_clause .= ' LIMIT ' . $where['LIMIT'];
-				}
-				if (
-					is_array($where['LIMIT']) &&
-					is_numeric($where['LIMIT'][0]) &&
-					is_numeric($where['LIMIT'][1])
-				)
-				{
-					$where_clause .= ' LIMIT ' . $where['LIMIT'][0] . ',' . $where['LIMIT'][1];
-				}
-			}
-		}
+				$where_clause .= $this->limit_clause($where['LIMIT']);
+            }
+        }
 		else
 		{
 			if ($where != null)
@@ -484,7 +484,7 @@ class medoo
 			$keys = implode("`, `", array_keys($data));
 			$values = array();
 
-			foreach ($data as $key => $value)
+			foreach ($data as $value)
 			{
 				switch (gettype($value))
 				{
@@ -497,8 +497,26 @@ class medoo
 						break;
 
 					case 'integer':
+						$values[] = intval($value, 10);
+						break;
+
+					case 'double':
+						$values[] = floatval($value);
+						break;
+
 					case 'string':
 						$values[] = $this->quote($value);
+						break;
+
+					case 'object':
+						if ('medooSqlType' == get_class($value))
+						{
+							$values[] = $value;
+                        }
+						else
+						{
+							$values[] = $this->quote(serialize($value));
+                        }
 						break;
 				}
 			}
@@ -622,27 +640,41 @@ class medoo
 
 	public function count($table, $where = null)
 	{
-		return 0 + ($this->query('SELECT COUNT(*) FROM `' . $table . '`' . $this->where_clause($where))->fetchColumn());
+		return intval(
+			$this->query('SELECT COUNT(*) FROM `' . $table . '`' . $this->where_clause($where))->fetchColumn(), 10
+		);
 	}
 
 	public function max($table, $column, $where = null)
 	{
-		return 0 + ($this->query('SELECT MAX(`' . $column . '`) FROM `' . $table . '`' . $this->where_clause($where))->fetchColumn());
+		return intval(
+			$this->query('SELECT MAX(`' . $column . '`) FROM `' . $table . '`' . $this->where_clause($where))
+				->fetchColumn(), 10
+		);
 	}
 
 	public function min($table, $column, $where = null)
 	{
-		return 0 + ($this->query('SELECT MIN(`' . $column . '`) FROM `' . $table . '`' . $this->where_clause($where))->fetchColumn());
+		return intval(
+			$this->query('SELECT MIN(`' . $column . '`) FROM `' . $table . '`' . $this->where_clause($where))
+				->fetchColumn(), 10
+		);
 	}
 
 	public function avg($table, $column, $where = null)
 	{
-		return 0 + ($this->query('SELECT AVG(`' . $column . '`) FROM `' . $table . '`' . $this->where_clause($where))->fetchColumn());
+		return intval(
+			$this->query('SELECT AVG(`' . $column . '`) FROM `' . $table . '`' . $this->where_clause($where))
+				->fetchColumn(), 10
+		);
 	}
 
 	public function sum($table, $column, $where = null)
 	{
-		return 0 + ($this->query('SELECT SUM(`' . $column . '`) FROM `' . $table . '`' . $this->where_clause($where))->fetchColumn());
+		return intval(
+			$this->query('SELECT SUM(`' . $column . '`) FROM `' . $table . '`' . $this->where_clause($where))
+				->fetchColumn(), 10
+		);
 	}
 
 	public function error()
@@ -665,5 +697,47 @@ class medoo
 			'connection' => $this->pdo->getAttribute(PDO::ATTR_CONNECTION_STATUS)
 		);
 	}
+
+	public function limit_clause($limit)
+	{
+		if (is_array($limit))
+		{
+			if (count($limit) == 2 && is_numeric($limit[0]) && $limit[0] >= 0 && is_numeric($limit[1])
+			    && $limit[1] >= 0
+			)
+			{
+				return " LIMIT {$limit[0]}, {$limit[1]} ";
 }
-?>
+			elseif (count($limit) == 1 && $limit[0] >= 0)
+			{
+				return " LIMIT {$limit[0]} ";
+			}
+		}
+		elseif (is_numeric($limit) && $limit >= 0)
+		{
+			return " LIMIT {$limit} ";
+		}
+		return '';
+	}
+}
+
+class medooSqlType
+{
+
+	protected $_sqlType = '';
+
+	public function __construct($strSqlType)
+	{
+		$this->_sqlType = $strSqlType;
+	}
+
+	public function getValue()
+	{
+		return $this->_sqlType;
+	}
+
+	public function __toString()
+	{
+		return $this->getValue();
+	}
+}
