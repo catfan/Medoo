@@ -68,6 +68,7 @@ class medoo
 			{
 				case 'mysql':
 				case 'pgsql':
+				case 'sybase':
 					$this->pdo = new PDO(
 						$type . ':host=' . $this->server . ';' . $port . 'dbname=' . $this->database_name, 
 						$this->username,
@@ -78,10 +79,9 @@ class medoo
 					break;
 
 				case 'mssql':
-				case 'sybase':
 					$this->pdo = new PDO(
-						$type . ':host=' . $this->server . ';' . $port . 'dbname=' . $this->database_name . ',' .
-						$this->username . ',' .
+						'sqlsrv:server=' . $this->server . ';' . $port . 'database=' . $this->database_name,
+						$this->username,
 						$this->password,
 						$this->option
 					);
