@@ -33,11 +33,11 @@ class medoo
 	public function __construct($options)
 	{
 		try {
-			$type = strtolower($this->database_type);
+			$commands = array();
 
 			if (is_string($options))
 			{
-				if ($type == 'sqlite')
+				if (strtolower($this->database_type) == 'sqlite')
 				{
 					$this->database_file = $options;
 				}
@@ -61,54 +61,58 @@ class medoo
 				is_int($this->port * 1)
 			)
 			{
-				$port = 'port=' . $this->port . ';';
+				$port = $this->port;
 			}
+
+			$set_charset = "SET NAMES '" . $this->charset . "'";
 
 			switch ($type)
 			{
 				case 'mysql':
-				case 'pgsql':
-				case 'sybase':
-					$this->pdo = new PDO(
-						$type . ':host=' . $this->server . ';' . $port . 'dbname=' . $this->database_name, 
-						$this->username,
-						$this->password,
-						$this->option
-					);
-					$this->pdo->exec('SET NAMES \'' . $this->charset . '\'');
+					// Make MySQL using standard quoted identifier
+					$commands[] = 'SET GLOBAL SQL_MODE=ANSI_QUOTES';
 
-					// Keep MySQL using standard quoted identifier
-					if ($type == 'mysql')
-					{
-						$this->pdo->exec('SET GLOBAL SQL_MODE=ANSI_QUOTES');
-					}
+				case 'pgsql':
+					$dsn = $type . ':host=' . $this->server . (isset($port) ? ';port=' . $port : '') . ';dbname=' . $this->database_name;
+					$commands[] = $set_charset;
+
+					break;
+
+				case 'sybase':
+					$dsn = $type . ':host=' . $this->server . (isset($port) ? ',' . $port : '') . ';dbname=' . $this->database_name;
+					$commands[] = $set_charset;
 
 					break;
 
 				case 'mssql':
-					$this->pdo = new PDO(
-						'sqlsrv:server=' . $this->server . ';' . $port . 'database=' . $this->database_name,
-						$this->username,
-						$this->password,
-						$this->option
-					);
-
-					$this->pdo->exec('SET NAMES \'' . $this->charset . '\'');
+					$dsn = strpos(PHP_OS, 'WIN') !== false ?
+						'sqlsrv:server=' . $this->server . (isset($port) ? ',' . $port : '') . ';database=' . $this->database_name :
+						'dblib:host=' . $this->server . (isset($port) ? ':' . $port : '') . ';dbname=' . $this->database_name;
 
 					// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
-					$this->pdo->exec('SET QUOTED_IDENTIFIER ON');
-					
+					$commands[] = 'SET QUOTED_IDENTIFIER ON';
+					$commands[] = $set_charset;
+
 					break;
 
 				case 'sqlite':
-					$this->pdo = new PDO(
-						$type . ':' . $this->database_file,
-						null,
-						null,
-						$this->option
-					);
-					
+					$dsn = $type . ':' . $this->database_file;
+					$this->username = null;
+					$this->password = null;
+
 					break;
+			}
+
+			$this->pdo = new PDO(
+				$dsn, 
+				$this->username,
+				$this->password,
+				$this->option
+			);
+
+			foreach ($commands as $value)
+			{
+				$this->pdo->exec($value);	
 			}
 		}
 		catch (PDOException $e) {
