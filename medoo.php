@@ -244,6 +244,7 @@ class medoo
 								break;
 
 							case 'integer':
+							case 'double':
 								$wheres[] = $column . ' != ' . $value;
 								break;
 
@@ -307,6 +308,7 @@ class medoo
 								break;
 
 							case 'integer':
+							case 'double':
 								$wheres[] = $column . ' = ' . $value;
 								break;
 
@@ -517,6 +519,7 @@ class medoo
 						break;
 
 					case 'integer':
+					case 'double':
 					case 'string':
 						$values[] = $this->quote($value);
 						break;
@@ -568,6 +571,7 @@ class medoo
 							break;
 
 						case 'integer':
+						case 'double':
 						case 'string':
 							$fields[] = $column . ' = ' . $this->quote($value);
 							break;
