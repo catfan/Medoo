@@ -29,6 +29,9 @@ class medoo
 	protected $database_name = '';
 	
 	protected $option = array();
+
+	// Variable 
+	protected $queryString;
 	
 	public function __construct($options)
 	{
