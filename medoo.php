@@ -72,6 +72,7 @@ class medoo
 			switch ($type)
 			{
 				case 'mysql':
+				case 'mariadb':
 					// Make MySQL using standard quoted identifier
 					$commands[] = 'SET GLOBAL SQL_MODE=ANSI_QUOTES';
 
