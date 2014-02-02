@@ -532,7 +532,7 @@ class medoo
 			$lastId[] = $this->pdo->lastInsertId();
 		}
 		
-		return count($lastId)  > 1 ? $lastId : $lastId[ 0 ];
+		return count($lastId) > 1 ? $lastId : $lastId[ 0 ];
 	}
 	
 	public function update($table, $data, $where = null)
@@ -541,11 +541,9 @@ class medoo
 
 		foreach ($data as $key => $value)
 		{
-			$key = '"' . $key . '"';
-
 			if (is_array($value))
 			{
-				$fields[] = $key . '=' . $this->quote(serialize($value));
+				$fields[] = $this->column_quote($key) . '=' . $this->quote(serialize($value));
 			}
 			else
 			{
