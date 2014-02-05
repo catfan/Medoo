@@ -57,8 +57,6 @@ class medoo
 				}
 			}
 
-			$type = strtolower($this->database_type);
-
 			if (
 				isset($this->port) &&
 				is_int($this->port * 1)
@@ -683,11 +681,11 @@ class medoo
 	public function info()
 	{
 		return array(
-			'server' => $this->pdo->getAttribute(PDO::ATTR_SERVER_INFO),
+			'server' => $this->database_type=='sqlite'?NULL:$this->pdo->getAttribute(PDO::ATTR_SERVER_INFO),
 			'client' => $this->pdo->getAttribute(PDO::ATTR_CLIENT_VERSION),
 			'driver' => $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME),
 			'version' => $this->pdo->getAttribute(PDO::ATTR_SERVER_VERSION),
-			'connection' => $this->pdo->getAttribute(PDO::ATTR_CONNECTION_STATUS)
+			'connection' => $this->database_type=='sqlite'?NULL:$this->pdo->getAttribute(PDO::ATTR_CONNECTION_STATUS)
 		);
 	}
 }
