@@ -4,7 +4,7 @@ The Lightest PHP database framework to accelerate development
 
 ### Added Feature
 
-* **Transactions** - Now supports transactions
+* **Transactions** - Now supports transactions with three new methods: beginTransaction(), commit(), and rollback()
 
 ### Main Features
 
