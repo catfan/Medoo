@@ -14,9 +14,9 @@ class medoo
 	// For MySQL, MSSQL, Sybase
 	protected $server = 'localhost';
 	
-	protected $username = 'username';
+	protected $username = 'root';
 	
-	protected $password = 'password';
+	protected $password = '';
 
 	// For SQLite
 	protected $database_file = '';
@@ -637,5 +637,23 @@ class medoo
 			'connection' => $this->pdo->getAttribute(PDO::ATTR_CONNECTION_STATUS)
 		);
 	}
+        
+        public function beginTransaction() {
+            if (!$this->pdo->inTransaction()) {
+                $this->pdo->beginTransaction();
+            }
+        }
+        
+        public function rollback() {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollback();
+            }
+        }
+        
+        public function commit() {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->commit();
+            }
+        }
 }
 ?>

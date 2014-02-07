@@ -1,6 +1,10 @@
-# Medoo
+# Medoo with Transactions
 
 The Lightest PHP database framework to accelerate development
+
+### Added Feature
+
+* **Transactions** - Now supports transactions
 
 ### Main Features
 
