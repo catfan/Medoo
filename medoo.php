@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * http://medoo.in
- * Version 0.9.1
+ * Version 0.9.1.1
  * 
  * Copyright 2013, Angel Lai
  * Released under the MIT license
@@ -76,7 +76,7 @@ class medoo
 
 				case 'mysql':
 					// Make MySQL using standard quoted identifier
-					$commands[] = 'SET GLOBAL SQL_MODE=ANSI_QUOTES';
+					$commands[] = 'SET SQL_MODE=ANSI_QUOTES';
 
 				case 'pgsql':
 					$dsn = $type . ':host=' . $this->server . (isset($port) ? ';port=' . $port : '') . ';dbname=' . $this->database_name;
