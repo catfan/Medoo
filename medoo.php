@@ -14,7 +14,7 @@ class medoo
 	// For MySQL, MSSQL, Sybase
 	protected $server = 'localhost';
 	
-	protected $username = 'root';
+	protected $username = '';
 	
 	protected $password = '';
 
