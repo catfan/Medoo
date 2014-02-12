@@ -690,5 +690,23 @@ class medoo
 			'connection' => $this->pdo->getAttribute(PDO::ATTR_CONNECTION_STATUS)
 		);
 	}
+        
+        public function beginTransaction() {
+            if (!$this->pdo->inTransaction()) {
+                $this->pdo->beginTransaction();
+            }
+        }
+        
+        public function rollback() {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollback();
+            }
+        }
+        
+        public function commit() {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->commit();
+            }
+        }
 }
 ?>
