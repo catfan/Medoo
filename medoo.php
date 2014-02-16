@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * http://medoo.in
- * Version 0.9.1.1
+ * Version 0.9.2
  * 
  * Copyright 2013, Angel Lai
  * Released under the MIT license
@@ -315,6 +315,10 @@ class medoo
 								$wheres[] = $column . ' = ' . $value;
 								break;
 
+							case 'boolean':
+								$wheres[] = $column . ' = ' . ($value ? '1' : '0');
+								break;
+
 							case 'string':
 								$wheres[] = $column . ' = ' . $this->quote($value);
 								break;
@@ -521,6 +525,10 @@ class medoo
 						$values[] = $this->quote(serialize($value));
 						break;
 
+					case 'boolean':
+						$values[] = ($value ? '1' : '0');
+						break;
+
 					case 'integer':
 					case 'double':
 					case 'string':
@@ -569,6 +577,10 @@ class medoo
 
 						case 'array':
 							$fields[] = $column . ' = ' . $this->quote(serialize($value));
+							break;
+
+						case 'boolean':
+							$fields[] = $column . ' = ' . ($value ? '1' : '0');
 							break;
 
 						case 'integer':
