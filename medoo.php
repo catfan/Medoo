@@ -2,13 +2,16 @@
 /*!
  * Medoo database framework
  * http://medoo.in
- * Version 0.9.1.1
+ * Version 0.9.1.2
  * 
  * Copyright 2013, Angel Lai
  * Released under the MIT license
  */
 class medoo
 {
+	// To avoid multiple connection to same database
+	static private $connections = array();
+
 	protected $database_type = 'mysql';
 
 	// For MySQL, MSSQL, Sybase
@@ -35,6 +38,8 @@ class medoo
 
 	public function __construct($options)
 	{
+		if (isset(self::$connections[$this->db.$this->table]) ) return true;
+
 		try {
 			$commands = array();
 
@@ -434,7 +439,7 @@ class medoo
 		return $where_clause;
 	}
 
-	public function select($table, $join, $columns = null, $where = null)
+	public function select($table, $join, $columns = null, $where = null, $return = 'obj')
 	{
 		$table = '"' . $table . '"';
 		$join_key = is_array($join) ? array_keys($join) : null;
@@ -490,7 +495,7 @@ class medoo
 		$query = $this->query('SELECT ' . $this->column_push($columns) . ' FROM ' . $table . $this->where_clause($where));
 
 		return $query ? $query->fetchAll(
-			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
+			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN :  ($return == 'obj' ? PDO::FETCH_OBJ : PDO::FETCH_ASSOC)
 		) : false;
 	}
 
@@ -503,10 +508,9 @@ class medoo
 		{
 			$datas = array($datas);
 		}
-
 		foreach ($datas as $data)
 		{
-			$keys = implode('", "', array_keys($data));
+			$keys = implode('`, `', array_keys($data));
 			$values = array();
 
 			foreach ($data as $key => $value)
@@ -523,15 +527,18 @@ class medoo
 
 					case 'integer':
 					case 'double':
+						$values[] = $value;
+						break;
 					case 'string':
 						$values[] = $this->quote($value);
 						break;
 				}
 			}
 
-			$this->exec('INSERT INTO "' . $table . '" ("' . $keys . '") VALUES (' . implode($values, ', ') . ')');
+			$this->exec('INSERT INTO `' . $table . '` (`' . $keys . '`) VALUES (' . implode($values, ', ') . ')');
 
 			$lastId[] = $this->pdo->lastInsertId();
+			
 		}
 
 		return count($lastId) > 1 ? $lastId : $lastId[ 0 ];
