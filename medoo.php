@@ -402,9 +402,16 @@ class medoo
 			}
 			if (isset($where['ORDER']))
 			{
-				preg_match('/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/', $where['ORDER'], $order_match);
+				if (is_array($where['ORDER']))
+				{
+					$where_clause .= ' ORDER BY FIELD(' . $this->column_quote($where['ORDER'][0]) . ', ' . $this->array_quote($where['ORDER'][1]) . ')';
+				}
+				else
+				{
+					preg_match('/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/', $where['ORDER'], $order_match);
 
-				$where_clause .= ' ORDER BY "' . str_replace('.', '"."', $order_match[1]) . '" ' . (isset($order_match[3]) ? $order_match[3] : '');
+					$where_clause .= ' ORDER BY "' . str_replace('.', '"."', $order_match[1]) . '" ' . (isset($order_match[3]) ? $order_match[3] : '');
+				}
 
 				if (isset($where['HAVING']))
 				{
