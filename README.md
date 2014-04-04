@@ -10,7 +10,7 @@ The Lightest PHP database framework to accelerate development
 
 * **Powerful** - Support various common SQL queries.
 
-* **Compatible** - Support various SQL database, including MySQL, MSSQL, SQLite, MariaDB and more.
+* **Compatible** - Support various SQL database, including PostgreSQL, MySQL, MSSQL, SQLite, MariaDB and more.
 
 * **Security** - Prevent SQL injection.
 
@@ -18,28 +18,30 @@ The Lightest PHP database framework to accelerate development
 
 ### Get Started
 
-    // Include Medoo
-    require_once 'medoo.php';
-    
-    // Initialize
-    $database = new medoo('my_database');
-    
-    // Enjoy
-    $database->insert('account', [
-        'user_name' => 'foo'
-        'email' => 'foo@bar.com',
-        'age' => 25,
-        'lang' => ['en', 'fr', 'jp', 'cn']
-    ]);
+```php
+// Include Medoo
+require_once 'medoo.php';
 
-    // Or initialize via independent configuration
-    $database = new medoo([
-        'database_type' => 'mysql',
-        'database_name' => 'name',
-        'server' => 'localhost',
-        'username' => 'your_username',
-        'password' => 'your_password',
-    ]);
+// Initialize
+$database = new medoo('my_database');
+
+// Enjoy
+$database->insert('account', [
+    'user_name' => 'foo'
+    'email' => 'foo@bar.com',
+    'age' => 25,
+    'lang' => ['en', 'fr', 'jp', 'cn']
+]);
+
+// Or initialize via independent configuration
+$database = new medoo([
+    'database_type' => 'mysql',
+    'database_name' => 'name',
+    'server' => 'localhost',
+    'username' => 'your_username',
+    'password' => 'your_password',
+]);
+```
 
 ### Links
 
