@@ -215,13 +215,13 @@ class medoo
 		foreach ($data as $key => $value)
 		{
 			if (
-				($key == 'AND' || $key == 'OR') &&
+				preg_match("/^(AND|OR)\s*#?/i", $key, $relation_match) &&
 				is_array($value)
 			)
 			{
 				$wheres[] = 0 !== count(array_diff_key($value, array_keys(array_keys($value)))) ?
-					'(' . $this->data_implode($value, ' ' . $key) . ')' :
-					'(' . $this->inner_conjunct($value, ' ' . $key, $conjunctor) . ')';
+					'(' . $this->data_implode($value, ' ' . $relation_match[1]) . ')' :
+					'(' . $this->inner_conjunct($value, ' ' . $relation_match[1], $conjunctor) . ')';
 			}
 			else
 			{
