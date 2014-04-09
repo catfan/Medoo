@@ -652,12 +652,12 @@ class medoo
 
 	public function max($table, $column, $where = null)
 	{
-		return 0 + ($this->query('SELECT MAX("' . $column . '") FROM "' . $table . '"' . $this->where_clause($where))->fetchColumn());
+		return $this->query('SELECT MAX("' . $column . '") FROM "' . $table . '"' . $this->where_clause($where))->fetchColumn();
 	}
 
 	public function min($table, $column, $where = null)
 	{
-		return 0 + ($this->query('SELECT MIN("' . $column . '") FROM "' . $table . '"' . $this->where_clause($where))->fetchColumn());
+		return $this->query('SELECT MIN("' . $column . '") FROM "' . $table . '"' . $this->where_clause($where))->fetchColumn();
 	}
 
 	public function avg($table, $column, $where = null)
