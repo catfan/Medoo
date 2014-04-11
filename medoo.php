@@ -193,7 +193,7 @@ class medoo
 		return implode($stack, ',');
 	}
 
-	function data_implode($part, $separator = null){
+	public function data_implode($part, $separator = null){
 		$result = array();
 		$separator = isset($separator) ? trim($separator): $separator; 
 		
@@ -230,7 +230,7 @@ class medoo
  		return str_replace("  ", " " , implode( (isset($separator) ? $separator : 'AND'), $result)); 
 	}
 	
-	function get_term($key, $value){
+	private function get_term($key, $value){
 		$not = ''; 
 		preg_match('/([\w\.]+)(\[(#?)(\>|\<|\=|\!|\>\=|\<\=|\<\>)\])?/', $key, $match);
 
@@ -265,7 +265,7 @@ class medoo
 				if (isset($match[4]) && $match[3] === '<>' && count($value) == 2) {
 					return ' ('.$this->column_quote($match[1]).' BETWEEN '.$this->quote($value[0], $is_function).' AND '.$this->quote($value[1], $is_function).') '; 
 				} else {
-					return $this->column_quote($match[1]).$not.' IN ('.$this->data_implode($value, 'X').') '; 
+					return $this->column_quote($match[1]).$not.' IN ('.$this->data_implode($value, ',').') '; 
 				}
 				break;
 			case 'string':
