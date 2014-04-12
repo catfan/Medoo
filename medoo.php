@@ -701,13 +701,20 @@ class medoo
 
 	public function info()
 	{
-		return array(
-			'server' => $this->pdo->getAttribute(PDO::ATTR_SERVER_INFO),
-			'client' => $this->pdo->getAttribute(PDO::ATTR_CLIENT_VERSION),
-			'driver' => $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME),
-			'version' => $this->pdo->getAttribute(PDO::ATTR_SERVER_VERSION),
-			'connection' => $this->pdo->getAttribute(PDO::ATTR_CONNECTION_STATUS)
+		$output = array(
+			'server' => 'SERVER_INFO',
+			'driver' => 'DRIVER_NAME',
+			'client' => 'CLIENT_VERSION',
+			'version' => 'SERVER_VERSION',
+			'connection' => 'CONNECTION_STATUS'
 		);
+
+		foreach ($output as $key => $value)
+		{
+			$output[ $key ] = $this->pdo->getAttribute(constant('PDO::ATTR_' . $value));
+		}
+
+		return $output;
 	}
 }
 ?>
