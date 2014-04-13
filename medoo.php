@@ -337,6 +337,12 @@ class medoo
 
 		if (is_array($where))
 		{
+			$where_keys = array_keys($where);
+
+			$where_AND = preg_grep("/^AND\s*#?/i", $where_keys);
+
+			$where_OR = preg_grep("/^OR\s*#?/i", $where_keys);
+
 			$single_condition = array_diff_key($where, array_flip(
 				explode(' ', 'AND OR GROUP ORDER HAVING LIMIT LIKE MATCH')
 			));
@@ -345,13 +351,13 @@ class medoo
 			{
 				$where_clause = ' WHERE ' . $this->data_implode($single_condition, '');
 			}
-			if (isset($where['AND']))
+			if (!empty($where_AND))
 			{
-				$where_clause = ' WHERE ' . $this->data_implode($where['AND'], ' AND');
+				$where_clause = ' WHERE ' . $this->data_implode($where[ $where_AND[0] ], ' AND');
 			}
-			if (isset($where['OR']))
+			if (!empty($where_OR))
 			{
-				$where_clause = ' WHERE ' . $this->data_implode($where['OR'], ' OR');
+				$where_clause = ' WHERE ' . $this->data_implode($where[ $where_OR[0] ], ' OR');
 			}
 			if (isset($where['LIKE']))
 			{
