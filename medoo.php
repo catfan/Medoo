@@ -2,9 +2,9 @@
 /*!
  * Medoo database framework
  * http://medoo.in
- * Version 0.9.1.1
+ * Version 0.9.x
  * 
- * Copyright 2013, Angel Lai
+ * Copyright 2014, Angel Lai
  * Released under the MIT license
  */
 class medoo
@@ -148,7 +148,7 @@ class medoo
 
 	protected function column_quote($string)
 	{
-		return ' "' . str_replace('.', '"."', $string) . '"';
+		return ' "' . str_replace('.', '"."', $string) . '" ';
 	}
 
 	protected function column_push($columns)
@@ -193,7 +193,7 @@ class medoo
 		return implode($stack, ',');
 	}
 
-	public function data_implode($part, $separator = null){
+	function data_implode($part, $separator = null){
 		$result = array();
 		$separator = isset($separator) ? trim($separator): $separator; 
 		
@@ -230,7 +230,7 @@ class medoo
  		return str_replace("  ", " " , implode( (isset($separator) ? $separator : 'AND'), $result)); 
 	}
 	
-	private function get_term($key, $value){
+	function get_term($key, $value){
 		$not = ''; 
 		preg_match('/([\w\.]+)(\[(#?)(\>|\<|\=|\!|\>\=|\<\=|\<\>)\])?/', $key, $match);
 
@@ -281,7 +281,7 @@ class medoo
 				if (isset($match[4]) && $match[4] !== '!') {
 					return  $this->column_quote($match[1]) . ' ' . $match[4] . ' ' . $this->quote($value, $is_function). ' ';
 				} else {
-					return  $this->column_quote($match[1]).$not.'= '.$this->quote($value, $is_function); 
+					return  $this->column_quote($match[1]).$not.'= '.$this->quote($value, $is_function). ' '; 
 				}
 				break;
 		}
@@ -357,17 +357,30 @@ class medoo
 			if (isset($where['GROUP']))
 			{
 				$where_clause .= ' GROUP BY ' . $this->column_quote($where['GROUP']);
-			}
-			if (isset($where['ORDER']))
-			{
-				preg_match('/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/', $where['ORDER'], $order_match);
 
-				$where_clause .= ' ORDER BY "' . str_replace('.', '"."', $order_match[1]) . '" ' . (isset($order_match[3]) ? $order_match[3] : '');
-
-				if (isset($where['HAVING']))
+        if (isset($where['HAVING']))
 				{
 					$where_clause .= ' HAVING ' . $this->data_implode($where['HAVING'], '');
 				}
+			}
+			if (isset($where['ORDER']))
+			{
+        
+        $where_clause .= ' ORDER BY ';
+        $order_by_declaration = $where['ORDER'];
+        
+        if(is_string($order_by_declaration)){
+          $order_by_declaration = explode(',',$where['ORDER']);
+        }
+        
+        $order = array();
+        
+        foreach($order_by_declaration as $value) {
+          preg_match('/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/', trim($value), $order_match);
+          $order_by[] = $this->column_quote($value) .' '. (isset($order_match[3]) ? $order_match[3] : '');
+        }
+        $where_clause .= implode(' , ', $order_by);
+        
 			}
 			if (isset($where['LIMIT']))
 			{
