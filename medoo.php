@@ -4,7 +4,7 @@
  * http://medoo.in
  * Version 0.9.2
  * 
- * Copyright 2013, Angel Lai
+ * Copyright 2014, Angel Lai
  * Released under the MIT license
  */
 class medoo
@@ -37,6 +37,7 @@ class medoo
 	{
 		try {
 			$commands = array();
+			$type = strtolower($this->database_type);
 
 			if (is_string($options))
 			{
@@ -56,8 +57,6 @@ class medoo
 					$this->$option = $value;
 				}
 			}
-
-			$type = strtolower($this->database_type);
 
 			if (
 				isset($this->port) &&
@@ -81,13 +80,11 @@ class medoo
 				case 'pgsql':
 					$dsn = $type . ':host=' . $this->server . (isset($port) ? ';port=' . $port : '') . ';dbname=' . $this->database_name;
 					$commands[] = $set_charset;
-
 					break;
 
 				case 'sybase':
 					$dsn = $type . ':host=' . $this->server . (isset($port) ? ',' . $port : '') . ';dbname=' . $this->database_name;
 					$commands[] = $set_charset;
-
 					break;
 
 				case 'mssql':
@@ -98,14 +95,12 @@ class medoo
 					// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
 					$commands[] = 'SET QUOTED_IDENTIFIER ON';
 					$commands[] = $set_charset;
-
 					break;
 
 				case 'sqlite':
 					$dsn = $type . ':' . $this->database_file;
 					$this->username = null;
 					$this->password = null;
-
 					break;
 			}
 
@@ -168,10 +163,7 @@ class medoo
 		{
 			preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
 
-			if (
-				isset($match[1]) &&
-				isset($match[2])
-			)
+			if (isset($match[1], $match[2]))
 			{
 				array_push($stack, $this->column_quote( $match[1] ) . ' AS ' . $this->column_quote( $match[2] ));
 			}
@@ -226,6 +218,7 @@ class medoo
 			else
 			{
 				preg_match('/([\w\.]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>)\])?/i', $key, $match);
+
 				if (isset($match[3]))
 				{
 					if ($match[3] == '')
@@ -338,9 +331,7 @@ class medoo
 		if (is_array($where))
 		{
 			$where_keys = array_keys($where);
-
 			$where_AND = preg_grep("/^AND\s*#?/i", $where_keys);
-
 			$where_OR = preg_grep("/^OR\s*#?/i", $where_keys);
 
 			$single_condition = array_diff_key($where, array_flip(
@@ -351,20 +342,25 @@ class medoo
 			{
 				$where_clause = ' WHERE ' . $this->data_implode($single_condition, '');
 			}
+
 			if (!empty($where_AND))
 			{
 				$where_clause = ' WHERE ' . $this->data_implode($where[ $where_AND[0] ], ' AND');
 			}
+
 			if (!empty($where_OR))
 			{
 				$where_clause = ' WHERE ' . $this->data_implode($where[ $where_OR[0] ], ' OR');
 			}
+
 			if (isset($where['LIKE']))
 			{
 				$like_query = $where['LIKE'];
+
 				if (is_array($like_query))
 				{
 					$is_OR = isset($like_query['OR']);
+					$clause_wrap = array();
 
 					if ($is_OR || isset($like_query['AND']))
 					{
@@ -376,7 +372,6 @@ class medoo
 						$connector = 'AND';
 					}
 
-					$clause_wrap = array();
 					foreach ($like_query as $column => $keyword)
 					{
 						if (is_array($keyword))
@@ -391,21 +386,26 @@ class medoo
 							$clause_wrap[] = $this->column_quote($column) . ' LIKE ' . $this->quote('%' . $keyword . '%');
 						}
 					}
+
 					$where_clause .= ($where_clause != '' ? ' AND ' : ' WHERE ') . '(' . implode($clause_wrap, ' ' . $connector . ' ') . ')';
 				}
 			}
+
 			if (isset($where['MATCH']))
 			{
 				$match_query = $where['MATCH'];
+
 				if (is_array($match_query) && isset($match_query['columns']) && isset($match_query['keyword']))
 				{
 					$where_clause .= ($where_clause != '' ? ' AND ' : ' WHERE ') . ' MATCH ("' . str_replace('.', '"."', implode($match_query['columns'], '", "')) . '") AGAINST (' . $this->quote($match_query['keyword']) . ')';
 				}
 			}
+
 			if (isset($where['GROUP']))
 			{
 				$where_clause .= ' GROUP BY ' . $this->column_quote($where['GROUP']);
 			}
+
 			if (isset($where['ORDER']))
 			{
 				if (is_array($where['ORDER']))
@@ -424,12 +424,14 @@ class medoo
 					$where_clause .= ' HAVING ' . $this->data_implode($where['HAVING'], '');
 				}
 			}
+
 			if (isset($where['LIMIT']))
 			{
 				if (is_numeric($where['LIMIT']))
 				{
 					$where_clause .= ' LIMIT ' . $where['LIMIT'];
 				}
+
 				if (
 					is_array($where['LIMIT']) &&
 					is_numeric($where['LIMIT'][0]) &&
@@ -578,6 +580,7 @@ class medoo
 		foreach ($data as $key => $value)
 		{
 			preg_match('/([\w]+)(\[(\+|\-|\*|\/)\])?/i', $key, $match);
+
 			if (isset($match[3]))
 			{
 				if (is_numeric($value))
@@ -606,7 +609,6 @@ class medoo
 						{
 							$fields[] = $column . ' = ' . $this->quote(serialize($value));
 						}
-
 						break;
 
 					case 'boolean':
@@ -643,6 +645,7 @@ class medoo
 					$replace_query[] = $column . ' = REPLACE("' . $column . '", ' . $this->quote($replace_search) . ', ' . $this->quote($replace_replacement) . ')';
 				}
 			}
+
 			$replace_query = implode(', ', $replace_query);
 			$where = $search;
 		}
@@ -656,6 +659,7 @@ class medoo
 				{
 					$replace_query[] = $columns . ' = REPLACE("' . $columns . '", ' . $this->quote($replace_search) . ', ' . $this->quote($replace_replacement) . ')';
 				}
+
 				$replace_query = implode(', ', $replace_query);
 				$where = $replace;
 			}
@@ -674,6 +678,7 @@ class medoo
 		{
 			$where = array();
 		}
+
 		$where['LIMIT'] = 1;
 
 		$data = $this->select($table, $columns, $where);
