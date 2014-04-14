@@ -2,9 +2,9 @@
 /*!
  * Medoo database framework
  * http://medoo.in
- * Version 0.9.1.1
+ * Version 0.9.x
  * 
- * Copyright 2013, Angel Lai
+ * Copyright 2014, Angel Lai
  * Released under the MIT license
  */
 class medoo
@@ -33,6 +33,8 @@ class medoo
 	// Variable 
 	protected $queryString;
 
+	private static $AGGREGATIONS = array ('AVG','SUM','MIN','COUNT','MAX');	
+	
 	public function __construct($options)
 	{
 		try {
@@ -140,193 +142,153 @@ class medoo
 		return $this->pdo->exec($query);
 	}
 
-	public function quote($string)
-	{
-		return $this->pdo->quote($string);
+	public function quote($string, $is_function = false) {
+		return $is_function ? $string : $this->pdo->quote($string);
 	}
 
 	protected function column_quote($string)
 	{
-		return '"' . str_replace('.', '"."', $string) . '"';
+		return ' "' . str_replace('.', '"."', $string) . '" ';
 	}
 
 	protected function column_push($columns)
 	{
+		
 		if ($columns == '*')
 		{
 			return $columns;
 		}
 
-		if (is_string($columns))
+		if (is_string($columns) || is_int($columns))
 		{
-			$columns = array($columns);
+			$columns = array((string) $columns);
 		}
-
 		$stack = array();
 
 		foreach ($columns as $key => $value)
 		{
-			preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
-
+			preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-\*]*)\)/i', $value, $match);
+		
 			if (
 				isset($match[1]) &&
 				isset($match[2])
 			)
-			{
-				array_push($stack, $this->column_quote( $match[1] ) . ' AS ' . $this->column_quote( $match[2] ));
+			{	
+				if(in_array(strtoupper($match[1]), Medoo::$AGGREGATIONS)){
+					$a = $match[1]  . '(' .( $match[2] == '*' ? $match[2] : $this->column_quote( $match[2] )) . ')';
+					array_push($stack, $a);
+				} else {
+					array_push($stack, $this->column_quote( $match[1] ) . ' AS ' . $this->column_quote( $match[2] ));
+				}
 			}
 			else
 			{
-				array_push($stack, $this->column_quote( $value ));
+				if($value == "1"){
+					array_push($stack, $value);
+				} else {
+					array_push($stack, $this->column_quote( $value ));
+				}
 			}
 		}
-
 		return implode($stack, ',');
 	}
 
-	protected function array_quote($array)
-	{
-		$temp = array();
-
-		foreach ($array as $value)
-		{
-			$temp[] = is_int($value) ? $value : $this->pdo->quote($value);
-		}
-
-		return implode($temp, ',');
-	}
-
-	protected function inner_conjunct($data, $conjunctor, $outer_conjunctor)
-	{
-		$haystack = array();
-
-		foreach ($data as $value)
-		{
-			$haystack[] = '(' . $this->data_implode($value, $conjunctor) . ')';
-		}
-
-		return implode($outer_conjunctor . ' ', $haystack);
-	}
-
-	protected function data_implode($data, $conjunctor, $outer_conjunctor = null)
-	{
-		$wheres = array();
-
-		foreach ($data as $key => $value)
-		{
-			if (
-				($key == 'AND' || $key == 'OR') &&
-				is_array($value)
-			)
-			{
-				$wheres[] = 0 !== count(array_diff_key($value, array_keys(array_keys($value)))) ?
-					'(' . $this->data_implode($value, ' ' . $key) . ')' :
-					'(' . $this->inner_conjunct($value, ' ' . $key, $conjunctor) . ')';
-			}
-			else
-			{
-				preg_match('/([\w\.]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>)\])?/i', $key, $match);
-				if (isset($match[3]))
-				{
-					if ($match[3] == '')
-					{
-						$wheres[] = $this->column_quote($match[1]) . ' ' . $match[3] . '= ' . $this->quote($value);
+	function data_implode($part, $separator = null){
+		$result = array();
+		$separator = isset($separator) ? trim($separator): $separator; 
+		
+		if(is_array($part)){
+			// boolean block and value lists
+			foreach($part as $key=>$value){
+				$key = is_string($key) ? trim($key) : $key; 
+				if($key === 'ORDER' || $key === 'GROUP' ||$key === 'HAVING' 
+				 ||$key === 'LIMIT' ||$key === 'LIKE' ||$key === 'MATCH' ){
+					break;
+				} elseif($key === 'AND' || $key === 'OR') {
+					if( isset($separator) ) {
+						$result[] = ' ('.$this->data_implode($value, $key). ') '; 
+					} else {
+						$result[] = $this->data_implode($value, $key); 
 					}
-					elseif ($match[3] == '!')
-					{
-						$column = $this->column_quote($match[1]);
-						
-						switch (gettype($value))
-						{
-							case 'NULL':
-								$wheres[] = $column . ' IS NOT NULL';
-								break;
-
-							case 'array':
-								$wheres[] = $column . ' NOT IN (' . $this->array_quote($value) . ')';
-								break;
-
-							case 'integer':
-							case 'double':
-								$wheres[] = $column . ' != ' . $value;
-								break;
-
-							case 'string':
-								$wheres[] = $column . ' != ' . $this->quote($value);
-								break;
-						}
+				} elseif( is_int($key) ){
+					if( $separator === 'OR' ) {
+						$result[] = ' ('.$this->data_implode($value, 'AND'). ') '; 
+					} elseif( $separator === 'AND' ) {	
+						$result[] = ' ('.$this->data_implode($value, 'OR'). ') '; 
+					} else {
+						$result[] = $this->data_implode($value, ',') ; 
 					}
-					else
-					{
-						if ($match[3] == '<>')
-						{
-							if (is_array($value))
-							{
-								if (is_numeric($value[0]) && is_numeric($value[1]))
-								{
-									$wheres[] = $this->column_quote($match[1]) . ' BETWEEN ' . $value[0] . ' AND ' . $value[1];
-								}
-								else
-								{
-									$wheres[] = $this->column_quote($match[1]) . ' BETWEEN ' . $this->quote($value[0]) . ' AND ' . $this->quote($value[1]);
-								}
-							}
-						}
-						else
-						{
-							if (is_numeric($value))
-							{
-								$wheres[] = $this->column_quote($match[1]) . ' ' . $match[3] . ' ' . $value;
-							}
-							else
-							{
-								$datetime = strtotime($value);
-
-								if ($datetime)
-								{
-									$wheres[] = $this->column_quote($match[1]) . ' ' . $match[3] . ' ' . $this->quote(date('Y-m-d H:i:s', $datetime));
-								}
-							}
-						}
-					}
+				} else {
+					// not a key less array or a boolean block
+					$result[] = $this->get_term($key, $value); 
 				}
-				else
-				{
-					if (is_int($key))
-					{
-						$wheres[] = $this->quote($value);
-					}
-					else
-					{
-						$column = $this->column_quote($match[1]);
+			}
+		} else {
+			// single value
+			$result[] = $this->quote($part); 
+		}
+ 		return str_replace("  ", " " , implode( (isset($separator) ? $separator : 'AND'), $result)); 
+	}
+	
+	function get_term($key, $value){
+		$not = ''; 
+		preg_match('/([\w\.]+)(\[(#?)(\>|\<|\=|\!|\>\=|\<\=|\<\>)\])?/', $key, $match);
 
-						switch (gettype($value))
-						{
-							case 'NULL':
-								$wheres[] = $column . ' IS NULL';
-								break;
-
-							case 'array':
-								$wheres[] = $column . ' IN (' . $this->array_quote($value) . ')';
-								break;
-
-							case 'integer':
-							case 'double':
-								$wheres[] = $column . ' = ' . $value;
-								break;
-
-							case 'string':
-								$wheres[] = $column . ' = ' . $this->quote($value);
-								break;
-						}
+		$is_function = isset($match[3]); 
+		
+		if (isset($match[4])) {
+			if ($match[4] == '') {
+				 return $this->column_quote($key).'='.$this->quote($value, $is_function); 
+			} else {
+				// not block
+				if ($match[4] == '!') {
+					switch (gettype($value)) {
+						case 'NULL':
+						case 'array':
+							$not = 'NOT ';
+							break;
+						case 'integer':
+						case 'double':
+						case 'string':
+							$not = '!'; 
+							break;
 					}
 				}
 			}
 		}
+		switch (gettype($value)){
+			case 'NULL':
+				return $this->column_quote($key).' IS '.$not.$this->quote($value, $is_function); 
+				break;
 
-		return implode($conjunctor . ' ', $wheres);
+			case 'array':
+				if (isset($match[4]) && $match[3] === '<>' && count($value) == 2) {
+					return ' ('.$this->column_quote($match[1]).' BETWEEN '.$this->quote($value[0], $is_function).' AND '.$this->quote($value[1], $is_function).') '; 
+				} else {
+					return $this->column_quote($match[1]).$not.' IN ('.$this->data_implode($value, ',').') '; 
+				}
+				break;
+			case 'string':
+				// for the date feature you need a condition (e.g. [=] or [!=])
+				if(isset($match[3])){
+					$datetime = strtotime($value);
+					if($datetime){
+						$value = date('Y-m-d H:i:s', $datetime); 
+					}
+				}
+			case 'integer':
+			case 'double':
+				if (isset($match[4]) && $match[4] !== '!') {
+					return  $this->column_quote($match[1]) . ' ' . $match[4] . ' ' . $this->quote($value, $is_function). ' ';
+				} else {
+					return  $this->column_quote($match[1]).$not.'= '.$this->quote($value, $is_function). ' '; 
+				}
+				break;
+		}
+		throw new Exception('Unknown term type'); 
 	}
 
+	
 	public function where_clause($where)
 	{
 		$where_clause = '';
@@ -343,11 +305,11 @@ class medoo
 			}
 			if (isset($where['AND']))
 			{
-				$where_clause = ' WHERE ' . $this->data_implode($where['AND'], ' AND');
+				$where_clause = ' WHERE ' . $this->data_implode($where['AND'], 'AND ');
 			}
 			if (isset($where['OR']))
 			{
-				$where_clause = ' WHERE ' . $this->data_implode($where['OR'], ' OR');
+				$where_clause = ' WHERE ' . $this->data_implode($where['OR'], 'OR ');
 			}
 			if (isset($where['LIKE']))
 			{
@@ -395,17 +357,30 @@ class medoo
 			if (isset($where['GROUP']))
 			{
 				$where_clause .= ' GROUP BY ' . $this->column_quote($where['GROUP']);
-			}
-			if (isset($where['ORDER']))
-			{
-				preg_match('/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/', $where['ORDER'], $order_match);
 
-				$where_clause .= ' ORDER BY "' . str_replace('.', '"."', $order_match[1]) . '" ' . (isset($order_match[3]) ? $order_match[3] : '');
-
-				if (isset($where['HAVING']))
+        if (isset($where['HAVING']))
 				{
 					$where_clause .= ' HAVING ' . $this->data_implode($where['HAVING'], '');
 				}
+			}
+			if (isset($where['ORDER']))
+			{
+        
+        $where_clause .= ' ORDER BY ';
+        $order_by_declaration = $where['ORDER'];
+        
+        if(is_string($order_by_declaration)){
+          $order_by_declaration = explode(',',$where['ORDER']);
+        }
+        
+        $order = array();
+        
+        foreach($order_by_declaration as $value) {
+          preg_match('/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/', trim($value), $order_match);
+          $order_by[] = $this->column_quote($value) .' '. (isset($order_match[3]) ? $order_match[3] : '');
+        }
+        $where_clause .= implode(' , ', $order_by);
+        
 			}
 			if (isset($where['LIMIT']))
 			{
@@ -434,7 +409,7 @@ class medoo
 		return $where_clause;
 	}
 
-	public function select($table, $join, $columns = null, $where = null)
+	private function select_query($table, $join, $columns = null, $where = null)
 	{
 		$table = '"' . $table . '"';
 		$join_key = is_array($join) ? array_keys($join) : null;
@@ -487,8 +462,13 @@ class medoo
 			$columns = $join;
 		}
 
-		$query = $this->query('SELECT ' . $this->column_push($columns) . ' FROM ' . $table . $this->where_clause($where));
-
+		$query = 'SELECT ' . $this->column_push($columns) . ' FROM ' . $table . $this->where_clause($where);
+		return $query; 
+	}
+	
+	
+	public function select($table, $join, $columns = null, $where = null) {
+		$query = $this->query($this->select_query($table, $join, $columns, $where));
 		return $query ? $query->fetchAll(
 			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
 		) : false;
@@ -506,13 +486,12 @@ class medoo
 
 		foreach ($datas as $data)
 		{
-			$keys = implode('", "', array_keys($data));
+			$keys = array();
 			$values = array();
 
 			foreach ($data as $key => $value)
 			{
-				switch (gettype($value))
-				{
+				switch (gettype($value)) {
 					case 'NULL':
 						$values[] = 'NULL';
 						break;
@@ -521,15 +500,20 @@ class medoo
 						$values[] = $this->quote(serialize($value));
 						break;
 
+					case 'string':
+            preg_match('/([\w\.]+)(\[(#?)\])?/', $key, $match);
+						$is_function = isset($match[3]) && $match[3] === '#'; 
+            $key = $match[1];
 					case 'integer':
 					case 'double':
-					case 'string':
-						$values[] = $this->quote($value);
+						$values[] = $this->quote($value, $is_function);
 						break;
 				}
+        $keys[] = $key; 
 			}
-
-			$this->exec('INSERT INTO "' . $table . '" ("' . $keys . '") VALUES (' . implode($values, ', ') . ')');
+			
+			
+			$this->exec('INSERT INTO "' . $table . '" ("' . implode('", "', $keys ) . '") VALUES (' . implode($values, ', ') . ')');
 
 			$lastId[] = $this->pdo->lastInsertId();
 		}
@@ -545,7 +529,7 @@ class medoo
 		{
 			if (is_array($value))
 			{
-				$fields[] = $this->column_quote($key) . '=' . $this->quote(serialize($value));
+        $fields[] = $this->column_quote($key) . ' = ' . $this->quote(serialize($value));
 			}
 			else
 			{
@@ -560,7 +544,6 @@ class medoo
 				else
 				{
 					$column = $this->column_quote($key);
-
 					switch (gettype($value))
 					{
 						case 'NULL':
@@ -568,13 +551,16 @@ class medoo
 							break;
 
 						case 'array':
-							$fields[] = $column . ' = ' . $this->quote(serialize($value));
+              $fields[] = $this->column_quote($key) . ' = ' . $this->quote(serialize($value));
 							break;
 
+						case 'string':
+              preg_match('/([\w\.]+)(\[(#?)\])?/', $key, $match);
+              $is_function = isset($match[3]) && $match[3] === '#'; 
+              $column = $this->column_quote($match[1]);
 						case 'integer':
 						case 'double':
-						case 'string':
-							$fields[] = $column . ' = ' . $this->quote($value);
+							$fields[] = $column . ' = ' . $this->quote($value, $is_function);
 							break;
 					}
 				}
@@ -627,47 +613,61 @@ class medoo
 		return $this->exec('UPDATE "' . $table . '" SET ' . $replace_query . $this->where_clause($where));
 	}
 
-	public function get($table, $columns, $where = null)
+	public function get($table, $join, $columns = null, $where = null)
 	{
-		if (!isset($where))
+		if (!isset($where) && !isset($columns))
 		{
-			$where = array();
+			$columns = array();
+			$columns['LIMIT'] = 1;
+		} else if (!isset($where) ) {
+			$columns['LIMIT'] = 1;
 		}
-		$where['LIMIT'] = 1;
-
-		$data = $this->select($table, $columns, $where);
-
+		$data = $this->select($table, $join, $columns, $where);
 		return isset($data[0]) ? $data[0] : false;
 	}
 
-	public function has($table, $where)
-	{
-		return $this->query('SELECT EXISTS(SELECT 1 FROM "' . $table . '"' . $this->where_clause($where) . ')')->fetchColumn() === '1';
+	private function generate_aggregation_query($aggregation, $table, $column, $join , $where = null){
+		if($where == null) {
+			$statement =  $this->select_query($table,  $aggregation.'('.$column.')' , $join); 
+		} else {
+			$statement =  $this->select_query($table, $join, $aggregation.'('.$column.')' , $where) ; 
+		}
+		return $statement; 
+	}
+	
+	public function has($table, $join , $where = null)
+	{ 
+		if($where == null) {
+			$statement = 'SELECT EXISTS(' . $this->select_query($table, "1" , $join) . ')'; 
+		} else {
+			$statement = 'SELECT EXISTS(' . $this->select_query($table, $join, "1" , $where) . ')'; 
+		}
+		return $this->query($statement)->fetchColumn() === '1';
 	}
 
-	public function count($table, $where = null)
+	public function count($table, $join, $where = null)
 	{
-		return 0 + ($this->query('SELECT COUNT(*) FROM "' . $table . '"' . $this->where_clause($where))->fetchColumn());
+		return 0 + ($this->query($this->generate_aggregation_query('COUNT', $table, '*', $join , $where = null))->fetchColumn());
 	}
 
-	public function max($table, $column, $where = null)
+	public function max($table, $join, $column, $where = null)
 	{
-		return 0 + ($this->query('SELECT MAX("' . $column . '") FROM "' . $table . '"' . $this->where_clause($where))->fetchColumn());
+		return 0 + ($this->query($this->generate_aggregation_query('MAX', $table, '*', $join , $where = null))->fetchColumn());
 	}
 
-	public function min($table, $column, $where = null)
+	public function min($table, $join, $column, $where = null)
 	{
-		return 0 + ($this->query('SELECT MIN("' . $column . '") FROM "' . $table . '"' . $this->where_clause($where))->fetchColumn());
+		return 0 + ($this->query($this->generate_aggregation_query('MIN', $table, '*', $join , $where = null))->fetchColumn());
 	}
 
-	public function avg($table, $column, $where = null)
+	public function avg($table, $join, $column, $where = null)
 	{
-		return 0 + ($this->query('SELECT AVG("' . $column . '") FROM "' . $table . '"' . $this->where_clause($where))->fetchColumn());
+		return 0 + ($this->query($this->generate_aggregation_query('AVG', $table, '*', $join , $where = null))->fetchColumn());
 	}
 
-	public function sum($table, $column, $where = null)
+	public function sum($table, $join, $column, $where = null)
 	{
-		return 0 + ($this->query('SELECT SUM("' . $column . '") FROM "' . $table . '"' . $this->where_clause($where))->fetchColumn());
+		return 0 + ($this->query($this->generate_aggregation_query('SUM', $table, '*', $join , $where = null))->fetchColumn());
 	}
 
 	public function error()
@@ -677,7 +677,8 @@ class medoo
 
 	public function last_query()
 	{
-		return $this->queryString;
+		// return str_replace('"', '', $this->queryString);
+		return "SET SQL_MODE=ANSI_QUOTES; " .$this->queryString;
 	}
 
 	public function info()
