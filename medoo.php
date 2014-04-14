@@ -523,8 +523,9 @@ class medoo
 
 		foreach ($datas as $data)
 		{
-			$keys = implode('", "', array_keys($data));
+			$keys = array_keys($data);
 			$values = array();
+			$index = 0;
 
 			foreach ($data as $key => $value)
 			{
@@ -535,7 +536,17 @@ class medoo
 						break;
 
 					case 'array':
-						$values[] = $this->quote(serialize($value));
+						preg_match("/\(JSON\)\s*([\w]+)/i", $key, $column_match);
+
+						if (isset($column_match[0]))
+						{
+							$keys[ $index ] = $column_match[1];
+							$values[] = $this->quote(json_encode($value));
+						}
+						else
+						{
+							$values[] = $this->quote(serialize($value));
+						}
 						break;
 
 					case 'boolean':
@@ -548,9 +559,11 @@ class medoo
 						$values[] = $this->quote($value);
 						break;
 				}
+
+				$index++;
 			}
 
-			$this->exec('INSERT INTO "' . $table . '" ("' . $keys . '") VALUES (' . implode($values, ', ') . ')');
+			$this->exec('INSERT INTO "' . $table . '" ("' . implode('", "', $keys) . '") VALUES (' . implode($values, ', ') . ')');
 
 			$lastId[] = $this->pdo->lastInsertId();
 		}
@@ -564,44 +577,47 @@ class medoo
 
 		foreach ($data as $key => $value)
 		{
-			if (is_array($value))
+			preg_match('/([\w]+)(\[(\+|\-|\*|\/)\])?/i', $key, $match);
+			if (isset($match[3]))
 			{
-				$fields[] = $this->column_quote($key) . '=' . $this->quote(serialize($value));
+				if (is_numeric($value))
+				{
+					$fields[] = $this->column_quote($match[1]) . ' = ' . $this->column_quote($match[1]) . ' ' . $match[3] . ' ' . $value;
+				}
 			}
 			else
 			{
-				preg_match('/([\w]+)(\[(\+|\-|\*|\/)\])?/i', $key, $match);
-				if (isset($match[3]))
-				{
-					if (is_numeric($value))
-					{
-						$fields[] = $this->column_quote($match[1]) . ' = ' . $this->column_quote($match[1]) . ' ' . $match[3] . ' ' . $value;
-					}
-				}
-				else
-				{
-					$column = $this->column_quote($key);
+				$column = $this->column_quote($key);
 
-					switch (gettype($value))
-					{
-						case 'NULL':
-							$fields[] = $column . ' = NULL';
-							break;
+				switch (gettype($value))
+				{
+					case 'NULL':
+						$fields[] = $column . ' = NULL';
+						break;
 
-						case 'array':
+					case 'array':
+						preg_match("/\(JSON\)\s*([\w]+)/i", $key, $column_match);
+
+						if (isset($column_match[0]))
+						{
+							$fields[] = $this->column_quote($column_match[1]) . ' = ' . $this->quote(json_encode($value));
+						}
+						else
+						{
 							$fields[] = $column . ' = ' . $this->quote(serialize($value));
-							break;
+						}
 
-						case 'boolean':
-							$fields[] = $column . ' = ' . ($value ? '1' : '0');
-							break;
+						break;
 
-						case 'integer':
-						case 'double':
-						case 'string':
-							$fields[] = $column . ' = ' . $this->quote($value);
-							break;
-					}
+					case 'boolean':
+						$fields[] = $column . ' = ' . ($value ? '1' : '0');
+						break;
+
+					case 'integer':
+					case 'double':
+					case 'string':
+						$fields[] = $column . ' = ' . $this->quote($value);
+						break;
 				}
 			}
 		}
