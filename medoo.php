@@ -453,7 +453,7 @@ class medoo
 		return $where_clause;
 	}
 
-	public function select($table, $join, $columns = null, $where = null)
+	protected function select_context($table, $join, &$columns = null, $where = null, $column_fn = null)
 	{
 		$table = '"' . $table . '"';
 		$join_key = is_array($join) ? array_keys($join) : null;
@@ -502,11 +502,38 @@ class medoo
 		}
 		else
 		{
-			$where = $columns;
-			$columns = $join;
+			if (is_null($columns))
+			{
+				$where = $join;
+				$columns = null;
+			}
+			else
+			{
+				$where = $columns;
+				$columns = $join;
+			}
 		}
 
-		$query = $this->query('SELECT ' . $this->column_push($columns) . ' FROM ' . $table . $this->where_clause($where));
+		if (isset($column_fn))
+		{
+			if (is_null($columns))
+			{
+				$columns = '*';
+			}
+
+			$column = $column_fn . '(' . $this->column_push($columns) . ')';
+		}
+		else
+		{
+			$column = $this->column_push($columns);
+		}
+
+		return 'SELECT ' . $column . ' FROM ' . $table . $this->where_clause($where);
+	}
+
+	public function select($table, $join, $columns = null, $where = null)
+	{
+		$query = $this->query($this->select_context($table, $join, $columns, $where));
 
 		return $query ? $query->fetchAll(
 			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
@@ -686,38 +713,38 @@ class medoo
 		return isset($data[0]) ? $data[0] : false;
 	}
 
-	public function has($table, $where)
+	public function has($table, $join, $where = null)
 	{
-		return $this->query('SELECT EXISTS(SELECT 1 FROM "' . $table . '"' . $this->where_clause($where) . ')')->fetchColumn() === '1';
+		return $this->query('SELECT EXISTS(' . $this->select_context($table, $join, '1', $where) . ')')->fetchColumn() === '1';
 	}
 
-	public function count($table, $where = null)
+	public function count($table, $join, $column = null, $where = null)
 	{
-		return 0 + ($this->query('SELECT COUNT(*) FROM "' . $table . '"' . $this->where_clause($where))->fetchColumn());
+		return 0 + ($this->query($this->select_context($table, $join, $column, $where, 'COUNT'))->fetchColumn());
 	}
 
-	public function max($table, $column, $where = null)
+	public function max($table, $join, $column = null, $where = null)
 	{
-		$max = $this->query('SELECT MAX("' . $column . '") FROM "' . $table . '"' . $this->where_clause($where))->fetchColumn();
+		$max = $this->query($this->select_context($table, $join, $column, $where, 'MAX'))->fetchColumn();
 
 		return is_numeric($max) ? $max + 0 : $max;
 	}
 
-	public function min($table, $column, $where = null)
+	public function min($table, $join, $column = null, $where = null)
 	{
-		$min = $this->query('SELECT MIN("' . $column . '") FROM "' . $table . '"' . $this->where_clause($where))->fetchColumn();
+		$min = $this->query($this->select_context($table, $join, $column, $where, 'MIN'))->fetchColumn();
 
 		return is_numeric($min) ? $min + 0 : $min;
 	}
 
-	public function avg($table, $column, $where = null)
+	public function avg($table, $join, $column = null, $where = null)
 	{
-		return 0 + ($this->query('SELECT AVG("' . $column . '") FROM "' . $table . '"' . $this->where_clause($where))->fetchColumn());
+		return 0 + ($this->query($this->select_context($table, $join, $column, $where, 'AVG'))->fetchColumn());
 	}
 
-	public function sum($table, $column, $where = null)
+	public function sum($table, $join, $column = null, $where = null)
 	{
-		return 0 + ($this->query('SELECT SUM("' . $column . '") FROM "' . $table . '"' . $this->where_clause($where))->fetchColumn());
+		return 0 + ($this->query($this->select_context($table, $join, $column, $where, 'SUM'))->fetchColumn());
 	}
 
 	public function error()
