@@ -345,12 +345,12 @@ class medoo
 
 			if (!empty($where_AND))
 			{
-				$where_clause = ' WHERE ' . $this->data_implode($where[ $where_AND[0] ], ' AND');
+				$where_clause = ' WHERE ' . $this->data_implode($where[ array_values($where_AND)[0] ], ' AND');
 			}
 
 			if (!empty($where_OR))
 			{
-				$where_clause = ' WHERE ' . $this->data_implode($where[ $where_OR[0] ], ' OR');
+				$where_clause = ' WHERE ' . $this->data_implode($where[ array_values($where_OR)[0] ], ' OR');
 			}
 
 			if (isset($where['LIKE']))
