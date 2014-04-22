@@ -219,7 +219,7 @@ class medoo
 			}
 			else
 			{
-				preg_match('/([\w\.]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>)\])?/i', $key, $match);
+				preg_match('/([\w\.]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<)\])?/i', $key, $match);
 				$column = $this->column_quote($match[1]);
 
 				if (isset($match[3]))
@@ -252,17 +252,22 @@ class medoo
 					}
 					else
 					{
-						if ($match[3] == '<>')
+						if ($match[3] == '<>' || $match[3] == '><')
 						{
 							if ($type == 'array')
 							{
+								if ($match[3] == '><')
+								{
+									$column .= ' NOT';
+								}
+
 								if (is_numeric($value[0]) && is_numeric($value[1]))
 								{
-									$wheres[] = $column . ' BETWEEN ' . $value[0] . ' AND ' . $value[1];
+									$wheres[] = '(' . $column . ' BETWEEN ' . $value[0] . ' AND ' . $value[1] . ')';
 								}
 								else
 								{
-									$wheres[] = $column . ' BETWEEN ' . $this->quote($value[0]) . ' AND ' . $this->quote($value[1]);
+									$wheres[] = '(' . $column . ' BETWEEN ' . $this->quote($value[0]) . ' AND ' . $this->quote($value[1]) . ')';
 								}
 							}
 						}
