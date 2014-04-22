@@ -124,7 +124,7 @@ class medoo
 	public function query($query)
 	{
 		$this->queryString = $query;
-		
+
 		return $this->pdo->query($query);
 	}
 
@@ -206,9 +206,11 @@ class medoo
 
 		foreach ($data as $key => $value)
 		{
+			$type = gettype($value);
+
 			if (
 				preg_match("/^(AND|OR)\s*#?/i", $key, $relation_match) &&
-				is_array($value)
+				$type == 'array'
 			)
 			{
 				$wheres[] = 0 !== count(array_diff_key($value, array_keys(array_keys($value)))) ?
@@ -218,18 +220,17 @@ class medoo
 			else
 			{
 				preg_match('/([\w\.]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>)\])?/i', $key, $match);
+				$column = $this->column_quote($match[1]);
 
 				if (isset($match[3]))
 				{
 					if ($match[3] == '')
 					{
-						$wheres[] = $this->column_quote($match[1]) . ' ' . $match[3] . '= ' . $this->quote($value);
+						$wheres[] = $column . ' ' . $match[3] . '= ' . $this->quote($value);
 					}
 					elseif ($match[3] == '!')
 					{
-						$column = $this->column_quote($match[1]);
-						
-						switch (gettype($value))
+						switch ($type)
 						{
 							case 'NULL':
 								$wheres[] = $column . ' IS NOT NULL';
@@ -253,15 +254,15 @@ class medoo
 					{
 						if ($match[3] == '<>')
 						{
-							if (is_array($value))
+							if ($type == 'array')
 							{
 								if (is_numeric($value[0]) && is_numeric($value[1]))
 								{
-									$wheres[] = $this->column_quote($match[1]) . ' BETWEEN ' . $value[0] . ' AND ' . $value[1];
+									$wheres[] = $column . ' BETWEEN ' . $value[0] . ' AND ' . $value[1];
 								}
 								else
 								{
-									$wheres[] = $this->column_quote($match[1]) . ' BETWEEN ' . $this->quote($value[0]) . ' AND ' . $this->quote($value[1]);
+									$wheres[] = $column . ' BETWEEN ' . $this->quote($value[0]) . ' AND ' . $this->quote($value[1]);
 								}
 							}
 						}
@@ -269,7 +270,7 @@ class medoo
 						{
 							if (is_numeric($value))
 							{
-								$wheres[] = $this->column_quote($match[1]) . ' ' . $match[3] . ' ' . $value;
+								$wheres[] = $column . ' ' . $match[3] . ' ' . $value;
 							}
 							else
 							{
@@ -277,7 +278,7 @@ class medoo
 
 								if ($datetime)
 								{
-									$wheres[] = $this->column_quote($match[1]) . ' ' . $match[3] . ' ' . $this->quote(date('Y-m-d H:i:s', $datetime));
+									$wheres[] = $column . ' ' . $match[3] . ' ' . $this->quote(date('Y-m-d H:i:s', $datetime));
 								}
 							}
 						}
@@ -291,9 +292,7 @@ class medoo
 					}
 					else
 					{
-						$column = $this->column_quote($match[1]);
-
-						switch (gettype($value))
+						switch ($type)
 						{
 							case 'NULL':
 								$wheres[] = $column . ' IS NULL';
@@ -395,7 +394,7 @@ class medoo
 			{
 				$match_query = $where['MATCH'];
 
-				if (is_array($match_query) && isset($match_query['columns']) && isset($match_query['keyword']))
+				if (is_array($match_query) && isset($match_query['columns'], $match_query['keyword']))
 				{
 					$where_clause .= ($where_clause != '' ? ' AND ' : ' WHERE ') . ' MATCH ("' . str_replace('.', '"."', implode($match_query['columns'], '", "')) . '") AGAINST (' . $this->quote($match_query['keyword']) . ')';
 				}
