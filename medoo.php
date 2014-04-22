@@ -33,13 +33,13 @@ class medoo
 	// Variable 
 	protected $queryString;
 
-	public function __construct($options)
+	public function __construct($options = null)
 	{
 		try {
 			$commands = array();
 			$type = strtolower($this->database_type);
 
-			if (is_string($options))
+			if (is_string($options) && !empty($options))
 			{
 				if (strtolower($this->database_type) == 'sqlite')
 				{
@@ -50,7 +50,7 @@ class medoo
 					$this->database_name = $options;
 				}
 			}
-			else
+			elseif(is_array($options))
 			{
 				foreach ($options as $option => $value)
 				{
