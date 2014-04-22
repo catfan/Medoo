@@ -50,7 +50,7 @@ class medoo
 					$this->database_name = $options;
 				}
 			}
-			elseif(is_array($options))
+			elseif (is_array($options))
 			{
 				foreach ($options as $option => $value)
 				{
