@@ -524,12 +524,19 @@ class medoo
 
 		if (isset($column_fn))
 		{
-			if (is_null($columns))
+			if ($column_fn == 1)
 			{
-				$columns = '*';
+				$column = '1';
 			}
+			else
+			{
+				if (is_null($columns))
+				{
+					$columns = '*';
+				}
 
-			$column = $column_fn . '(' . $this->column_push($columns) . ')';
+				$column = $column_fn . '(' . $this->column_push($columns) . ')';
+			}
 		}
 		else
 		{
@@ -723,7 +730,9 @@ class medoo
 
 	public function has($table, $join, $where = null)
 	{
-		return $this->query('SELECT EXISTS(' . $this->select_context($table, $join, '1', $where) . ')')->fetchColumn() === '1';
+		$column = null;
+
+		return $this->query('SELECT EXISTS(' . $this->select_context($table, $join, $column, $where, 1) . ')')->fetchColumn() === '1';
 	}
 
 	public function count($table, $join, $column = null, $where = null)
