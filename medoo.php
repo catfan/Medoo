@@ -11,7 +11,7 @@ class medoo
 {
 	protected $database_type = 'mysql';
 
-	// For MySQL, MSSQL, Sybase
+	// For MySQL, Mariadb, MSSQL, Sybase, PostgreSQL, Oracle
 	protected $server = 'localhost';
 
 	protected $username = 'username';
@@ -85,6 +85,10 @@ class medoo
 				case 'sybase':
 					$dsn = $type . ':host=' . $this->server . (isset($port) ? ',' . $port : '') . ';dbname=' . $this->database_name;
 					$commands[] = $set_charset;
+					break;
+
+				case 'oracle':
+					$dsn = 'oci:host=' . $this->server . (isset($port) ? ';port=' . $port : '') . ';dbname=' . $this->database_name . ';charset=' . $this->charset;
 					break;
 
 				case 'mssql':
