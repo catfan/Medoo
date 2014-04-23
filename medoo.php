@@ -328,7 +328,7 @@ class medoo
 		return implode($conjunctor . ' ', $wheres);
 	}
 
-	public function where_clause($where)
+	protected function where_clause($where)
 	{
 		$where_clause = '';
 
