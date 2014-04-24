@@ -512,8 +512,16 @@ class medoo
 		{
 			if (is_null($columns))
 			{
-				$where = $join;
-				$columns = null;
+				if (is_null($where))
+				{
+					$where = null;
+					$columns = $join;
+				}
+				else
+				{
+					$where = $join;
+					$columns = null;
+				}
 			}
 			else
 			{
