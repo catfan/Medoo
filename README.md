@@ -1,16 +1,16 @@
-# Medoo
+## [Medoo](http://medoo.in)
 
-The Lightest PHP database framework to accelerate development
+> The Lightest PHP database framework to accelerate development
 
 ### Main Features
 
-* **Lightweight** - Only 10KB with one file.
+* **Lightweight** - Only 13KB with one file.
 
 * **Easy** - Extremely easy to learn and use, friendly construction.
 
-* **Powerful** - Support various common SQL queries.
+* **Powerful** - Support various common and complex SQL queries.
 
-* **Compatible** - Support various SQL database, including PostgreSQL, MySQL, MSSQL, SQLite, MariaDB and more.
+* **Compatible** - Support various SQL database, including MySQL, MSSQL, SQLite, MariaDB, Sybase, Oracle, PostgreSQL and more.
 
 * **Security** - Prevent SQL injection.
 
@@ -19,11 +19,11 @@ The Lightest PHP database framework to accelerate development
 ### Get Started
 
 ```php
-// Include Medoo
+// Include Medoo (configured)
 require_once 'medoo.php';
 
 // Initialize
-$database = new medoo('my_database');
+$database = new medoo();
 
 // Enjoy
 $database->insert('account', [
@@ -42,6 +42,18 @@ $database = new medoo([
     'password' => 'your_password',
 ]);
 ```
+
+### Contribution Guides
+
+For most of time, Medoo is using develop branch for adding feature and fixing bug, and the branch will be merged into master branch while releasing a public version. For contribution, submit your code to the develop branch, and start a pull request into it.
+
+On develop branch, each commits are started with `[fix]`, `[feature]` or `[update]` tag to indicate the change.
+
+Keep it simple and keep it clear.
+
+### Liscense
+
+Medoo is under the MIT License.
 
 ### Links
 
