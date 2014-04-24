@@ -67,6 +67,7 @@ class medoo
 			}
 
 			$set_charset = "SET NAMES '" . $this->charset . "'";
+			$is_port = isset($port);
 
 			switch ($type)
 			{
@@ -78,23 +79,23 @@ class medoo
 					$commands[] = 'SET SQL_MODE=ANSI_QUOTES';
 
 				case 'pgsql':
-					$dsn = $type . ':host=' . $this->server . (isset($port) ? ';port=' . $port : '') . ';dbname=' . $this->database_name;
+					$dsn = $type . ':host=' . $this->server . ($is_port ? ';port=' . $port : '') . ';dbname=' . $this->database_name;
 					$commands[] = $set_charset;
 					break;
 
 				case 'sybase':
-					$dsn = $type . ':host=' . $this->server . (isset($port) ? ',' . $port : '') . ';dbname=' . $this->database_name;
+					$dsn = 'dblib:host=' . $this->server . ($is_port ? ':' . $port : '') . ';dbname=' . $this->database_name;
 					$commands[] = $set_charset;
 					break;
 
 				case 'oracle':
-					$dsn = 'oci:host=' . $this->server . (isset($port) ? ';port=' . $port : '') . ';dbname=' . $this->database_name . ';charset=' . $this->charset;
+					$dsn = 'oci:host=' . $this->server . ($is_port ? ';port=' . $port : '') . ';dbname=' . $this->database_name . ';charset=' . $this->charset;
 					break;
 
 				case 'mssql':
 					$dsn = strpos(PHP_OS, 'WIN') !== false ?
-						'sqlsrv:server=' . $this->server . (isset($port) ? ',' . $port : '') . ';database=' . $this->database_name :
-						'dblib:host=' . $this->server . (isset($port) ? ':' . $port : '') . ';dbname=' . $this->database_name;
+						'sqlsrv:server=' . $this->server . ($is_port ? ',' . $port : '') . ';database=' . $this->database_name :
+						'dblib:host=' . $this->server . ($is_port ? ':' . $port : '') . ';dbname=' . $this->database_name;
 
 					// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
 					$commands[] = 'SET QUOTED_IDENTIFIER ON';
