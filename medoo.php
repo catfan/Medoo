@@ -37,8 +37,7 @@ class medoo
 	{
 		try {
 			$commands = array();
-			$type = strtolower($this->database_type);
-
+			
 			if (is_string($options) && !empty($options))
 			{
 				if (strtolower($this->database_type) == 'sqlite')
@@ -68,7 +67,7 @@ class medoo
 
 			$set_charset = "SET NAMES '" . $this->charset . "'";
 			$is_port = isset($port);
-
+			$type = strtolower($this->database_type);
 			switch ($type)
 			{
 				case 'mariadb':
