@@ -37,7 +37,6 @@ class medoo
 	{
 		try {
 			$commands = array();
-			$type = strtolower($this->database_type);
 
 			if (is_string($options) && !empty($options))
 			{
@@ -67,6 +66,7 @@ class medoo
 			}
 
 			$set_charset = "SET NAMES '" . $this->charset . "'";
+			$type = strtolower($this->database_type);
 			$is_port = isset($port);
 
 			switch ($type)
