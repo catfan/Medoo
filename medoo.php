@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * http://medoo.in
- * Version 0.9.5
+ * Version 0.9.5.1
  * 
  * Copyright 2014, Angel Lai
  * Released under the MIT license
@@ -354,12 +354,14 @@ class medoo
 
 			if (!empty($where_AND))
 			{
-				$where_clause = ' WHERE ' . $this->data_implode($where[ array_values($where_AND)[0] ], ' AND');
+				$value = array_values($where_AND);
+				$where_clause = ' WHERE ' . $this->data_implode($where[ $value[0] ], ' AND');
 			}
 
 			if (!empty($where_OR))
 			{
-				$where_clause = ' WHERE ' . $this->data_implode($where[ array_values($where_OR)[0] ], ' OR');
+				$value = array_values($where_OR);
+				$where_clause = ' WHERE ' . $this->data_implode($where[ $value[0] ], ' OR');
 			}
 
 			if (isset($where['LIKE']))
@@ -467,7 +469,10 @@ class medoo
 		$table = '"' . $table . '"';
 		$join_key = is_array($join) ? array_keys($join) : null;
 
-		if (strpos($join_key[0], '[') !== false)
+		if (
+			isset($join_key[0]) &&
+			strpos($join_key[0], '[') !== false
+		)
 		{
 			$table_join = array();
 
@@ -548,7 +553,7 @@ class medoo
 			}
 			else
 			{
-				if (is_null($columns))
+				if (empty($columns))
 				{
 					$columns = '*';
 					$where = $join;
