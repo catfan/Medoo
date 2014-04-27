@@ -140,6 +140,13 @@ class medoo
 		return $this->pdo->exec($query);
 	}
 
+	public function prepare($query)
+	{
+		$this->query_string = $query;
+
+		return $this->pdo->prepare($query);
+	}
+
 	public function quote($string)
 	{
 		return $this->pdo->quote($string);
