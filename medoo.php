@@ -471,7 +471,7 @@ class medoo
 
 		if (
 			isset($join_key[0]) &&
-			strpos($join_key[0], '[') !== false
+			strpos($join_key[0], '[') == 0
 		)
 		{
 			$table_join = array();
@@ -520,8 +520,19 @@ class medoo
 			{
 				if (is_null($where))
 				{
-					$where = null;
-					$columns = $join;
+					if (
+						is_array($join) &&
+						isset($column_fn)
+					)
+					{
+						$where = $join;
+						$columns = null;
+					}
+					else
+					{
+						$where = null;
+						$columns = $join;
+					}
 				}
 				else
 				{
