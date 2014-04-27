@@ -469,7 +469,10 @@ class medoo
 		$table = '"' . $table . '"';
 		$join_key = is_array($join) ? array_keys($join) : null;
 
-		if (strpos($join_key[0], '[') !== false)
+		if (
+			isset($join_key[0]) &&
+			strpos($join_key[0], '[') !== false
+		)
 		{
 			$table_join = array();
 
@@ -550,7 +553,7 @@ class medoo
 			}
 			else
 			{
-				if (is_null($columns))
+				if (empty($columns))
 				{
 					$columns = '*';
 					$where = $join;
