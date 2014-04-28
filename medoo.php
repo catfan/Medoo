@@ -471,7 +471,7 @@ class medoo
 
 		if (
 			isset($join_key[0]) &&
-			strpos($join_key[0], '[') == 0
+			strpos($join_key[0], '[') === 0
 		)
 		{
 			$table_join = array();
