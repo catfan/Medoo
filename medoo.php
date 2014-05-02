@@ -147,7 +147,11 @@ class medoo
 
 	protected function column_quote($string)
 	{
-		return '"' . str_replace('.', '"."', $string) . '"';
+		$string = join('.', array_map(function($str){
+			return $str === '*' ? $str : "\"{$str}\"";
+		},explode('.', $string)));
+
+		return $string;
 	}
 
 	protected function column_push($columns)
