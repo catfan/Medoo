@@ -385,16 +385,19 @@ class medoo
 
 					foreach ($like_query as $column => $keyword)
 					{
-						if (is_array($keyword))
+						$keyword = is_array($keyword) ? $keyword : array($keyword);
+
+						foreach ($keyword as $key)
 						{
-							foreach ($keyword as $key)
+							preg_match('/(%?)([a-zA-Z0-9_\-\.]*)(%?)/', $column, $column_match);
+
+							if ($column_match[1] == '' && $column_match[3] == '')
 							{
-								$clause_wrap[] = $this->column_quote($column) . ' LIKE ' . $this->quote('%' . $key . '%');
+								$column_match[1] = '%';
+								$column_match[3] = '%';
 							}
-						}
-						else
-						{
-							$clause_wrap[] = $this->column_quote($column) . ' LIKE ' . $this->quote('%' . $keyword . '%');
+
+							$clause_wrap[] = $this->column_quote($column_match[2]) . ' LIKE ' . $this->quote($column_match[1] . $key . $column_match[3]);
 						}
 					}
 
