@@ -419,15 +419,36 @@ class medoo
 
 			if (isset($where['ORDER']))
 			{
+				$rsort = '/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/';
+
 				if (is_array($where['ORDER']))
 				{
-					$where_clause .= ' ORDER BY FIELD(' . $this->column_quote($where['ORDER'][0]) . ', ' . $this->array_quote($where['ORDER'][1]) . ')';
+					if (
+						isset($where['ORDER'][1]) &&
+						is_array($where['ORDER'][1])
+					)
+					{
+						$where_clause .= ' ORDER BY FIELD(' . $this->column_quote($where['ORDER'][0]) . ', ' . $this->array_quote($where['ORDER'][1]) . ')';
+					}
+					else
+					{
+						$stack = array();
+
+						foreach ($where['ORDER'] as $column)
+						{
+							preg_match($rsort, $column, $order_match);
+
+							array_push($stack, '"' . str_replace('.', '"."', $order_match[1]) . '"' . (isset($order_match[3]) ? ' ' . $order_match[3] : ''));
+						}
+
+						$where_clause .= ' ORDER BY ' . implode($stack, ',');
+					}
 				}
 				else
 				{
-					preg_match('/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/', $where['ORDER'], $order_match);
+					preg_match($rsort, $where['ORDER'], $order_match);
 
-					$where_clause .= ' ORDER BY "' . str_replace('.', '"."', $order_match[1]) . '" ' . (isset($order_match[3]) ? $order_match[3] : '');
+					$where_clause .= ' ORDER BY "' . str_replace('.', '"."', $order_match[1]) . '"' . (isset($order_match[3]) ? ' ' . $order_match[3] : '');
 				}
 
 				if (isset($where['HAVING']))
