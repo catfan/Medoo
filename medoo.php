@@ -389,7 +389,7 @@ class medoo
 
 						foreach ($keyword as $key)
 						{
-							preg_match('/(%?)([a-zA-Z0-9_\-\.]*)(%?)/', $column, $column_match);
+							preg_match('/(%?)([a-zA-Z0-9_\-\.]*)(%?)((\[!\])?)/', $column, $column_match);
 
 							if ($column_match[1] == '' && $column_match[3] == '')
 							{
@@ -397,7 +397,10 @@ class medoo
 								$column_match[3] = '%';
 							}
 
-							$clause_wrap[] = $this->column_quote($column_match[2]) . ' LIKE ' . $this->quote($column_match[1] . $key . $column_match[3]);
+							$clause_wrap[] =
+								$this->column_quote($column_match[2]) .
+								($column_match[4] != '' ? ' NOT' : '') . ' LIKE ' .
+								$this->quote($column_match[1] . $key . $column_match[3]);
 						}
 					}
 
