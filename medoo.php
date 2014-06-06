@@ -207,7 +207,7 @@ class medoo
 
 	protected function fn_quote($column, $string)
 	{
-		return (strpos($column, '#') === 0 && preg_match('/^[A-Z0-9\_]*\(.*\)$/', $string)) ?
+		return (strpos($column, '#') === 0 && preg_match('/^[A-Z0-9\_]*\([^)]*\)$/', $string)) ?
 
 			$string :
 
