@@ -250,6 +250,10 @@ class medoo
 								$wheres[] = $column . ' != ' . $value;
 								break;
 
+							case 'boolean':
+								$wheres[] = $column . ' != ' . ($value ? '1' : '0');
+								break;
+
 							case 'string':
 								$wheres[] = $column . ' != ' . $this->quote($value);
 								break;
