@@ -147,7 +147,7 @@ class medoo
 
 	protected function column_quote($string)
 	{
-		return '"' . str_replace('.', '"."', $string) . '"';
+		return '"' . str_replace('.', '"."', preg_replace('/^#/', '', $string)) . '"';
 	}
 
 	protected function column_push($columns)
@@ -205,6 +205,15 @@ class medoo
 		return implode($outer_conjunctor . ' ', $haystack);
 	}
 
+	protected function fn_quote($column, $string)
+	{
+		return (strpos($column, '#') === 0 && preg_match('/^[A-Z0-9\_]*\(.*\)$/', $string)) ?
+
+			$string :
+
+			$this->quote($string);
+	}
+
 	protected function data_implode($data, $conjunctor, $outer_conjunctor = null)
 	{
 		$wheres = array();
@@ -224,16 +233,16 @@ class medoo
 			}
 			else
 			{
-				preg_match('/([\w\.]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<)\])?/i', $key, $match);
-				$column = $this->column_quote($match[1]);
+				preg_match('/(#?)([\w\.]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<)\])?/i', $key, $match);
+				$column = $this->column_quote($match[2]);
 
-				if (isset($match[3]))
+				if (isset($match[4]))
 				{
-					if ($match[3] == '')
+					if ($match[4] == '')
 					{
-						$wheres[] = $column . ' ' . $match[3] . '= ' . $this->quote($value);
+						$wheres[] = $column . ' ' . $match[4] . '= ' . $this->quote($value);
 					}
-					elseif ($match[3] == '!')
+					elseif ($match[4] == '!')
 					{
 						switch ($type)
 						{
@@ -255,17 +264,17 @@ class medoo
 								break;
 
 							case 'string':
-								$wheres[] = $column . ' != ' . $this->quote($value);
+								$wheres[] = $column . ' != ' . $this->fn_quote($key, $value);
 								break;
 						}
 					}
 					else
 					{
-						if ($match[3] == '<>' || $match[3] == '><')
+						if ($match[4] == '<>' || $match[4] == '><')
 						{
 							if ($type == 'array')
 							{
-								if ($match[3] == '><')
+								if ($match[4] == '><')
 								{
 									$column .= ' NOT';
 								}
@@ -284,7 +293,7 @@ class medoo
 						{
 							if (is_numeric($value))
 							{
-								$wheres[] = $column . ' ' . $match[3] . ' ' . $value;
+								$wheres[] = $column . ' ' . $match[4] . ' ' . $value;
 							}
 							else
 							{
@@ -292,7 +301,7 @@ class medoo
 
 								if ($datetime)
 								{
-									$wheres[] = $column . ' ' . $match[3] . ' ' . $this->quote(date('Y-m-d H:i:s', $datetime));
+									$wheres[] = $column . ' ' . $match[4] . ' ' . $this->quote(date('Y-m-d H:i:s', $datetime));
 								}
 							}
 						}
@@ -326,7 +335,7 @@ class medoo
 								break;
 
 							case 'string':
-								$wheres[] = $column . ' = ' . $this->quote($value);
+								$wheres[] = $column . ' = ' . $this->fn_quote($key, $value);
 								break;
 						}
 					}
@@ -726,7 +735,7 @@ class medoo
 					case 'integer':
 					case 'double':
 					case 'string':
-						$fields[] = $column . ' = ' . $this->quote($value);
+						$fields[] = $column . ' = ' . $this->fn_quote($key, $value);
 						break;
 				}
 			}
