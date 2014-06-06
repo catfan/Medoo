@@ -759,7 +759,7 @@ class medoo
 			{
 				foreach ($replacements as $replace_search => $replace_replacement)
 				{
-					$replace_query[] = $column . ' = REPLACE("' . $column . '", ' . $this->quote($replace_search) . ', ' . $this->quote($replace_replacement) . ')';
+					$replace_query[] = $column . ' = REPLACE(' . $this->column_quote($column) . ', ' . $this->quote($replace_search) . ', ' . $this->quote($replace_replacement) . ')';
 				}
 			}
 
@@ -774,7 +774,7 @@ class medoo
 
 				foreach ($search as $replace_search => $replace_replacement)
 				{
-					$replace_query[] = $columns . ' = REPLACE("' . $columns . '", ' . $this->quote($replace_search) . ', ' . $this->quote($replace_replacement) . ')';
+					$replace_query[] = $columns . ' = REPLACE(' . $this->column_quote($columns) . ', ' . $this->quote($replace_search) . ', ' . $this->quote($replace_replacement) . ')';
 				}
 
 				$replace_query = implode(', ', $replace_query);
@@ -782,7 +782,7 @@ class medoo
 			}
 			else
 			{
-				$replace_query = $columns . ' = REPLACE("' . $columns . '", ' . $this->quote($search) . ', ' . $this->quote($replace) . ')';
+				$replace_query = $columns . ' = REPLACE(' . $this->column_quote($columns) . ', ' . $this->quote($search) . ', ' . $this->quote($replace) . ')';
 			}
 		}
 
