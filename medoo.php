@@ -599,7 +599,7 @@ class medoo
 				}
 				else
 				{
-					$where == $join;
+					$where = $join;
 				}
 			}
 			else
