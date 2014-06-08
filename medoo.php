@@ -147,7 +147,7 @@ class medoo
 
 	protected function column_quote($string)
 	{
-		return '"' . str_replace('.', '"."', preg_replace('/^#/', '', $string)) . '"';
+		return '"' . str_replace('.', '"."', preg_replace('/(^#|\(JSON\))/', '', $string)) . '"';
 	}
 
 	protected function column_push($columns)
@@ -644,10 +644,12 @@ class medoo
 		{
 			$keys = array_keys($data);
 			$values = array();
-			$index = 0;
+			$columns = array();
 
 			foreach ($data as $key => $value)
 			{
+				array_push($columns, $this->column_quote($key));
+
 				switch (gettype($value))
 				{
 					case 'NULL':
@@ -659,7 +661,6 @@ class medoo
 
 						if (isset($column_match[0]))
 						{
-							$keys[ $index ] = $column_match[1];
 							$values[] = $this->quote(json_encode($value));
 						}
 						else
@@ -675,14 +676,12 @@ class medoo
 					case 'integer':
 					case 'double':
 					case 'string':
-						$values[] = $this->quote($value);
+						$values[] = $this->fn_quote($key, $value);
 						break;
 				}
-
-				$index++;
 			}
 
-			$this->exec('INSERT INTO "' . $table . '" ("' . implode('", "', $keys) . '") VALUES (' . implode($values, ', ') . ')');
+			$this->exec('INSERT INTO "' . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
 
 			$lastId[] = $this->pdo->lastInsertId();
 		}
