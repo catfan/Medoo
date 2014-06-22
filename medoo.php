@@ -31,7 +31,7 @@ class medoo
 	protected $option = array();
 
 	// Variable 
-	protected $queryString;
+	protected $query_string;
 
 	public function __construct($options = null)
 	{
@@ -128,16 +128,23 @@ class medoo
 
 	public function query($query)
 	{
-		$this->queryString = $query;
+		$this->query_string = $query;
 
 		return $this->pdo->query($query);
 	}
 
 	public function exec($query)
 	{
-		$this->queryString = $query;
+		$this->query_string = $query;
 
 		return $this->pdo->exec($query);
+	}
+
+	public function prepare($query)
+	{
+		$this->query_string = $query;
+
+		return $this->pdo->prepare($query);
 	}
 
 	public function quote($string)
@@ -845,7 +852,7 @@ class medoo
 
 	public function last_query()
 	{
-		return $this->queryString;
+		return $this->query_string;
 	}
 
 	public function info()
