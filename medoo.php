@@ -238,11 +238,7 @@ class medoo
 
 				if (isset($match[4]))
 				{
-					if ($match[4] == '')
-					{
-						$wheres[] = $column . ' ' . $match[4] . '= ' . $this->quote($value);
-					}
-					elseif ($match[4] == '!')
+					if ($match[4] == '!')
 					{
 						switch ($type)
 						{
@@ -302,6 +298,13 @@ class medoo
 								if ($datetime)
 								{
 									$wheres[] = $column . ' ' . $match[4] . ' ' . $this->quote(date('Y-m-d H:i:s', $datetime));
+								}
+								else
+								{
+									if (strpos($key, '#') === 0)
+									{
+										$wheres[] = $column . ' ' . $match[4] . ' ' . $this->fn_quote($key, $value);
+									}
 								}
 							}
 						}
