@@ -11,7 +11,7 @@ class medoo
 {
 	protected $database_type = 'mysql';
 
-	// For MySQL, MariaDB, MSSQL, Sybase, PostgreSQL, Oracle
+	// For MySQL, MariaDB, MSSQL, Sybase, PostgreSQL, Oracle, Google Cloud SQL
 	protected $server = 'localhost';
 
 	protected $username = 'username';
@@ -74,6 +74,12 @@ class medoo
 				case 'mariadb':
 					$type = 'mysql';
 
+				case 'cloudsql':
+					$dsn = 'mysql:unix_socket=/cloudsql/' . $this->server . ';dbname=' . $this->database_name;
+					$commands[] = 'SET SQL_MODE=ANSI_QUOTES';
+					$commands[] = $set_charset;
+					break;		
+					
 				case 'mysql':
 					// Make MySQL using standard quoted identifier
 					$commands[] = 'SET SQL_MODE=ANSI_QUOTES';
