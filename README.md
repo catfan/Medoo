@@ -10,7 +10,7 @@
 
 * **Powerful** - Support various common and complex SQL queries.
 
-* **Compatible** - Support various SQL database, including MySQL, MSSQL, SQLite, MariaDB, Sybase, Oracle, PostgreSQL and more.
+* **Compatible** - Support various SQL database, including MySQL, MSSQL, SQLite, MariaDB, Sybase, Oracle, PostgreSQL, Google Cloud SQL and more.
 
 * **Security** - Prevent SQL injection.
 
@@ -41,7 +41,20 @@ $database = new medoo([
     'username' => 'your_username',
     'password' => 'your_password',
 ]);
+
+// For Google Cloud SQL
+$database = new medoo([
+    'database_type' => 'cloudsql',
+    'database_name' => 'name',
+    'server' => 'instance-id:database-id',
+    'username' => 'your_username',
+    'password' => 'your_password',
+]);
 ```
+
+### Google Cloud SQL Server Name
+
+When using Google Cloud SQL, the "server" variable when initializing Medoo is in the form of "instance-id:database-id", for example, "regal-panther-523:db". This is listed as the "Instance ID" within the Google Developer Console's Cloud SQL administration interface.
 
 ### Contribution Guides
 
@@ -51,7 +64,7 @@ On develop branch, each commits are started with `[fix]`, `[feature]` or `[updat
 
 Keep it simple and keep it clear.
 
-### Liscense
+### License
 
 Medoo is under the MIT License.
 
