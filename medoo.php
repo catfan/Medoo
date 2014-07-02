@@ -33,6 +33,9 @@ class medoo
 	// Variable 
 	protected $queryString;
 
+	// Debug
+	protected $mini_debug = false;
+
 	public function __construct($options = null)
 	{
 		try {
@@ -130,14 +133,14 @@ class medoo
 	{
 		$this->queryString = $query;
 
-		return $this->pdo->query($query);
+		return $this->mini_debug ? $query : $this->pdo->query($query);
 	}
 
 	public function exec($query)
 	{
 		$this->queryString = $query;
 
-		return $this->pdo->exec($query);
+		return $this->mini_debug ? $query : $this->pdo->exec($query);
 	}
 
 	public function quote($string)
@@ -628,14 +631,23 @@ class medoo
 	{
 		$query = $this->query($this->select_context($table, $join, $columns, $where));
 
-		return $query ? $query->fetchAll(
-			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
-		) : false;
+		return is_string($query) ? $query : (
+			$query ? $query->fetchAll(
+				(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
+			) : false
+		);
+	}
+
+	public function _select($table, $join, $columns = null, $where = null)
+	{
+		$this->mini_debug = true;
+		echo $this->select($table, $join, $columns, $where);
 	}
 
 	public function insert($table, $datas)
 	{
 		$lastId = array();
+		$query = array();
 
 		// Check indexed or associative array
 		if (!isset($datas[0]))
@@ -684,12 +696,20 @@ class medoo
 				}
 			}
 
-			$this->exec('INSERT INTO "' . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
+			$exec = $this->exec('INSERT INTO "' . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
 
-			$lastId[] = $this->pdo->lastInsertId();
+			is_string($exec) ? $query[] = $exec : $lastId[] = $this->pdo->lastInsertId();
 		}
 
-		return count($lastId) > 1 ? $lastId : $lastId[ 0 ];
+		return $query ? implode('; ', $query) : (
+			count($lastId) > 1 ? $lastId : $lastId[ 0 ]
+		);
+	}
+
+	public function _insert($table, $datas)
+	{
+		$this->mini_debug = true;
+		echo $this->insert($table, $datas);
 	}
 
 	public function update($table, $data, $where = null)
@@ -746,9 +766,21 @@ class medoo
 		return $this->exec('UPDATE "' . $table . '" SET ' . implode(', ', $fields) . $this->where_clause($where));
 	}
 
+	public function _update($table, $data, $where = null)
+	{
+		$this->mini_debug = true;
+		echo $this->update($table, $data, $where);
+	}
+
 	public function delete($table, $where)
 	{
 		return $this->exec('DELETE FROM "' . $table . '"' . $this->where_clause($where));
+	}
+
+	public function _delete($table, $where)
+	{
+		$this->mini_debug = true;
+		echo $this->delete($table, $where);
 	}
 
 	public function replace($table, $columns, $search = null, $replace = null, $where = null)
@@ -791,6 +823,12 @@ class medoo
 		return $this->exec('UPDATE "' . $table . '" SET ' . $replace_query . $this->where_clause($where));
 	}
 
+	public function _replace($table, $columns, $search = null, $replace = null, $where = null)
+	{
+		$this->mini_debug = true;
+		echo $this->replace($table, $columns, $search, $replace, $where);
+	}
+
 	public function get($table, $columns, $where = null)
 	{
 		if (!isset($where))
@@ -802,43 +840,100 @@ class medoo
 
 		$data = $this->select($table, $columns, $where);
 
-		return isset($data[0]) ? $data[0] : false;
+		return is_string($data) ? $data : (
+			isset($data[0]) ? $data[0] : false
+		);
+	}
+
+	public function _get($table, $columns, $where = null)
+	{
+		$this->mini_debug = true;
+		echo $this->get($table, $columns, $where);
 	}
 
 	public function has($table, $join, $where = null)
 	{
 		$column = null;
 
-		return $this->query('SELECT EXISTS(' . $this->select_context($table, $join, $column, $where, 1) . ')')->fetchColumn() === '1';
+		$query = $this->query('SELECT EXISTS(' . $this->select_context($table, $join, $column, $where, 1) . ')');
+
+		return is_string($query) ? $query : $query->fetchColumn() === '1';
+	}
+
+	public function _has($table, $where)
+	{
+		$this->mini_debug = true;
+		echo $this->has($table, $where);
 	}
 
 	public function count($table, $join = null, $column = null, $where = null)
 	{
-		return 0 + ($this->query($this->select_context($table, $join, $column, $where, 'COUNT'))->fetchColumn());
+		$query = $this->query($this->select_context($table, $join, $column, $where, 'COUNT'));
+
+		return is_string($query) ? $query : (
+			0 + $query->fetchColumn()
+		);
+	}
+
+	public function _count($table, $where = null)
+	{
+		$this->mini_debug = true;
+		echo $this->count($table, $where);
 	}
 
 	public function max($table, $join, $column = null, $where = null)
 	{
-		$max = $this->query($this->select_context($table, $join, $column, $where, 'MAX'))->fetchColumn();
+		$query = $this->query($this->select_context($table, $join, $column, $where, 'MAX'));
 
-		return is_numeric($max) ? $max + 0 : $max;
+		return is_string($query) ? $query : (
+			is_numeric($query->fetchColumn()) ? $query->fetchColumn() + 0 : $query->fetchColumn()
+		);
+	}
+
+	public function _max($table, $column, $where = null)
+	{
+		$this->mini_debug = true;
+		echo $this->max($table, $column, $where);
 	}
 
 	public function min($table, $join, $column = null, $where = null)
 	{
-		$min = $this->query($this->select_context($table, $join, $column, $where, 'MIN'))->fetchColumn();
+		$query = $this->query($this->select_context($table, $join, $column, $where, 'MIN'));
 
-		return is_numeric($min) ? $min + 0 : $min;
+		return is_string($query) ? $query : (
+			is_numeric($query->fetchColumn()) ? $query->fetchColumn() + 0 : $query->fetchColumn()
+		);
+	}
+
+	public function _min($table, $column, $where = null)
+	{
+		$this->mini_debug = true;
+		echo $this->min($table, $column, $where);
 	}
 
 	public function avg($table, $join, $column = null, $where = null)
 	{
-		return 0 + ($this->query($this->select_context($table, $join, $column, $where, 'AVG'))->fetchColumn());
+		$query = $this->query($this->select_context($table, $join, $column, $where, 'AVG'));
+
+		return is_string($query) ? $query : 0 + $query->fetchColumn();
+	}
+
+	public function _avg($table, $column, $where = null)
+	{
+		$this->mini_debug = true;
+		echo $this->avg($table, $column, $where);
 	}
 
 	public function sum($table, $join, $column = null, $where = null)
 	{
-		return 0 + ($this->query($this->select_context($table, $join, $column, $where, 'SUM'))->fetchColumn());
+		$query = $this->query($this->select_context($table, $join, $column, $where, 'SUM'));
+
+		return is_string($query) ? $query : 0 + $query->fetchColumn();
+	}
+
+	public function _sum($table, $column, $where = null){
+		$this->mini_debug = true;
+		echo $this->sum($table, $column, $where);
 	}
 
 	public function error()
