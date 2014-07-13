@@ -603,10 +603,6 @@ class medoo
 				{
 					$where = $columns;
 				}
-				else
-				{
-					$where = $join;
-				}
 			}
 			else
 			{
