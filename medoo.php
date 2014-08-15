@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * http://medoo.in
- * Version 0.9.6
+ * Version 0.9.6.2
  * 
  * Copyright 2014, Angel Lai
  * Released under the MIT license
@@ -238,11 +238,7 @@ class medoo
 
 				if (isset($match[4]))
 				{
-					if ($match[4] == '')
-					{
-						$wheres[] = $column . ' ' . $match[4] . '= ' . $this->quote($value);
-					}
-					elseif ($match[4] == '!')
+					if ($match[4] == '!')
 					{
 						switch ($type)
 						{
@@ -302,6 +298,13 @@ class medoo
 								if ($datetime)
 								{
 									$wheres[] = $column . ' ' . $match[4] . ' ' . $this->quote(date('Y-m-d H:i:s', $datetime));
+								}
+								else
+								{
+									if (strpos($key, '#') === 0)
+									{
+										$wheres[] = $column . ' ' . $match[4] . ' ' . $this->fn_quote($key, $value);
+									}
 								}
 							}
 						}
@@ -379,24 +382,24 @@ class medoo
 
 			if (isset($where['LIKE']))
 			{
-				$like_query = $where['LIKE'];
+				$LIKE = $where['LIKE'];
 
-				if (is_array($like_query))
+				if (is_array($LIKE))
 				{
-					$is_OR = isset($like_query['OR']);
+					$is_OR = isset($LIKE['OR']);
 					$clause_wrap = array();
 
-					if ($is_OR || isset($like_query['AND']))
+					if ($is_OR || isset($LIKE['AND']))
 					{
 						$connector = $is_OR ? 'OR' : 'AND';
-						$like_query = $is_OR ? $like_query['OR'] : $like_query['AND'];
+						$LIKE = $is_OR ? $LIKE['OR'] : $LIKE['AND'];
 					}
 					else
 					{
 						$connector = 'AND';
 					}
 
-					foreach ($like_query as $column => $keyword)
+					foreach ($LIKE as $column => $keyword)
 					{
 						$keyword = is_array($keyword) ? $keyword : array($keyword);
 
@@ -423,11 +426,11 @@ class medoo
 
 			if (isset($where['MATCH']))
 			{
-				$match_query = $where['MATCH'];
+				$MATCH = $where['MATCH'];
 
-				if (is_array($match_query) && isset($match_query['columns'], $match_query['keyword']))
+				if (is_array($MATCH) && isset($MATCH['columns'], $MATCH['keyword']))
 				{
-					$where_clause .= ($where_clause != '' ? ' AND ' : ' WHERE ') . ' MATCH ("' . str_replace('.', '"."', implode($match_query['columns'], '", "')) . '") AGAINST (' . $this->quote($match_query['keyword']) . ')';
+					$where_clause .= ($where_clause != '' ? ' AND ' : ' WHERE ') . ' MATCH ("' . str_replace('.', '"."', implode($MATCH['columns'], '", "')) . '") AGAINST (' . $this->quote($MATCH['keyword']) . ')';
 				}
 			}
 
@@ -439,21 +442,22 @@ class medoo
 			if (isset($where['ORDER']))
 			{
 				$rsort = '/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/';
+				$ORDER = $where['ORDER'];
 
-				if (is_array($where['ORDER']))
+				if (is_array($ORDER))
 				{
 					if (
-						isset($where['ORDER'][1]) &&
-						is_array($where['ORDER'][1])
+						isset($ORDER[1]) &&
+						is_array($ORDER[1])
 					)
 					{
-						$where_clause .= ' ORDER BY FIELD(' . $this->column_quote($where['ORDER'][0]) . ', ' . $this->array_quote($where['ORDER'][1]) . ')';
+						$where_clause .= ' ORDER BY FIELD(' . $this->column_quote($ORDER[0]) . ', ' . $this->array_quote($ORDER[1]) . ')';
 					}
 					else
 					{
 						$stack = array();
 
-						foreach ($where['ORDER'] as $column)
+						foreach ($ORDER as $column)
 						{
 							preg_match($rsort, $column, $order_match);
 
@@ -465,7 +469,7 @@ class medoo
 				}
 				else
 				{
-					preg_match($rsort, $where['ORDER'], $order_match);
+					preg_match($rsort, $ORDER, $order_match);
 
 					$where_clause .= ' ORDER BY "' . str_replace('.', '"."', $order_match[1]) . '"' . (isset($order_match[3]) ? ' ' . $order_match[3] : '');
 				}
@@ -478,18 +482,20 @@ class medoo
 
 			if (isset($where['LIMIT']))
 			{
-				if (is_numeric($where['LIMIT']))
+				$LIMIT = $where['LIMIT'];
+
+				if (is_numeric($LIMIT))
 				{
-					$where_clause .= ' LIMIT ' . $where['LIMIT'];
+					$where_clause .= ' LIMIT ' . $LIMIT;
 				}
 
 				if (
-					is_array($where['LIMIT']) &&
-					is_numeric($where['LIMIT'][0]) &&
-					is_numeric($where['LIMIT'][1])
+					is_array($LIMIT) &&
+					is_numeric($LIMIT[0]) &&
+					is_numeric($LIMIT[1])
 				)
 				{
-					$where_clause .= ' LIMIT ' . $where['LIMIT'][0] . ',' . $where['LIMIT'][1];
+					$where_clause .= ' LIMIT ' . $LIMIT[0] . ',' . $LIMIT[1];
 				}
 			}
 		}
@@ -596,10 +602,6 @@ class medoo
 				if (is_null($where))
 				{
 					$where = $columns;
-				}
-				else
-				{
-					$where = $join;
 				}
 			}
 			else
