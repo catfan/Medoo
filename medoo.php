@@ -89,7 +89,7 @@ class medoo
 					break;
 
 				case 'oracle':
-					$dsn = 'oci:host=' . $this->server . ($is_port ? ';port=' . $port : '') . ';dbname=' . $this->database_name . ';charset=' . $this->charset;
+					$dsn = 'oci:dbname=//' . $this->server . ($is_port ? ':' . $port : ':1521') . '/' . $this->database_name . ';charset=' . $this->charset;
 					break;
 
 				case 'mssql':
