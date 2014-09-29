@@ -126,13 +126,17 @@ class medoo
 		}
 	}
 
-	public function query($query)
+	public function query($query, $params = array())
 	{
 		$this->queryString = $query;
 
-		return $this->pdo->query($query);
-	}
+		$request = $this->pdo->prepare($query);
 
+		$request->execute($params);
+
+		return $request;
+	}
+	
 	public function exec($query)
 	{
 		$this->queryString = $query;
