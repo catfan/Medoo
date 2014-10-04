@@ -93,7 +93,7 @@ class medoo
 					break;
 
 				case 'mssql':
-					$dsn = strpos(PHP_OS, 'WIN') !== false ?
+					$dsn = strstr(PHP_OS, 'WIN') ?
 						'sqlsrv:server=' . $this->server . ($is_port ? ',' . $port : '') . ';database=' . $this->database_name :
 						'dblib:host=' . $this->server . ($is_port ? ':' . $port : '') . ';dbname=' . $this->database_name;
 
@@ -661,14 +661,9 @@ class medoo
 					case 'array':
 						preg_match("/\(JSON\)\s*([\w]+)/i", $key, $column_match);
 
-						if (isset($column_match[0]))
-						{
-							$values[] = $this->quote(json_encode($value));
-						}
-						else
-						{
-							$values[] = $this->quote(serialize($value));
-						}
+						$values[] = isset($column_match[0]) ?
+							$this->quote(json_encode($value)) :
+							$this->quote(serialize($value));
 						break;
 
 					case 'boolean':
@@ -719,14 +714,9 @@ class medoo
 					case 'array':
 						preg_match("/\(JSON\)\s*([\w]+)/i", $key, $column_match);
 
-						if (isset($column_match[0]))
-						{
-							$fields[] = $this->column_quote($column_match[1]) . ' = ' . $this->quote(json_encode($value));
-						}
-						else
-						{
-							$fields[] = $column . ' = ' . $this->quote(serialize($value));
-						}
+						$fields[] = isset($column_match[0]) ?
+							$this->column_quote($column_match[1]) . ' = ' . $this->quote(json_encode($value)) :
+							$column . ' = ' . $this->quote(serialize($value));
 						break;
 
 					case 'boolean':
