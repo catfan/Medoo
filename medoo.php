@@ -550,7 +550,14 @@ class medoo
 						// For ['column1' => 'column2']
 						else
 						{
-							$relation = 'ON ' . $table . '."' . key($relation) . '" = "' . $match[3] . '"."' . current($relation) . '"';
+							if(is_string(key(array_slice($relation, 1, 1, true))))
+							{
+								$join_where = ' AND ' . substr($this->where_clause(array_slice($relation, 1, count($relation)-1, true)), 7);
+							} else {
+								$join_where = '';
+							}
+							
+							$relation = 'ON ' . $table . '."' . key($relation) . '" = "' . $match[3] . '"."' . current($relation) . '"' . $join_where;
 						}
 					}
 
