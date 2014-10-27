@@ -233,7 +233,7 @@ class medoo
 			}
 			else
 			{
-				preg_match('/(#?)([\w\.]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<)\])?/i', $key, $match);
+				preg_match('/(#?)([\w\.]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
 				$column = $this->column_quote($match[2]);
 
 				if (isset($match[4]))
@@ -284,6 +284,24 @@ class medoo
 							{
 								$wheres[] = '(' . $column . ' BETWEEN ' . $this->quote($value[0]) . ' AND ' . $this->quote($value[1]) . ')';
 							}
+						}
+					}
+
+					if ($operator == '~' || $operator == '!~')
+					{
+						if ($type == 'string')
+						{
+							if ($operator == '!~')
+							{
+								$column .= ' NOT';
+							}
+
+							if (preg_match('/^[^%].+[^%]$/', $value))
+							{
+								$value = '%' . $value . '%';
+							}
+
+							$wheres[] = $column . ' LIKE ' . $this->fn_quote($key, $value);
 						}
 					}
 					
@@ -381,6 +399,7 @@ class medoo
 				$where_clause = ' WHERE ' . $this->data_implode($where[ $value[0] ], ' OR');
 			}
 
+			// Will be deprecated
 			if (isset($where['LIKE']))
 			{
 				$LIKE = $where['LIKE'];
