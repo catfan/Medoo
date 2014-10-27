@@ -238,7 +238,9 @@ class medoo
 
 				if (isset($match[4]))
 				{
-					if ($match[4] == '!')
+					$operator = $match[4];
+
+					if ($operator == '!')
 					{
 						switch ($type)
 						{
@@ -264,47 +266,46 @@ class medoo
 								break;
 						}
 					}
-					else
-					{
-						if ($match[4] == '<>' || $match[4] == '><')
-						{
-							if ($type == 'array')
-							{
-								if ($match[4] == '><')
-								{
-									$column .= ' NOT';
-								}
 
-								if (is_numeric($value[0]) && is_numeric($value[1]))
-								{
-									$wheres[] = '(' . $column . ' BETWEEN ' . $value[0] . ' AND ' . $value[1] . ')';
-								}
-								else
-								{
-									$wheres[] = '(' . $column . ' BETWEEN ' . $this->quote($value[0]) . ' AND ' . $this->quote($value[1]) . ')';
-								}
-							}
-						}
-						else
+					if ($operator == '<>' || $operator == '><')
+					{
+						if ($type == 'array')
 						{
-							if (is_numeric($value))
+							if ($operator == '><')
 							{
-								$wheres[] = $column . ' ' . $match[4] . ' ' . $value;
+								$column .= ' NOT';
+							}
+
+							if (is_numeric($value[0]) && is_numeric($value[1]))
+							{
+								$wheres[] = '(' . $column . ' BETWEEN ' . $value[0] . ' AND ' . $value[1] . ')';
 							}
 							else
 							{
-								$datetime = strtotime($value);
+								$wheres[] = '(' . $column . ' BETWEEN ' . $this->quote($value[0]) . ' AND ' . $this->quote($value[1]) . ')';
+							}
+						}
+					}
+					
+					if (in_array($operator, array('>', '>=', '<', '<=')))
+					{
+						if (is_numeric($value))
+						{
+							$wheres[] = $column . ' ' . $operator . ' ' . $value;
+						}
+						else
+						{
+							$datetime = strtotime($value);
 
-								if ($datetime)
+							if ($datetime)
+							{
+								$wheres[] = $column . ' ' . $operator . ' ' . $this->quote(date('Y-m-d H:i:s', $datetime));
+							}
+							else
+							{
+								if (strpos($key, '#') === 0)
 								{
-									$wheres[] = $column . ' ' . $match[4] . ' ' . $this->quote(date('Y-m-d H:i:s', $datetime));
-								}
-								else
-								{
-									if (strpos($key, '#') === 0)
-									{
-										$wheres[] = $column . ' ' . $match[4] . ' ' . $this->fn_quote($key, $value);
-									}
+									$wheres[] = $column . ' ' . $operator . ' ' . $this->fn_quote($key, $value);
 								}
 							}
 						}
