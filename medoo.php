@@ -21,6 +21,9 @@ class medoo
 	// For SQLite
 	protected $database_file = '';
 
+	// For MySQL or MariaDB with unix_socket
+	protected $socket = '';
+
 	// Optional
 	protected $port = 3306;
 
@@ -75,8 +78,20 @@ class medoo
 					$type = 'mysql';
 
 				case 'mysql':
+					if ($this->socket)
+					{
+						$dsn = $type . ':unix_socket=' . $this->socket . ';dbname=' . $this->database_name;
+					}
+					else
+					{
+						$dsn = $type . ':host=' . $this->server . ($is_port ? ';port=' . $port : '') . ';dbname=' . $this->database_name;
+					}
+
 					// Make MySQL using standard quoted identifier
 					$commands[] = 'SET SQL_MODE=ANSI_QUOTES';
+
+					$commands[] = $set_charset;
+					break;
 
 				case 'pgsql':
 					$dsn = $type . ':host=' . $this->server . ($is_port ? ';port=' . $port : '') . ';dbname=' . $this->database_name;
@@ -118,7 +133,7 @@ class medoo
 
 			foreach ($commands as $value)
 			{
-				$this->pdo->exec($value);	
+				$this->pdo->exec($value);
 			}
 		}
 		catch (PDOException $e) {
