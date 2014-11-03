@@ -29,6 +29,8 @@ class medoo
 	protected $database_name = '';
 
 	protected $option = array();
+	
+	protected $queryStorage = array();
 
 	// Variable 
 	protected $queryString;
@@ -129,6 +131,7 @@ class medoo
 	public function query($query)
 	{
 		$this->queryString = $query;
+		$this->query_store($query);
 
 		return $this->pdo->query($query);
 	}
@@ -136,6 +139,7 @@ class medoo
 	public function exec($query)
 	{
 		$this->queryString = $query;
+		$this->query_store($query);
 
 		return $this->pdo->exec($query);
 	}
@@ -849,6 +853,16 @@ class medoo
 	{
 		return $this->queryString;
 	}
+	
+	public function all_queries()
+	{
+		return $this->queryStore;
+	}
+	
+	private function query_store($query)
+	{
+                array_push($this->queryStorage, $query);
+        }
 
 	public function info()
 	{
