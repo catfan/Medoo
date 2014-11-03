@@ -31,6 +31,8 @@ class medoo
 	protected $option = array();
 	
 	protected $queryStorage = array();
+	
+	protected $logger = NULL;
 
 	// Variable 
 	protected $queryString;
@@ -861,8 +863,33 @@ class medoo
 	
 	private function query_store($query)
 	{
+	        $this->log($query);
                 array_push($this->queryStorage, $query);
         }
+        
+        public function add_logger($logger)
+	{
+	        if(!is_object($logger)){ return FALSE; }
+                if(!get_class($logger)){ return FALSE; }
+        
+    	        if (strpos(￼get_class($logger), "Monolog") !== FALSE)
+    	        {
+        	        $this->logger = $logger;
+			return TRUE;
+    		} 
+    		else
+    		{
+        	        return FALSE;
+    		}
+	}
+	
+	private function log($entry)
+	{
+    		if (!is_null($this->logger))
+    		{
+        	        $this->logger->addInfo($entry);
+    		}
+	}
 
 	public function info()
 	{
