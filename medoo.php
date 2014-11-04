@@ -32,6 +32,10 @@ class medoo
 	protected $database_name = '';
 
 	protected $option = array();
+	
+	protected $queryStorage = array();
+	
+	protected $logger = NULL;
 
 	// Variable 
 	protected $queryString;
@@ -144,6 +148,7 @@ class medoo
 	public function query($query)
 	{
 		$this->queryString = $query;
+		$this->query_store($query);
 
 		return $this->pdo->query($query);
 	}
@@ -151,6 +156,7 @@ class medoo
 	public function exec($query)
 	{
 		$this->queryString = $query;
+		$this->query_store($query);
 
 		return $this->pdo->exec($query);
 	}
@@ -873,6 +879,41 @@ class medoo
 	public function last_query()
 	{
 		return $this->queryString;
+	}
+	
+	public function all_queries()
+	{
+		return $this->queryStore;
+	}
+	
+	private function query_store($query)
+	{
+	        $this->log($query);
+                array_push($this->queryStorage, $query);
+        }
+        
+        public function add_logger($logger)
+	{
+	        if(!is_object($logger)){ return FALSE; }
+                if(!get_class($logger)){ return FALSE; }
+        
+    	        if (strpos(￼get_class($logger), "Monolog") !== FALSE)
+    	        {
+        	        $this->logger = $logger;
+			return TRUE;
+    		} 
+    		else
+    		{
+        	        return FALSE;
+    		}
+	}
+	
+	private function log($entry)
+	{
+    		if (!is_null($this->logger))
+    		{
+        	        $this->logger->addInfo($entry);
+    		}
 	}
 
 	public function info()
