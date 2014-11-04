@@ -34,7 +34,7 @@ class medoo
 	protected $option = array();
 
 	// Variable 
-	protected $queryString;
+	protected $logs = array();
 
 	public function __construct($options = null)
 	{
@@ -143,14 +143,14 @@ class medoo
 
 	public function query($query)
 	{
-		$this->queryString = $query;
+		array_push($this->logs, $query);
 
 		return $this->pdo->query($query);
 	}
 
 	public function exec($query)
 	{
-		$this->queryString = $query;
+		array_push($this->logs, $query);
 
 		return $this->pdo->exec($query);
 	}
@@ -872,7 +872,12 @@ class medoo
 
 	public function last_query()
 	{
-		return $this->queryString;
+		return end($this->logs);
+	}
+
+	public function log()
+	{
+		return $this->logs;
 	}
 
 	public function info()
