@@ -51,7 +51,7 @@ On develop branch, each commits are started with `[fix]`, `[feature]` or `[updat
 
 Keep it simple and keep it clear.
 
-### Liscense
+### License
 
 Medoo is under the MIT License.
 
