@@ -107,6 +107,10 @@ class medoo
 					$dsn = 'oci:dbname=//' . $this->server . ($is_port ? ':' . $port : ':1521') . '/' . $this->database_name . ';charset=' . $this->charset;
 					break;
 
+				case 'firebird':
+					$dsn = 'firebird:dbname='.$this->server.':'.$this->database_file;
+					break;
+
 				case 'mssql':
 					$dsn = strstr(PHP_OS, 'WIN') ?
 						'sqlsrv:server=' . $this->server . ($is_port ? ',' . $port : '') . ';database=' . $this->database_name :
@@ -144,6 +148,14 @@ class medoo
 	public function query($query)
 	{
 		array_push($this->logs, $query);
+
+		/* Firebird doesn't support quoted strings for table and column names
+		 There might be a more elegant solution to this,
+		 but I wasn't able to prevent column_quote from doing its thing.
+		*/
+		if (strtolower($this->database_type) == "firebird") {
+			$query = str_replace('"', '', $query);
+		}
 
 		return $this->pdo->query($query);
 	}
