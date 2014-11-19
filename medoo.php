@@ -815,7 +815,7 @@ class medoo
 		return $this->exec('UPDATE "' . $table . '" SET ' . $replace_query . $this->where_clause($where));
 	}
 
-	public function get($table, $columns, $where = null)
+	public function get($table, $join = null, $column = null, $where = null)
 	{
 		if (!isset($where))
 		{
@@ -824,7 +824,7 @@ class medoo
 
 		$where['LIMIT'] = 1;
 
-		$data = $this->select($table, $columns, $where);
+		$data = $this->query($this->select_context($table, $join, $column, $where))->fetchAll(PDO::FETCH_ASSOC);
 
 		return isset($data[0]) ? $data[0] : false;
 	}
