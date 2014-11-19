@@ -156,6 +156,7 @@ class medoo
 		if (strtolower($this->database_type) == "firebird") {
 			$query = str_replace('"', '', $query);
 		}
+		echo $query.'<br>';
 
 		return $this->pdo->query($query);
 	}
@@ -163,6 +164,7 @@ class medoo
 	public function exec($query)
 	{
 		array_push($this->logs, $query);
+		echo $query.'<br>';
 
 		return $this->pdo->exec($query);
 	}
@@ -697,7 +699,11 @@ class medoo
 
 			foreach ($data as $key => $value)
 			{
-				array_push($columns, $this->column_quote($key));
+				if (strtolower($this->database_type) == "firebird") {
+					array_push($columns, $key);
+				} else {
+					array_push($columns, $this->column_quote($key));
+				}
 
 				switch (gettype($value))
 				{
@@ -718,16 +724,31 @@ class medoo
 						break;
 
 					case 'integer':
+						$values[] = $value;
+						break;
+					
 					case 'double':
+						$values[] = $value;
+						break;
+
 					case 'string':
-						$values[] = $this->fn_quote($key, $value);
+						if (strtolower($this->database_type) == "firebird") {
+							$values[] = $value;
+						} else {
+							$values[] = $this->fn_quote($key, $value);
+						}
 						break;
 				}
 			}
 
-			$this->exec('INSERT INTO "' . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
+			if (strtolower($this->database_type) == "firebird") {
+				$this->exec('INSERT INTO ' . $table . ' (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
+				$lastId[] = 0;
+			} else {
+				$this->exec('INSERT INTO "' . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
+				$lastId[] = $this->pdo->lastInsertId();
+			}
 
-			$lastId[] = $this->pdo->lastInsertId();
 		}
 
 		return count($lastId) > 1 ? $lastId : $lastId[ 0 ];
