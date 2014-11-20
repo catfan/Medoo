@@ -826,7 +826,21 @@ class medoo
 
 		$data = $this->query($this->select_context($table, $join, $column, $where))->fetchAll(PDO::FETCH_ASSOC);
 
-		return isset($data[0]) ? $data[0] : false;
+		if (isset($data[0]))
+		{
+			$column = $where == null ? $join : $column;
+			
+			if (is_string($column) && $column != '*')
+			{
+				return $data[ 0 ][ $column ];
+			}
+
+			return $data[ 0 ];
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	public function has($table, $join, $where = null)
