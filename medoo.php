@@ -155,7 +155,7 @@ class medoo
 	public function exec($query)
 	{
 		array_push($this->logs, $query);
-		echo $query.'<br>';
+		//echo $query.'<br>';
 
 		return $this->pdo->exec($query);
 	}
@@ -391,7 +391,7 @@ class medoo
 				}
 			}
 		}
-		print_r($wheres);
+
 		return implode($conjunctor . ' ', $wheres);
 	}
 
@@ -554,7 +554,6 @@ class medoo
 			}
 		}
 
-		echo $where_clause.'<br>';
 		return $where_clause;
 	}
 
@@ -860,7 +859,23 @@ class medoo
 
 	public function delete($table, $where)
 	{
-		return $this->exec('DELETE FROM "' . $table . '"' . $this->where_clause($where));
+		if (strtolower($this->database_type) == "firebird") {
+			$query = 'DELETE FROM ' . $table . ' ' . $this->where_clause($where);
+			$success = $this->exec($query);
+		} else {
+			$query = 'DELETE FROM "' . $table . '"' . $this->where_clause($where);
+			$success = $this->exec($query);
+		}
+
+		echo $success.'<br>';
+		if (!$success) {
+			echo "<br><b>DELETE ERROR</b><br>";
+			echo "<b>Query:</b> ".$query.'<br>';
+			echo "Does the row exist?<br>";
+			return NULL;
+		}
+
+		return $success;
 	}
 
 	public function replace($table, $columns, $search = null, $replace = null, $where = null)
