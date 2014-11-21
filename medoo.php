@@ -149,15 +149,6 @@ class medoo
 	{
 		array_push($this->logs, $query);
 
-		/* Firebird doesn't support quoted strings for table and column names
-		 There might be a more elegant solution to this,
-		 but I wasn't able to prevent column_quote from doing its thing.
-		*/
-		if (strtolower($this->database_type) == "firebird") {
-			$query = str_replace('"', '', $query);
-		}
-		echo $query.'<br>';
-
 		return $this->pdo->query($query);
 	}
 
@@ -674,11 +665,36 @@ class medoo
 
 	public function select($table, $join, $columns = null, $where = null)
 	{
-		$query = $this->query($this->select_context($table, $join, $columns, $where));
+		$queryString = $this->select_context($table, $join, $columns, $where);
 
-		return $query ? $query->fetchAll(
+		/* Firebird doesn't support quoted strings for table and column names
+		 There might be a more elegant solution to this,
+		 but I wasn't able to prevent column_quote from doing its thing.
+		*/
+		if (strtolower($this->database_type) == "firebird") {
+			$queryString = str_replace('"', '', $queryString);
+		}
+
+		$query = $this->query($queryString);
+
+		if (!$query) {
+			echo "<br><b>DATABASE ERROR</b><br>";
+			echo "<b>Error:</b> ".$this->pdo->errorInfo()[2].'<br>';
+			echo "<b>Query:</b> ".$queryString.'<br>';
+			return NULL;
+		}
+
+		$success = $query->fetchAll(
 			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
-		) : false;
+		);
+
+		if (!$success) {
+			echo "<br><b>DATABASE ERROR</b><br>";
+			echo "<b>Error:</b> ".$this->pdo->errorInfo()[2].'<br>';
+			echo "<b>Query:</b> ".$query.'<br>';
+			return NULL;
+		}
+		return $success;
 	}
 
 	public function insert($table, $datas)
@@ -742,15 +758,22 @@ class medoo
 			}
 
 			if (strtolower($this->database_type) == "firebird") {
-				$this->exec('INSERT INTO ' . $table . ' (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
-				$lastId[] = 0;
+				$query = 'INSERT INTO ' . $table . ' (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')';
+				$success = $this->exec($query);
 			} else {
-				$this->exec('INSERT INTO "' . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
+				$query = 'INSERT INTO "' . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')';
+				$success = $this->exec($query);
 				$lastId[] = $this->pdo->lastInsertId();
 			}
 
 		}
 
+		if (!$success) {
+			echo "<br><b>DATABASE ERROR</b><br>";
+			echo "<b>Error:</b> ".$this->pdo->errorInfo()[2].'<br>';
+			echo "<b>Query:</b> ".$query.'<br>';
+			return NULL;
+		}
 		return count($lastId) > 1 ? $lastId : $lastId[ 0 ];
 	}
 
