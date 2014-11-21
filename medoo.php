@@ -162,11 +162,17 @@ class medoo
 
 	public function quote($string)
 	{
+		if (strtolower($this->database_type) == "firebird") {
+			return $string;
+		}
 		return $this->pdo->quote($string);
 	}
 
 	protected function column_quote($string)
 	{
+		if (strtolower($this->database_type) == "firebird") {
+			return $string;
+		}
 		return '"' . str_replace('.', '"."', preg_replace('/(^#|\(JSON\))/', '', $string)) . '"';
 	}
 
@@ -254,6 +260,7 @@ class medoo
 			else
 			{
 				preg_match('/(#?)([\w\.]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
+
 				$column = $this->column_quote($match[2]);
 
 				if (isset($match[4]))
@@ -384,7 +391,7 @@ class medoo
 				}
 			}
 		}
-
+		print_r($wheres);
 		return implode($conjunctor . ' ', $wheres);
 	}
 
@@ -547,12 +554,15 @@ class medoo
 			}
 		}
 
+		echo $where_clause.'<br>';
 		return $where_clause;
 	}
 
 	protected function select_context($table, $join, &$columns = null, $where = null, $column_fn = null)
 	{
-		$table = '"' . $table . '"';
+		if (strtolower($this->database_type) != "firebird") {
+			$table = '"' . $table . '"';
+		}
 		$join_key = is_array($join) ? array_keys($join) : null;
 
 		if (
@@ -670,15 +680,15 @@ class medoo
 		/* Firebird doesn't support quoted strings for table and column names
 		 There might be a more elegant solution to this,
 		 but I wasn't able to prevent column_quote from doing its thing.
-		*/
+		
 		if (strtolower($this->database_type) == "firebird") {
 			$queryString = str_replace('"', '', $queryString);
-		}
+		}*/
 
 		$query = $this->query($queryString);
 
 		if (!$query) {
-			echo "<br><b>DATABASE ERROR</b><br>";
+			echo "<br><b>SELECT ERROR</b><br>";
 			echo "<b>Error:</b> ".$this->pdo->errorInfo()[2].'<br>';
 			echo "<b>Query:</b> ".$queryString.'<br>';
 			return NULL;
@@ -689,7 +699,7 @@ class medoo
 		);
 
 		if (!$success) {
-			echo "<br><b>DATABASE ERROR</b><br>";
+			echo "<br><b>SELECT ERROR</b><br>";
 			echo "<b>Error:</b> ".$this->pdo->errorInfo()[2].'<br>';
 			echo "<b>Query:</b> ".$query.'<br>';
 			return NULL;
@@ -715,11 +725,7 @@ class medoo
 
 			foreach ($data as $key => $value)
 			{
-				if (strtolower($this->database_type) == "firebird") {
-					array_push($columns, $key);
-				} else {
-					array_push($columns, $this->column_quote($key));
-				}
+				array_push($columns, $this->column_quote($key));
 
 				switch (gettype($value))
 				{
@@ -769,7 +775,7 @@ class medoo
 		}
 
 		if (!$success) {
-			echo "<br><b>DATABASE ERROR</b><br>";
+			echo "<br><b>INSERT ERROR</b><br>";
 			echo "<b>Error:</b> ".$this->pdo->errorInfo()[2].'<br>';
 			echo "<b>Query:</b> ".$query.'<br>';
 			return NULL;
@@ -815,15 +821,41 @@ class medoo
 						break;
 
 					case 'integer':
+						$values[] = $value;
+						break;
+
 					case 'double':
+						$values[] = $value;
+						break;
+
 					case 'string':
-						$fields[] = $column . ' = ' . $this->fn_quote($key, $value);
+						if (strtolower($this->database_type) == "firebird") {
+							$fields[] = $column . ' = ' . $value;
+						} else {
+							$fields[] = $column . ' = ' . $this->fn_quote($key, $value);
+						}
 						break;
 				}
 			}
 		}
 
-		return $this->exec('UPDATE "' . $table . '" SET ' . implode(', ', $fields) . $this->where_clause($where));
+
+		if (strtolower($this->database_type) == "firebird") {
+			$query = 'UPDATE ' . $table . ' SET ' . implode(', ', $fields) . $this->where_clause($where);
+			$success = $this->exec($query);
+		} else {
+			$query = 'UPDATE "' . $table . '" SET ' . implode(', ', $fields) . $this->where_clause($where);
+			$success = $this->exec($query);
+		}
+
+		if (!$success) {
+			echo "<br><b>UPDATE ERROR</b><br>";
+			echo "<b>Error:</b> ".$this->pdo->errorInfo()[2].'<br>';
+			echo "<b>Query:</b> ".$query.'<br>';
+			return NULL;
+		}
+
+		return $success;
 	}
 
 	public function delete($table, $where)
