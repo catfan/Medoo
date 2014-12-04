@@ -9,27 +9,27 @@
  */
 class medoo
 {
-	protected $database_type = 'mysql';
+	protected $database_type;
 
 	// For MySQL, MariaDB, MSSQL, Sybase, PostgreSQL, Oracle
-	protected $server = 'localhost';
+	protected $server;
 
-	protected $username = 'username';
+	protected $username;
 
-	protected $password = 'password';
+	protected $password;
 
 	// For SQLite
-	protected $database_file = '';
+	protected $database_file;
 
 	// For MySQL or MariaDB with unix_socket
-	protected $socket = '';
+	protected $socket;
 
 	// Optional
-	protected $port = 3306;
+	protected $port;
 
-	protected $charset = 'utf8';
+	protected $charset;
 
-	protected $database_name = '';
+	protected $database_name;
 
 	protected $option = array();
 
@@ -68,7 +68,6 @@ class medoo
 				$port = $this->port;
 			}
 
-			$set_charset = "SET NAMES '" . $this->charset . "'";
 			$type = strtolower($this->database_type);
 			$is_port = isset($port);
 
@@ -89,22 +88,22 @@ class medoo
 
 					// Make MySQL using standard quoted identifier
 					$commands[] = 'SET SQL_MODE=ANSI_QUOTES';
-
-					$commands[] = $set_charset;
 					break;
 
 				case 'pgsql':
 					$dsn = $type . ':host=' . $this->server . ($is_port ? ';port=' . $port : '') . ';dbname=' . $this->database_name;
-					$commands[] = $set_charset;
 					break;
 
 				case 'sybase':
 					$dsn = 'dblib:host=' . $this->server . ($is_port ? ':' . $port : '') . ';dbname=' . $this->database_name;
-					$commands[] = $set_charset;
 					break;
 
 				case 'oracle':
-					$dsn = 'oci:dbname=//' . $this->server . ($is_port ? ':' . $port : ':1521') . '/' . $this->database_name . ';charset=' . $this->charset;
+					$dbname = $this->server ?
+						'//' . $this->server . ($is_port ? ':' . $port : ':1521') . '/' . $this->database_name :
+						$this->database_name;
+
+					$dsn = 'oci:dbname=' . $dbname . ($this->charset ? ';charset=' . $this->charset : '');
 					break;
 
 				case 'mssql':
@@ -114,7 +113,6 @@ class medoo
 
 					// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
 					$commands[] = 'SET QUOTED_IDENTIFIER ON';
-					$commands[] = $set_charset;
 					break;
 
 				case 'sqlite':
@@ -122,6 +120,14 @@ class medoo
 					$this->username = null;
 					$this->password = null;
 					break;
+			}
+
+			if (
+				in_array($type, explode(' ', 'mariadb mysql pgsql sybase mssql')) &&
+				$this->charset
+			)
+			{
+				$commands[] = "SET NAMES '" . $this->charset . "'";
 			}
 
 			$this->pdo = new PDO(
