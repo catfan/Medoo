@@ -1,10 +1,12 @@
+![](https://raw.githubusercontent.com/catfan/Medoo/develop/src/medoo-logo.png)
+
 ## [Medoo](http://medoo.in)
 
 > The Lightest PHP database framework to accelerate development
 
 ### Main Features
 
-* **Lightweight** - Only 14KB with one file.
+* **Lightweight** - Only 15KB with one file.
 
 * **Easy** - Extremely easy to learn and use, friendly construction.
 
@@ -19,11 +21,17 @@
 ### Get Started
 
 ```php
-// Include Medoo (configured)
+// Include Medoo
 require_once 'medoo.php';
 
 // Initialize
-$database = new medoo();
+$database = new medoo([
+    'database_type' => 'mysql',
+    'database_name' => 'name',
+    'server' => 'localhost',
+    'username' => 'your_username',
+    'password' => 'your_password',
+]);
 
 // Enjoy
 $database->insert('account', [
@@ -33,14 +41,8 @@ $database->insert('account', [
     'lang' => ['en', 'fr', 'jp', 'cn']
 ]);
 
-// Or initialize via independent configuration
-$database = new medoo([
-    'database_type' => 'mysql',
-    'database_name' => 'name',
-    'server' => 'localhost',
-    'username' => 'your_username',
-    'password' => 'your_password',
-]);
+// Or initialize from file and then
+$database = new medoo();
 ```
 
 ### Contribution Guides
