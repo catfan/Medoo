@@ -472,6 +472,11 @@ class medoo
 			if (isset($where['GROUP']))
 			{
 				$where_clause .= ' GROUP BY ' . $this->column_quote($where['GROUP']);
+
+				if (isset($where['HAVING']))
+				{
+					$where_clause .= ' HAVING ' . $this->data_implode($where['HAVING'], ' AND');
+				}
 			}
 
 			if (isset($where['ORDER']))
@@ -507,11 +512,6 @@ class medoo
 					preg_match($rsort, $ORDER, $order_match);
 
 					$where_clause .= ' ORDER BY "' . str_replace('.', '"."', $order_match[1]) . '"' . (isset($order_match[3]) ? ' ' . $order_match[3] : '');
-				}
-
-				if (isset($where['HAVING']))
-				{
-					$where_clause .= ' HAVING ' . $this->data_implode($where['HAVING'], '');
 				}
 			}
 
