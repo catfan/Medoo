@@ -853,7 +853,8 @@ class medoo
 	{
 		$column = null;
 
-		return $this->query('SELECT EXISTS(' . $this->select_context($table, $join, $column, $where, 1) . ')')->fetchColumn() === '1';
+		$result=$this->query($this->select_context($table, $join, $column, $where, 1))->fetchColumn();
+		return $result===1 || $result==='1';
 	}
 
 	public function count($table, $join = null, $column = null, $where = null)
