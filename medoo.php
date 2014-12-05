@@ -285,6 +285,20 @@ class medoo
 							case 'string':
 								$wheres[] = $column . ' != ' . $this->fn_quote($key, $value);
 								break;
+								
+							/*
+							 * Adding option for Select Query to be used in Where Statement
+							 * Example
+							 *
+							 * "AND" => [
+							 *      "employees.company" => (object)['query'=>"(SELECT id FROM companies WHERE email = '".$email."')"],
+							 * ],
+							 *
+							 * Assuming in this example that companies.email is an unique field
+							 */
+							case 'object':
+								$wheres[] = $column . ' = ' . $value->query;
+								break;
 						}
 					}
 
@@ -380,6 +394,20 @@ class medoo
 							case 'string':
 								$wheres[] = $column . ' = ' . $this->fn_quote($key, $value);
 								break;
+								
+							/*
+							 * Adding option for Select Query to be used in Where Statement
+							 * Example
+							 *
+							 * "AND" => [
+					         *      "employees.company" => (object)['query'=>"(SELECT id FROM companies WHERE email = '".$email."')"],
+					         * ],
+					         *
+					         * Assuming in this example that companies.email is an unique field
+							 */
+                            case 'object':
+                                $wheres[] = $column . ' = ' . $value->query;
+                                break;
 						}
 					}
 				}
@@ -716,6 +744,20 @@ class medoo
 					case 'string':
 						$values[] = $this->fn_quote($key, $value);
 						break;
+						
+					/*
+					 * Adding option for Select Query to be used in Where Statement
+					 * Example
+					 *
+					 * "AND" => [
+					 *      "employees.company" => (object)['query'=>"(SELECT id FROM companies WHERE email = '".$email."')"],
+					 * ],
+					 *
+					 * Assuming in this example that companies.email is an unique field
+					 */
+                    case 'object':
+                        $values[] = $value->query;
+                        break;
 				}
 			}
 
