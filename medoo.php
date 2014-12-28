@@ -420,51 +420,6 @@ class medoo
 				$where_clause = ' WHERE ' . $this->data_implode($where[ $value[0] ], ' OR');
 			}
 
-			// Will be deprecated
-			if (isset($where['LIKE']))
-			{
-				$LIKE = $where['LIKE'];
-
-				if (is_array($LIKE))
-				{
-					$is_OR = isset($LIKE['OR']);
-					$clause_wrap = array();
-
-					if ($is_OR || isset($LIKE['AND']))
-					{
-						$connector = $is_OR ? 'OR' : 'AND';
-						$LIKE = $is_OR ? $LIKE['OR'] : $LIKE['AND'];
-					}
-					else
-					{
-						$connector = 'AND';
-					}
-
-					foreach ($LIKE as $column => $keyword)
-					{
-						$keyword = is_array($keyword) ? $keyword : array($keyword);
-
-						foreach ($keyword as $key)
-						{
-							preg_match('/(%?)([a-zA-Z0-9_\-\.]*)(%?)((\[!\])?)/', $column, $column_match);
-
-							if ($column_match[1] == '' && $column_match[3] == '')
-							{
-								$column_match[1] = '%';
-								$column_match[3] = '%';
-							}
-
-							$clause_wrap[] =
-								$this->column_quote($column_match[2]) .
-								($column_match[4] != '' ? ' NOT' : '') . ' LIKE ' .
-								$this->quote($column_match[1] . $key . $column_match[3]);
-						}
-					}
-
-					$where_clause .= ($where_clause != '' ? ' AND ' : ' WHERE ') . '(' . implode($clause_wrap, ' ' . $connector . ' ') . ')';
-				}
-			}
-
 			if (isset($where['MATCH']))
 			{
 				$MATCH = $where['MATCH'];
