@@ -312,17 +312,29 @@ class medoo
 					{
 						if ($type == 'string')
 						{
-							if ($operator == '!~')
+							$value = array($value);
+						}
+
+						if (!empty($value))
+						{
+							$like_clauses = array();
+
+							foreach ($value as $item)
 							{
-								$column .= ' NOT';
+								if ($operator == '!~')
+								{
+									$column .= ' NOT';
+								}
+
+								if (preg_match('/^[^%].+[^%]$/', $item))
+								{
+									$item = '%' . $item . '%';
+								}
+
+								$like_clauses[] = $column . ' LIKE ' . $this->fn_quote($key, $item);
 							}
 
-							if (preg_match('/^[^%].+[^%]$/', $value))
-							{
-								$value = '%' . $value . '%';
-							}
-
-							$wheres[] = $column . ' LIKE ' . $this->fn_quote($key, $value);
+							$wheres[] = implode(' OR ', $like_clauses);
 						}
 					}
 					
