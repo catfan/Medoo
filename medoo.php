@@ -33,7 +33,7 @@ class medoo
 
 	protected $option = array();
 
-	// Variable 
+	// Variable
 	protected $logs = array();
 
 	public function __construct($options = null)
@@ -131,7 +131,7 @@ class medoo
 			}
 
 			$this->pdo = new PDO(
-				$dsn, 
+				$dsn,
 				$this->username,
 				$this->password,
 				$this->option
@@ -337,7 +337,7 @@ class medoo
 							$wheres[] = implode(' OR ', $like_clauses);
 						}
 					}
-					
+
 					if (in_array($operator, array('>', '>=', '<', '<=')))
 					{
 						if (is_numeric($value))
@@ -802,7 +802,7 @@ class medoo
 		if (isset($data[0]))
 		{
 			$column = $where == null ? $join : $column;
-			
+
 			if (is_string($column) && $column != '*')
 			{
 				return $data[ 0 ][ $column ];
