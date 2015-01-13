@@ -326,7 +326,7 @@ class medoo
 									$column .= ' NOT';
 								}
 
-								if (preg_match('/^[^%].+[^%]$/', $item))
+								if (preg_match('/^(?!%).+(?<!%)$/', $item))
 								{
 									$item = '%' . $item . '%';
 								}
