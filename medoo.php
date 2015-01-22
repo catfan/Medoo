@@ -187,7 +187,7 @@ class medoo
 
 		foreach ($columns as $key => $value)
 		{
-			preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
+			preg_match('/^([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)$/i', $value, $match);
 
 			if (isset($match[1], $match[2]))
 			{
@@ -195,7 +195,13 @@ class medoo
 			}
 			else
 			{
-				array_push($stack, $this->column_quote( $value ));
+                preg_match('/\[([a-zA-Z0-9_\-\.]+)\]\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
+                if (isset($match[1], $match[2]))
+                {
+                	array_push($stack,  $match[1].'(*)' . ' AS ' . $this->column_quote( $match[2] ));    
+                } else {
+					array_push($stack, $this->column_quote( $value ));
+				}
 			}
 		}
 
@@ -477,8 +483,18 @@ class medoo
 
 			if (isset($where['GROUP']))
 			{
-				$where_clause .= ' GROUP BY ' . $this->column_quote($where['GROUP']);
-
+				$where_clause .= ' GROUP BY ';
+                if (is_string($where['GROUP']))
+                {
+                    $where_clause .= $this->column_quote($where['GROUP']);
+                } else if (is_array ($where['GROUP']))
+                {
+                    $group_columns=[];
+                    foreach ($where['GROUP'] as $value) {
+                        $group_columns[]=$this->column_quote($value);
+                    }
+                    $where_clause .= implode($group_columns,',');
+                }
 				if (isset($where['HAVING']))
 				{
 					$where_clause .= ' HAVING ' . $this->data_implode($where['HAVING'], ' AND');
