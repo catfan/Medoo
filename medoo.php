@@ -36,6 +36,8 @@ class medoo
 	// Variable
 	protected $logs = array();
 
+	protected $debug_mode = false;
+
 	public function __construct($options = null)
 	{
 		try {
@@ -149,6 +151,13 @@ class medoo
 
 	public function query($query)
 	{
+		if ($this->debug_mode)
+		{
+			echo $query;
+
+			return false;
+		}
+
 		array_push($this->logs, $query);
 
 		return $this->pdo->query($query);
@@ -156,6 +165,13 @@ class medoo
 
 	public function exec($query)
 	{
+		if ($this->debug_mode)
+		{
+			echo $query;
+
+			return false;
+		}
+
 		array_push($this->logs, $query);
 
 		return $this->pdo->exec($query);
@@ -797,18 +813,27 @@ class medoo
 
 		$where['LIMIT'] = 1;
 
-		$data = $this->query($this->select_context($table, $join, $column, $where))->fetchAll(PDO::FETCH_ASSOC);
+		$query = $this->query($this->select_context($table, $join, $column, $where));
 
-		if (isset($data[0]))
+		if ($query)
 		{
-			$column = $where == null ? $join : $column;
+			$data = $query->fetchAll(PDO::FETCH_ASSOC);
 
-			if (is_string($column) && $column != '*')
+			if (isset($data[0]))
 			{
-				return $data[ 0 ][ $column ];
-			}
+				$column = $where == null ? $join : $column;
 
-			return $data[ 0 ];
+				if (is_string($column) && $column != '*')
+				{
+					return $data[ 0 ][ $column ];
+				}
+
+				return $data[ 0 ];
+			}
+			else
+			{
+				return false;
+			}
 		}
 		else
 		{
@@ -820,36 +845,69 @@ class medoo
 	{
 		$column = null;
 
-		return $this->query('SELECT EXISTS(' . $this->select_context($table, $join, $column, $where, 1) . ')')->fetchColumn() === '1';
+		$query = $this->query('SELECT EXISTS(' . $this->select_context($table, $join, $column, $where, 1) . ')');
+
+		return $query ? $query->fetchColumn() === '1' : false;
 	}
 
 	public function count($table, $join = null, $column = null, $where = null)
 	{
-		return 0 + ($this->query($this->select_context($table, $join, $column, $where, 'COUNT'))->fetchColumn());
+		$query = $this->query($this->select_context($table, $join, $column, $where, 'COUNT'));
+
+		return $query ? 0 + $query->fetchColumn() : false;
 	}
 
 	public function max($table, $join, $column = null, $where = null)
 	{
-		$max = $this->query($this->select_context($table, $join, $column, $where, 'MAX'))->fetchColumn();
+		$query = $this->query($this->select_context($table, $join, $column, $where, 'MAX'));
 
-		return is_numeric($max) ? $max + 0 : $max;
+		if ($query)
+		{
+			$max = $query->fetchColumn();
+
+			return is_numeric($max) ? $max + 0 : $max;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	public function min($table, $join, $column = null, $where = null)
 	{
-		$min = $this->query($this->select_context($table, $join, $column, $where, 'MIN'))->fetchColumn();
+		$query = $this->query($this->select_context($table, $join, $column, $where, 'MIN'));
 
-		return is_numeric($min) ? $min + 0 : $min;
+		if ($query)
+		{
+			$min = $query->fetchColumn();
+
+			return is_numeric($min) ? $min + 0 : $min;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	public function avg($table, $join, $column = null, $where = null)
 	{
-		return 0 + ($this->query($this->select_context($table, $join, $column, $where, 'AVG'))->fetchColumn());
+		$query = $this->query($this->select_context($table, $join, $column, $where, 'AVG'));
+
+		return $query ? 0 + $query->fetchColumn() : false;
 	}
 
 	public function sum($table, $join, $column = null, $where = null)
 	{
-		return 0 + ($this->query($this->select_context($table, $join, $column, $where, 'SUM'))->fetchColumn());
+		$query = $this->query($this->select_context($table, $join, $column, $where, 'SUM'));
+
+		return $query ? 0 + $query->fetchColumn() : false;
+	}
+
+	public function debug()
+	{
+		$this->debug_mode = true;
+
+		return $this;
 	}
 
 	public function error()
