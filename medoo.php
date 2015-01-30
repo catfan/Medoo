@@ -155,6 +155,8 @@ class medoo
 		{
 			echo $query;
 
+			$this->debug_mode = false;
+
 			return false;
 		}
 
@@ -168,6 +170,8 @@ class medoo
 		if ($this->debug_mode)
 		{
 			echo $query;
+
+			$this->debug_mode = false;
 
 			return false;
 		}
