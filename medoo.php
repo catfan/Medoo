@@ -4,7 +4,7 @@
  * http://medoo.in
  * Version 0.9.7
  * 
- * Copyright 2015, Angel Lai
+ * Copyright 2014, Angel Lai
  * Released under the MIT license
  */
 class medoo
@@ -384,35 +384,28 @@ class medoo
 				}
 				else
 				{
-					if (is_int($key))
+					switch ($type)
 					{
-						$wheres[] = $this->quote($value);
-					}
-					else
-					{
-						switch ($type)
-						{
-							case 'NULL':
-								$wheres[] = $column . ' IS NULL';
-								break;
+						case 'NULL':
+							$wheres[] = $column . ' IS NULL';
+							break;
 
-							case 'array':
-								$wheres[] = $column . ' IN (' . $this->array_quote($value) . ')';
-								break;
+						case 'array':
+							$wheres[] = $column . ' IN (' . $this->array_quote($value) . ')';
+							break;
 
-							case 'integer':
-							case 'double':
-								$wheres[] = $column . ' = ' . $value;
-								break;
+						case 'integer':
+						case 'double':
+							$wheres[] = $column . ' = ' . $value;
+							break;
 
-							case 'boolean':
-								$wheres[] = $column . ' = ' . ($value ? '1' : '0');
-								break;
+						case 'boolean':
+							$wheres[] = $column . ' = ' . ($value ? '1' : '0');
+							break;
 
-							case 'string':
-								$wheres[] = $column . ' = ' . $this->fn_quote($key, $value);
-								break;
-						}
+						case 'string':
+							$wheres[] = $column . ' = ' . $this->fn_quote($key, $value);
+							break;
 					}
 				}
 			}
@@ -742,9 +735,9 @@ class medoo
 					case 'array':
 						preg_match("/\(JSON\)\s*([\w]+)/i", $key, $column_match);
 
-						$fields[] = isset($column_match[0]) ?
-							$this->column_quote($column_match[1]) . ' = ' . $this->quote(json_encode($value)) :
-							$column . ' = ' . $this->quote(serialize($value));
+						$fields[] = $column . ' = ' . $this->quote(
+								isset($column_match[0]) ? json_encode($value) : serialize($value)
+							);
 						break;
 
 					case 'boolean':
