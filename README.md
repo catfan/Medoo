@@ -6,7 +6,7 @@
 
 ### Main Features
 
-* **Lightweight** - Only 15KB with one file.
+* **Lightweight** - Only 20KB with one file.
 
 * **Easy** - Extremely easy to learn and use, friendly construction.
 
@@ -31,6 +31,7 @@ $database = new medoo([
     'server' => 'localhost',
     'username' => 'your_username',
     'password' => 'your_password',
+    'charset' => 'utf8'
 ]);
 
 // Enjoy
