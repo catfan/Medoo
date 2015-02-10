@@ -4,7 +4,7 @@
  * http://medoo.in
  * Version 0.9.7
  * 
- * Copyright 2014, Angel Lai
+ * Copyright 2015, Angel Lai
  * Released under the MIT license
  */
 class medoo
@@ -364,21 +364,13 @@ class medoo
 						{
 							$wheres[] = $column . ' ' . $operator . ' ' . $value;
 						}
+						elseif (strpos($key, '#') === 0)
+						{
+							$wheres[] = $column . ' ' . $operator . ' ' . $this->fn_quote($key, $value);
+						}
 						else
 						{
-							$datetime = strtotime($value);
-
-							if ($datetime)
-							{
-								$wheres[] = $column . ' ' . $operator . ' ' . $this->quote(date('Y-m-d H:i:s', $datetime));
-							}
-							else
-							{
-								if (strpos($key, '#') === 0)
-								{
-									$wheres[] = $column . ' ' . $operator . ' ' . $this->fn_quote($key, $value);
-								}
-							}
+							$wheres[] = $column . ' ' . $operator . ' ' . $this->quote($value);
 						}
 					}
 				}
