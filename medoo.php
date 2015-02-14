@@ -3,7 +3,7 @@
  * Medoo database framework
  * http://medoo.in
  * Version 0.9.8
- * 
+ *
  * Copyright 2015, Angel Lai
  * Released under the MIT license
  */
@@ -509,7 +509,14 @@ class medoo
 					is_numeric($LIMIT[1])
 				)
 				{
-					$where_clause .= ' LIMIT ' . $LIMIT[0] . ',' . $LIMIT[1];
+					if ($this->database_type === 'pgsql')
+					{
+						$where_clause .= ' OFFSET ' . $LIMIT[0] . ' LIMIT ' . $LIMIT[1];
+					}
+					else
+					{
+						$where_clause .= ' LIMIT ' . $LIMIT[0] . ',' . $LIMIT[1];
+					}
 				}
 			}
 		}
