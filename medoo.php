@@ -665,7 +665,6 @@ class medoo
 
 		foreach ($datas as $data)
 		{
-			$keys = array_keys($data);
 			$values = array();
 			$columns = array();
 
