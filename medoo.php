@@ -564,7 +564,21 @@ class medoo
 						// For ['column1' => 'column2']
 						else
 						{
-							$relation = 'ON ' . $table . '."' . key($relation) . '" = "' . (isset($match[5]) ? $match[5] : $match[3]) . '"."' . current($relation) . '"';
+							$and_relation = 'ON ' . $table . '."' . key($relation) . '" = "' . (isset($match[5]) ? $match[5] : $match[3]) . '"."' . current($relation) . '"';
+							// if there is more than one condition
+							if (count($relation) > 1) {
+								
+								// remove the "ON" part
+								array_shift($relation);
+
+								// add the condition to the join
+								foreach ($relation as $key => $value) {
+									$and_relation .= ' AND "' . (isset($match[5]) ? $match[5] : $match[3]) . '"."' . $key . '" = ' . $value;
+								}
+							}
+
+							// write our new relation back
+							$relation = $and_relation;
 						}
 					}
 
