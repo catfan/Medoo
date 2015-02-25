@@ -573,7 +573,14 @@ class medoo
 
 								// add the condition to the join
 								foreach ($relation as $key => $value) {
-									$and_relation .= ' AND "' . (isset($match[5]) ? $match[5] : $match[3]) . '"."' . $key . '" = ' . $value;
+									// if the [$] value modifier is present
+									if (preg_match('/\[\${1}\]/', $key) === 1) {
+										$key = preg_replace('/\[\${1}\]/', '', $key);
+										$and_relation .= ' AND "' . (isset($match[5]) ? $match[5] : $match[3]) . '"."' . $key . '" = ' . $value;
+										continue;
+									}
+									// add additional table_relation
+									$and_relation .= ' AND ' . $table . '."' . $key . '" = "' . (isset($match[5]) ? $match[5] : $match[3]) . '"."' . $value . '"';
 								}
 							}
 
