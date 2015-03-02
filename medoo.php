@@ -571,7 +571,21 @@ class medoo
 						// For ['column1' => 'column2']
 						else
 						{
-							$relation = 'ON ' . $table . '."' . key($relation) . '" = "' . (isset($match[5]) ? $match[5] : $match[3]) . '"."' . current($relation) . '"';
+							/*
+							 *  If the key looks like `___.___` (. as delimiter between table and column)
+							 *  => Don't need the $table variable
+							 */
+							$splitted_key_relation = explode('.', key($relation));
+							if (count($splitted_key_relation) == 2) {
+								$key_relation = implode('"."',$splitted_key_relation);
+								$relationQuery  = 'ON "' . $key_relation . '" = "';
+								$relationQuery .= (isset($match[5]) ? $match[5] : $match[3]) . '"."' . current($relation) . '"';
+								$relation = $relationQuery;
+							} else {
+								$relationQuery  = 'ON ' . $table . '."' . key($relation) . '" = "';
+								$relationQuery .= (isset($match[5]) ? $match[5] : $match[3]) . '"."' . current($relation) . '"';
+								$relation = $relationQuery;
+							}
 						}
 					}
 
