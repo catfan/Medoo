@@ -210,7 +210,25 @@ class medoo
 		{
 			preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
 
-			if (isset($match[1], $match[2]))
+			$unescaped_match = strpos($value, '[') !== false && strpos($value, ']') !== false;
+
+			if($unescaped_match)
+			{
+				preg_match('/([a-zA-Z0-9_\-\.\[\]]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
+
+				$value = str_replace(['[', ']'], ['(', ')'], $match[1]);
+
+				/* Using alias */
+				if(isset($match[2]))
+				{
+					array_push($stack, $value . ' AS ' . $match[2]);
+				}
+				else
+				{
+					array_push($stack, $value);
+				}
+			}
+			else if (isset($match[1], $match[2]))
 			{
 				array_push($stack, $this->column_quote( $match[1] ) . ' AS ' . $this->column_quote( $match[2] ));
 			}
