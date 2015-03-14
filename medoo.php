@@ -210,7 +210,25 @@ class medoo
 		{
 			preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
 
-			if (isset($match[1], $match[2]))
+			$unescaped_match = strpos($value, '[') !== false && strpos($value, ']') !== false;
+
+			if($unescaped_match)
+			{
+				preg_match('/([a-zA-Z0-9_\-\.\[\]]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
+
+				$value = str_replace(['[', ']'], ['(', ')'], $match[1]);
+
+				/* Using alias */
+				if(isset($match[2]))
+				{
+					array_push($stack, $value . ' AS ' . $match[2]);
+				}
+				else
+				{
+					array_push($stack, $value);
+				}
+			}
+			else if (isset($match[1], $match[2]))
 			{
 				array_push($stack, $this->column_quote( $match[1] ) . ' AS ' . $this->column_quote( $match[2] ));
 			}
@@ -571,7 +589,16 @@ class medoo
 						// For ['column1' => 'column2']
 						else
 						{
-							$relation = 'ON ' . $table . '."' . key($relation) . '" = "' . (isset($match[5]) ? $match[5] : $match[3]) . '"."' . current($relation) . '"';
+							if(strpos(key($relation), '.') !== false)
+							{
+								$custom_join = explode('.', key($relation)); // 0 => Table name, 1 => Table Column
+
+								$relation = 'ON "' . $custom_join[0] . '"."' . $custom_join[1] . '" = "' . (isset($match[5]) ? $match[5] : $match[3]) . '"."' . current($relation) . '"';
+							}
+							else
+							{
+								$relation = 'ON ' . $table . '."' . key($relation) . '" = "' . (isset($match[5]) ? $match[5] : $match[3]) . '"."' . current($relation) . '"';
+							}
 						}
 					}
 
