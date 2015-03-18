@@ -953,5 +953,21 @@ class medoo
 
 		return $output;
 	}
+	
+	public function beginTransaction()
+	{
+		$this->pdo->beginTransaction();
+	}
+	
+	public function rollback()
+	{
+		$this->pdo->rollback();
+    }
+	
+	public function commit()
+	{
+        $this->pdo->commit();
+    }
+	
 }
 ?>
