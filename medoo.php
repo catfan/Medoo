@@ -568,10 +568,25 @@ class medoo
 						{
 							$relation = 'USING ("' . implode($relation, '", "') . '")';
 						}
-						// For ['column1' => 'column2']
 						else
 						{
-							$relation = 'ON ' . $table . '."' . key($relation) . '" = "' . (isset($match[5]) ? $match[5] : $match[3]) . '"."' . current($relation) . '"';
+							$joins = array();
+
+							foreach ($relation as $key => $value)
+							{
+								$joins[] = (
+									strpos($key, '.') > 0 ?
+										// For ['tableB.column' => 'column']
+										'"' . str_replace('.', '"."', $key) . '"' :
+
+										// For ['column1' => 'column2']
+										$table . '."' . $key . '"'
+								) .
+								' = ' .
+								'"' . (isset($match[5]) ? $match[5] : $match[3]) . '"."' . $value . '"';
+							}
+
+							$relation = 'ON ' . implode($joins, ' AND ');
 						}
 					}
 
