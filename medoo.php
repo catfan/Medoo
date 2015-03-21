@@ -214,7 +214,7 @@ class medoo
 
 			if($unescaped_match)
 			{
-				preg_match('/([a-zA-Z0-9_\-\.\[\]]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
+				preg_match('/([a-zA-Z0-9_\.\,\[\]]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
 
 				$value = str_replace(['[', ']'], ['(', ')'], $match[1]);
 
