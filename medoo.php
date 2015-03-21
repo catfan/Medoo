@@ -221,7 +221,7 @@ class medoo
 				/* Using alias */
 				if(isset($match[2]))
 				{
-					array_push($stack, $value . ' AS ' . $match[2]);
+					array_push($stack, $value . ' AS ' . $this->column_quote($match[2]));
 				}
 				else
 				{
