@@ -3,7 +3,7 @@
  * Medoo database framework
  * http://medoo.in
  * Version 0.9.8
- * 
+ *
  * Copyright 2015, Angel Lai
  * Released under the MIT license
  */
@@ -509,7 +509,14 @@ class medoo
 					is_numeric($LIMIT[1])
 				)
 				{
-					$where_clause .= ' LIMIT ' . $LIMIT[0] . ',' . $LIMIT[1];
+					if ($this->database_type === 'pgsql')
+					{
+						$where_clause .= ' OFFSET ' . $LIMIT[0] . ' LIMIT ' . $LIMIT[1];
+					}
+					else
+					{
+						$where_clause .= ' LIMIT ' . $LIMIT[0] . ',' . $LIMIT[1];
+					}
 				}
 			}
 		}
@@ -561,10 +568,25 @@ class medoo
 						{
 							$relation = 'USING ("' . implode($relation, '", "') . '")';
 						}
-						// For ['column1' => 'column2']
 						else
 						{
-							$relation = 'ON ' . $table . '."' . key($relation) . '" = "' . (isset($match[5]) ? $match[5] : $match[3]) . '"."' . current($relation) . '"';
+							$joins = array();
+
+							foreach ($relation as $key => $value)
+							{
+								$joins[] = (
+									strpos($key, '.') > 0 ?
+										// For ['tableB.column' => 'column']
+										'"' . str_replace('.', '"."', $key) . '"' :
+
+										// For ['column1' => 'column2']
+										$table . '."' . $key . '"'
+								) .
+								' = ' .
+								'"' . (isset($match[5]) ? $match[5] : $match[3]) . '"."' . $value . '"';
+							}
+
+							$relation = 'ON ' . implode($joins, ' AND ');
 						}
 					}
 
@@ -658,7 +680,6 @@ class medoo
 
 		foreach ($datas as $data)
 		{
-			$keys = array_keys($data);
 			$values = array();
 			$columns = array();
 
