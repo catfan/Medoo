@@ -936,7 +936,7 @@ class medoo
 		return $this->logs;
 	}
 
-	public function dump_log()
+	public function dump_log($path=null)
         {
                 $log_buffer = $this->logs;
                 $str = "\n\n----------Log Instance---------\n\n";
