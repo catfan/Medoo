@@ -817,14 +817,7 @@ class medoo
 
 	public function get($table, $join = null, $column = null, $where = null)
 	{
-		if (!isset($where))
-		{
-			$where = array();
-		}
-
-		$where['LIMIT'] = 1;
-
-		$query = $this->query($this->select_context($table, $join, $column, $where));
+		$query = $this->query($this->select_context($table, $join, $column, $where) . ' LIMIT 1');
 
 		if ($query)
 		{
