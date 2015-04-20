@@ -580,7 +580,7 @@ class medoo
 
 	protected function select_context($table, $join, &$columns = null, $where = null, $column_fn = null)
 	{
-		$table = '"' . $table . '"';
+		$table = $this->_parse_table( $table );
 		$join_key = is_array($join) ? array_keys($join) : null;
 
 		if (
@@ -703,7 +703,7 @@ class medoo
 			$column = $this->column_push($columns);
 		}
 
-		return 'SELECT ' . $column . ' FROM ' . $table . $this->where_clause($where);
+		return 'SELECT ' . $column . ' FROM ' . $table . ' ' . $this->where_clause($where);
 	}
 
 	public function select($table, $join, $columns = null, $where = null)
@@ -760,7 +760,7 @@ class medoo
 				}
 			}
 
-			$this->exec('INSERT INTO "' . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
+			$this->exec('INSERT INTO ' . $this->_parse_table( $table ) . ' (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
 
 			$lastId[] = $this->pdo->lastInsertId();
 		}
@@ -814,12 +814,12 @@ class medoo
 			}
 		}
 
-		return $this->exec('UPDATE "' . $table . '" SET ' . implode(', ', $fields) . $this->where_clause($where));
+		return $this->exec('UPDATE ' . $this->_parse_table( $table ) . ' SET ' . implode(', ', $fields) . $this->where_clause($where));
 	}
 
 	public function delete($table, $where)
 	{
-		return $this->exec('DELETE FROM "' . $table . '"' . $this->where_clause($where));
+		return $this->exec('DELETE FROM ' . $this->_parse_table( $table ) . ' ' . $this->where_clause($where));
 	}
 
 	public function replace($table, $columns, $search = null, $replace = null, $where = null)
@@ -859,7 +859,7 @@ class medoo
 			}
 		}
 
-		return $this->exec('UPDATE "' . $table . '" SET ' . $replace_query . $this->where_clause($where));
+		return $this->exec('UPDATE ' . $this->_parse_table( $table ) . ' SET ' . $replace_query . $this->where_clause($where));
 	}
 
 	public function get($table, $join = null, $column = null, $where = null)
@@ -953,6 +953,26 @@ class medoo
 
 		return $query ? 0 + $query->fetchColumn() : false;
 	}
+
+    /**
+     * Returns the database name enclosed in quotation marks.
+     * Accepts an array, in which case the first value is the database and second is the table.
+     * @param string|array $table A string table or an array specifying both database and table.
+     * @return string      The table / databse-table pair appropriately enclosed in quotation marks.
+     */
+    private function _parse_table( $table )
+    {
+
+        if( is_string( $table ) ){
+            $table = '"' . $table . '"';
+        }else{
+            $table = array_merge( $table, array( false, false ) );
+            $table = '"' . $table[0] . '"."' . $table[1] . '"';
+        }
+
+        return $table;
+
+    }
 
 	public function debug()
 	{
