@@ -79,14 +79,22 @@ class medoo
 				case 'mariadb':
 					$type = 'mysql';
 
-				case 'mysql':
+                case 'mysql':
+                    $dsn_type = 'mysql';
 					if ($this->socket)
 					{
-						$dsn = $type . ':unix_socket=' . $this->socket . ';dbname=' . $this->database_name;
+                        $dsn = array(
+                            'unix_socket' => $this->socket,
+                            'dbname'      => $this->database_name,
+                        );
 					}
 					else
 					{
-						$dsn = $type . ':host=' . $this->server . ($is_port ? ';port=' . $port : '') . ';dbname=' . $this->database_name;
+                        $dsn = array(
+                            'host'   => $this->server,
+                            'port'   => ( $is_port ? $port : null ),
+                            'dbname' => $this->database_name,
+                        );
 					}
 
 					// Make MySQL using standard quoted identifier
@@ -94,25 +102,49 @@ class medoo
 					break;
 
 				case 'pgsql':
-					$dsn = $type . ':host=' . $this->server . ($is_port ? ';port=' . $port : '') . ';dbname=' . $this->database_name;
+                    $dsn_type = 'pgsql';
+                    $dsn = array(
+                        'host'   => $this->server,
+                        'port'   => ( $is_port ? $port : null ),
+                        'dbname' => $this->database_name,
+                    );
 					break;
 
 				case 'sybase':
-					$dsn = 'dblib:host=' . $this->server . ($is_port ? ':' . $port : '') . ';dbname=' . $this->database_name;
+                    $dsn_type = 'dblib';
+                    $dsn = array(
+                        'host'   => $this->server . ($is_port ? ':' . $port : ''),
+                        'dbname' => $this->database_name,
+                    );
 					break;
 
 				case 'oracle':
+                    $dsn_type = 'oci';
 					$dbname = $this->server ?
 						'//' . $this->server . ($is_port ? ':' . $port : ':1521') . '/' . $this->database_name :
 						$this->database_name;
 
-					$dsn = 'oci:dbname=' . $dbname . ($this->charset ? ';charset=' . $this->charset : '');
+                    $dsn = array(
+                        'dbname'  => $dbname,
+                        'charset' => ( $this->charset ? $this->charset : null )
+                    );
 					break;
 
 				case 'mssql':
-					$dsn = strstr(PHP_OS, 'WIN') ?
-						'sqlsrv:server=' . $this->server . ($is_port ? ',' . $port : '') . ';database=' . $this->database_name :
-						'dblib:host=' . $this->server . ($is_port ? ':' . $port : '') . ';dbname=' . $this->database_name;
+                    if( strstr( PHP_OS, 'WIN' ) ){
+                        $dsn_type = 'sqlsrv';
+                        $dsn = array(
+                            'server'   => $this->server . ($is_port ? ',' . $port : ''),
+                            'database' => $this->database_name,
+                        );
+
+                    }else{
+                        $dsn_type = 'dblib';
+                        $dsn = array(
+                            'host'   => $this->server . ($is_port ? ',' . $port : ''),
+                            'dbname' => $this->database_name
+                        );
+                    }
 
 					// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
 					$commands[] = 'SET QUOTED_IDENTIFIER ON';
@@ -124,6 +156,21 @@ class medoo
 					$this->password = null;
 					break;
 			}
+
+            if( is_array( $dsn ) ){
+                $dsn_array = array_filter( $dsn, 'is_null' );
+                $dsn = $dsn_type . ':';
+
+                if( $dsn_array )
+                {
+                    foreach( $dsn_array as $key => $value )
+                    {
+                        $dsn .= "{$key}={$value};";
+                    }
+                }
+
+                $dsn = rtrim( $dsn, ';' );
+            }
 
 			if (
 				in_array($type, explode(' ', 'mariadb mysql pgsql sybase mssql')) &&
