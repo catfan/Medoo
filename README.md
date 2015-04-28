@@ -36,7 +36,7 @@ $database = new medoo([
 
 // Enjoy
 $database->insert('account', [
-    'user_name' => 'foo'
+    'user_name' => 'foo',
     'email' => 'foo@bar.com',
     'age' => 25,
     'lang' => ['en', 'fr', 'jp', 'cn']
