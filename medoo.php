@@ -38,6 +38,8 @@ class medoo
 	protected $logs = array();
 
 	protected $debug_mode = false;
+	
+	protected $distinct_mode = false;
 
 	public function __construct($options = null)
 	{
@@ -656,7 +658,14 @@ class medoo
 			$column = $this->column_push($columns);
 		}
 
-		return 'SELECT ' . $column . ' FROM ' . $table . $this->where_clause($where);
+		if($this->distinct_mode)
+		{
+			$distinct = 'DISTINCT ';
+		} else {
+			$distinct = '';
+		}
+
+		return 'SELECT ' . $distinct . $column . ' FROM ' . $table . $this->where_clause($where);
 	}
 
 	public function select($table, $join, $columns = null, $where = null)
@@ -910,6 +919,13 @@ class medoo
 	public function debug()
 	{
 		$this->debug_mode = true;
+
+		return $this;
+	}
+	
+	public function distinct()
+	{
+		$this->distinct_mode = true;
 
 		return $this;
 	}
