@@ -835,8 +835,8 @@ class medoo
 				return $data[ 0 ];
 			}
 			else
-			{
-				return false;
+			{	
+				return array();
 			}
 		}
 		else
