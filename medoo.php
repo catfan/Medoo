@@ -208,6 +208,7 @@ class medoo
 
 		foreach ($columns as $key => $value)
 		{
+            /*
 			preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
 
 			if (isset($match[1], $match[2]))
@@ -218,6 +219,8 @@ class medoo
 			{
 				array_push($stack, $this->column_quote( $value ));
 			}
+             */
+			array_push($stack, $this->column_quote( $value ));
 		}
 
 		return implode($stack, ',');
