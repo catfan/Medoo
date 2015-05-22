@@ -208,7 +208,23 @@ class medoo
 
 		foreach ($columns as $key => $value)
 		{
-			array_push($stack, $this->column_quote( $value ));
+            if(strpos($value, '#') === 0)
+            {
+                array_push($stack, substr($value),1);
+            }
+            else
+            {
+                preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
+
+                if (isset($match[1], $match[2]))
+                {
+                    array_push($stack, column_quote( $match[1] ) . ' AS ' . column_quote( $match[2] ));
+                }
+                else
+                {
+                    array_push($stack, column_quote( $value ));
+                }
+            }
 		}
 
 		return implode($stack, ',');
