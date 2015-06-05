@@ -32,6 +32,8 @@ class medoo
 	// Optional
 	protected $port;
 
+	protected $prefix;
+
 	protected $option = array();
 
 	// Variable
@@ -73,6 +75,11 @@ class medoo
 
 			$type = strtolower($this->database_type);
 			$is_port = isset($port);
+
+			if (isset($options['prefix']))
+			{
+				$this->prefix = $options['prefix'];
+			}
 
 			switch ($type)
 			{
@@ -533,7 +540,7 @@ class medoo
 
 	protected function select_context($table, $join, &$columns = null, $where = null, $column_fn = null)
 	{
-		$table = '"' . $table . '"';
+		$table = '"' . $this->prefix . $table . '"';
 		$join_key = is_array($join) ? array_keys($join) : null;
 
 		if (
@@ -713,7 +720,7 @@ class medoo
 				}
 			}
 
-			$this->exec('INSERT INTO "' . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
+			$this->exec('INSERT INTO "' . $this->prefix . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
 
 			$lastId[] = $this->pdo->lastInsertId();
 		}
@@ -767,12 +774,12 @@ class medoo
 			}
 		}
 
-		return $this->exec('UPDATE "' . $table . '" SET ' . implode(', ', $fields) . $this->where_clause($where));
+		return $this->exec('UPDATE "' . $this->prefix . $table . '" SET ' . implode(', ', $fields) . $this->where_clause($where));
 	}
 
 	public function delete($table, $where)
 	{
-		return $this->exec('DELETE FROM "' . $table . '"' . $this->where_clause($where));
+		return $this->exec('DELETE FROM "' . $this->prefix . $table . '"' . $this->where_clause($where));
 	}
 
 	public function replace($table, $columns, $search = null, $replace = null, $where = null)
@@ -812,7 +819,7 @@ class medoo
 			}
 		}
 
-		return $this->exec('UPDATE "' . $table . '" SET ' . $replace_query . $this->where_clause($where));
+		return $this->exec('UPDATE "' . $this->prefix . $table . '" SET ' . $replace_query . $this->where_clause($where));
 	}
 
 	public function get($table, $join = null, $column = null, $where = null)
