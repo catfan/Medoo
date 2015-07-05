@@ -189,6 +189,11 @@ class medoo
 
 	protected function column_quote($string)
 	{
+		$string = trim($string);
+		if(strpos($string,'('))
+		{
+			return $string;
+		}
 		return '"' . str_replace('.', '"."', preg_replace('/(^#|\(JSON\))/', '', $string)) . '"';
 	}
 
@@ -208,11 +213,11 @@ class medoo
 
 		foreach ($columns as $key => $value)
 		{
-			preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
+			preg_match('/.*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
 
-			if (isset($match[1], $match[2]))
+			if (isset($match[1]))
 			{
-				array_push($stack, $this->column_quote( $match[1] ) . ' AS ' . $this->column_quote( $match[2] ));
+				array_push($stack, $this->column_quote( substr($value,0,-2-strlen($match[1])) ) . ' AS ' . $this->column_quote( $match[1] ));
 			}
 			else
 			{
