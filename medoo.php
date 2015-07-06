@@ -914,6 +914,29 @@ class medoo
 		return $query ? 0 + $query->fetchColumn() : false;
 	}
 
+	public function action($actions)
+	{
+		if (is_callable($actions))
+		{
+			$this->pdo->beginTransaction();
+
+			$result = $actions($this);
+
+			if ($result === false)
+			{
+				$this->pdo->rollBack();
+			}
+			else
+			{
+				$this->pdo->commit();
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	public function debug()
 	{
 		$this->debug_mode = true;
