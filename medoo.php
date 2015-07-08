@@ -912,25 +912,14 @@ class medoo
 
 	public function action($actions)
 	{
-		if (is_callable($actions))
-		{
-			$this->pdo->beginTransaction();
-
-			$result = $actions($this);
-
-			if ($result === false)
-			{
-				$this->pdo->rollBack();
-			}
-			else
-			{
-				$this->pdo->commit();
-			}
-		}
-		else
+		if (!is_callable($actions))
 		{
 			return false;
 		}
+			
+		$this->pdo->beginTransaction();
+
+		return $actions($this) ? $this->pdo->commit() : $this->pdo->rollBack();
 	}
 
 	public function debug()
