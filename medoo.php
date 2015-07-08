@@ -129,13 +129,11 @@ class medoo
 				break;
 		}
 
-		if (
-			in_array($type, explode(' ', 'mariadb mysql pgsql sybase mssql')) &&
-			$this->charset
-		)
+		if (in_array($type, array('mariadb','mysql','pgsql','sybase','mssql')) && $this->charset)
 		{
 			$commands[] = "SET NAMES '" . $this->charset . "'";
 		}
+
 		try
 		{
 			$this->pdo = new PDO(
