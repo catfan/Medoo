@@ -65,10 +65,7 @@ class medoo
 			}
 		}
 
-		if (
-			isset($this->port) &&
-			is_int($this->port * 1)
-		)
+		if (is_int($this->port * 1))
 		{
 			$port = $this->port;
 		}
