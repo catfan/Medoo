@@ -828,24 +828,19 @@ class medoo
 
 			if (isset($data[0]))
 			{
-				$column = $where == null ? $join : $column;
+				$column = ($where == null) ? $join : $column;
 
 				if (is_string($column) && $column != '*')
 				{
-					return $data[ 0 ][ $column ];
+					return $data[0][$column];
 				}
 
-				return $data[ 0 ];
-			}
-			else
-			{
-				return false;
+				return $data[0];
 			}
 		}
-		else
-		{
-			return false;
-		}
+		
+		return false;
+
 	}
 
 	public function has($table, $join, $where = null)
