@@ -533,7 +533,13 @@ class medoo
 
 	protected function select_context($table, $join, &$columns = null, $where = null, $column_fn = null)
 	{
-		$table = '"' . $table . '"';
+		preg_match('/.*\(([a-zA-Z0-9_\-]*)\)/i', $table, $match);
+	        if (isset($match[1])){
+	            $table = '"' . substr($table,0,-2-strlen($match[1])) . '" as '.$match[1];
+	        } else {
+	            $table = '"' . $table . '"';
+	        }
+	        
 		$join_key = is_array($join) ? array_keys($join) : null;
 
 		if (
