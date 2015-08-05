@@ -349,17 +349,12 @@ class medoo
 
 							foreach ($value as $item)
 							{
-								if ($operator == '!~')
-								{
-									$column .= ' NOT';
-								}
-
 								if (preg_match('/^(?!%).+(?<!%)$/', $item))
 								{
 									$item = '%' . $item . '%';
 								}
 
-								$like_clauses[] = $column . ' LIKE ' . $this->fn_quote($key, $item);
+								$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $this->fn_quote($key, $item);
 							}
 
 							$wheres[] = implode(' OR ', $like_clauses);
