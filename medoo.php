@@ -43,103 +43,99 @@ class medoo
 
 	public function __construct($options = null)
 	{
-		try {
-			$commands = array();
+		
+		$commands = array();
 
-			if (is_string($options) && !empty($options))
+		if (is_string($options) && !empty($options))
+		{
+			if (strtolower($this->database_type) == 'sqlite')
 			{
-				if (strtolower($this->database_type) == 'sqlite')
+				$this->database_file = $options;
+			}
+			else
+			{
+				$this->database_name = $options;
+			}
+		}
+		elseif (is_array($options))
+		{
+			foreach ($options as $option => $value)
+			{
+				$this->$option = $value;
+			}
+		}
+
+		if (is_int($this->port * 1))
+		{
+			$port = $this->port;
+		}
+
+		$type = strtolower($this->database_type);
+		$is_port = isset($port);
+
+		if (isset($options['prefix']))
+		{
+			$this->prefix = $options['prefix'];
+		}
+
+		switch ($type)
+		{
+			case 'mariadb':
+				$type = 'mysql';
+
+			case 'mysql':
+				if ($this->socket)
 				{
-					$this->database_file = $options;
+					$dsn = $type . ':unix_socket=' . $this->socket . ';dbname=' . $this->database_name;
 				}
 				else
 				{
-					$this->database_name = $options;
-				}
-			}
-			elseif (is_array($options))
-			{
-				foreach ($options as $option => $value)
-				{
-					$this->$option = $value;
-				}
-			}
-
-			if (
-				isset($this->port) &&
-				is_int($this->port * 1)
-			)
-			{
-				$port = $this->port;
-			}
-
-			$type = strtolower($this->database_type);
-			$is_port = isset($port);
-
-			if (isset($options['prefix']))
-			{
-				$this->prefix = $options['prefix'];
-			}
-
-			switch ($type)
-			{
-				case 'mariadb':
-					$type = 'mysql';
-
-				case 'mysql':
-					if ($this->socket)
-					{
-						$dsn = $type . ':unix_socket=' . $this->socket . ';dbname=' . $this->database_name;
-					}
-					else
-					{
-						$dsn = $type . ':host=' . $this->server . ($is_port ? ';port=' . $port : '') . ';dbname=' . $this->database_name;
-					}
-
-					// Make MySQL using standard quoted identifier
-					$commands[] = 'SET SQL_MODE=ANSI_QUOTES';
-					break;
-
-				case 'pgsql':
 					$dsn = $type . ':host=' . $this->server . ($is_port ? ';port=' . $port : '') . ';dbname=' . $this->database_name;
-					break;
+				}
 
-				case 'sybase':
-					$dsn = 'dblib:host=' . $this->server . ($is_port ? ':' . $port : '') . ';dbname=' . $this->database_name;
-					break;
+				// Make MySQL using standard quoted identifier
+				$commands[] = 'SET SQL_MODE=ANSI_QUOTES';
+				break;
 
-				case 'oracle':
-					$dbname = $this->server ?
-						'//' . $this->server . ($is_port ? ':' . $port : ':1521') . '/' . $this->database_name :
-						$this->database_name;
+			case 'pgsql':
+				$dsn = $type . ':host=' . $this->server . ($is_port ? ';port=' . $port : '') . ';dbname=' . $this->database_name;
+				break;
 
-					$dsn = 'oci:dbname=' . $dbname . ($this->charset ? ';charset=' . $this->charset : '');
-					break;
+			case 'sybase':
+				$dsn = 'dblib:host=' . $this->server . ($is_port ? ':' . $port : '') . ';dbname=' . $this->database_name;
+				break;
 
-				case 'mssql':
-					$dsn = strstr(PHP_OS, 'WIN') ?
-						'sqlsrv:server=' . $this->server . ($is_port ? ',' . $port : '') . ';database=' . $this->database_name :
-						'dblib:host=' . $this->server . ($is_port ? ':' . $port : '') . ';dbname=' . $this->database_name;
+			case 'oracle':
+				$dbname = $this->server ?
+					'//' . $this->server . ($is_port ? ':' . $port : ':1521') . '/' . $this->database_name :
+					$this->database_name;
 
-					// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
-					$commands[] = 'SET QUOTED_IDENTIFIER ON';
-					break;
+				$dsn = 'oci:dbname=' . $dbname . ($this->charset ? ';charset=' . $this->charset : '');
+				break;
 
-				case 'sqlite':
-					$dsn = $type . ':' . $this->database_file;
-					$this->username = null;
-					$this->password = null;
-					break;
-			}
+			case 'mssql':
+				$dsn = strstr(PHP_OS, 'WIN') ?
+					'sqlsrv:server=' . $this->server . ($is_port ? ',' . $port : '') . ';database=' . $this->database_name :
+					'dblib:host=' . $this->server . ($is_port ? ':' . $port : '') . ';dbname=' . $this->database_name;
 
-			if (
-				in_array($type, explode(' ', 'mariadb mysql pgsql sybase mssql')) &&
-				$this->charset
-			)
-			{
-				$commands[] = "SET NAMES '" . $this->charset . "'";
-			}
+				// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
+				$commands[] = 'SET QUOTED_IDENTIFIER ON';
+				break;
 
+			case 'sqlite':
+				$dsn = $type . ':' . $this->database_file;
+				$this->username = null;
+				$this->password = null;
+				break;
+		}
+
+		if (in_array($type, array('mariadb','mysql','pgsql','sybase','mssql')) && $this->charset)
+		{
+			$commands[] = "SET NAMES '" . $this->charset . "'";
+		}
+
+		try
+		{
 			$this->pdo = new PDO(
 				$dsn,
 				$this->username,
@@ -827,24 +823,19 @@ class medoo
 
 			if (isset($data[0]))
 			{
-				$column = $where == null ? $join : $column;
+				$column = ($where == null) ? $join : $column;
 
 				if (is_string($column) && $column != '*')
 				{
-					return $data[ 0 ][ $column ];
+					return $data[0][$column];
 				}
 
-				return $data[ 0 ];
-			}
-			else
-			{
-				return false;
+				return $data[0];
 			}
 		}
-		else
-		{
-			return false;
-		}
+		
+		return false;
+
 	}
 
 	public function has($table, $join, $where = null)
@@ -911,25 +902,14 @@ class medoo
 
 	public function action($actions)
 	{
-		if (is_callable($actions))
-		{
-			$this->pdo->beginTransaction();
-
-			$result = $actions($this);
-
-			if ($result === false)
-			{
-				$this->pdo->rollBack();
-			}
-			else
-			{
-				$this->pdo->commit();
-			}
-		}
-		else
+		if (!is_callable($actions))
 		{
 			return false;
 		}
+			
+		$this->pdo->beginTransaction();
+
+		return $actions($this) ? $this->pdo->commit() : $this->pdo->rollBack();
 	}
 
 	public function debug()
@@ -972,4 +952,3 @@ class medoo
 		return $output;
 	}
 }
-?>
