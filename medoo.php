@@ -45,24 +45,18 @@ class medoo
 	{
 		try {
 			$commands = array();
+			$dsn = '';
 
-			if (is_string($options) && !empty($options))
-			{
-				if (strtolower($this->database_type) == 'sqlite')
-				{
-					$this->database_file = $options;
-				}
-				else
-				{
-					$this->database_name = $options;
-				}
-			}
-			elseif (is_array($options))
+			if (is_array($options))
 			{
 				foreach ($options as $option => $value)
 				{
 					$this->$option = $value;
 				}
+			}
+			else
+			{
+				return false;
 			}
 
 			if (
