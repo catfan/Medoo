@@ -585,14 +585,14 @@ class medoo
 										$table . '."' . $key . '"'
 								) .
 								' = ' .
-								'"' . (isset($match[ 5 ]) ? $match[ 5 ] : $match[ 3 ]) . '"."' . $value . '"';
+								'"' . (isset($match[ 5 ]) ? $match[ 5 ] : $this->prefix.$match[ 3 ]) . '"."' . $value . '"';
 							}
 
 							$relation = 'ON ' . implode($joins, ' AND ');
 						}
 					}
 
-					$table_join[] = $join_array[ $match[ 2 ] ] . ' JOIN "' . $match[ 3 ] . '" ' . (isset($match[ 5 ]) ?  'AS "' . $match[ 5 ] . '" ' : '') . $relation;
+					$table_join[] = $join_array[ $match[ 2 ] ] . ' JOIN "' . $this->prefix . $match[ 3 ] . '" ' . (isset($match[ 5 ]) ?  'AS "' . $match[ 5 ] . '" ' : '') . $relation;
 				}
 			}
 
@@ -655,6 +655,10 @@ class medoo
 		}
 		else
 		{
+			foreach ($columns as $column)
+			{
+			     $columns_wp[] = $this->prefix.$column;
+			}
 			$column = $this->column_push($columns);
 		}
 
