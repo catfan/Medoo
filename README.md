@@ -4,7 +4,7 @@
 
 > The Lightest PHP database framework to accelerate development
 
-### Main Features
+## Main Features
 
 * **Lightweight** - Only 20KB with one file.
 
@@ -18,10 +18,25 @@
 
 * **Free** - Under MIT license, you can use it anywhere if you want.
 
-### Get Started
+## Get Started
+
+### Install via composer
+
+Add Medoo to composer.json configuration file.
+```
+$ composer require catfan/Medoo
+```
+
+And update the composer
+```
+$ composer update
+```
 
 ```php
-// Include Medoo
+// If you installed via composer, just use this code to requrie autoloader on the top of your projects.
+require 'vendor/autoload.php';
+
+// Or if you just download the medoo.php into directory, require it with the correct path.
 require_once 'medoo.php';
 
 // Initialize
@@ -41,12 +56,9 @@ $database->insert('account', [
     'age' => 25,
     'lang' => ['en', 'fr', 'jp', 'cn']
 ]);
-
-// Or initialize from file and then
-$database = new medoo();
 ```
 
-### Contribution Guides
+## Contribution Guides
 
 For most of time, Medoo is using develop branch for adding feature and fixing bug, and the branch will be merged into master branch while releasing a public version. For contribution, submit your code to the develop branch, and start a pull request into it.
 
@@ -54,11 +66,11 @@ On develop branch, each commits are started with `[fix]`, `[feature]` or `[updat
 
 Keep it simple and keep it clear.
 
-### License
+## License
 
 Medoo is under the MIT License.
 
-### Links
+## Links
 
 * Official website: [http://medoo.in](http://medoo.in)
 
