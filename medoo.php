@@ -41,6 +41,8 @@ class medoo
 
 	protected $debug_mode = false;
 
+	const MAX_COLUMNS = 65535;
+
 	public function __construct($options = null)
 	{
 		try {
@@ -193,6 +195,21 @@ class medoo
 	{
 		return $this->pdo->quote($string);
 	}
+
+	public function headers($table)
+	{
+        $statement = $this->pdo->query("SELECT * FROM `" . $table . "`");
+
+        for ($i = 0; $i < self::MAX_COLUMNS; $i++) {
+            $meta = $statement->getColumnMeta($i);
+            if (!empty($meta["name"])) {
+               $headers[] = $meta["name"];
+            } else {
+                break;
+            }
+          }  
+        return $headers;
+    }
 
 	protected function column_quote($string)
 	{
