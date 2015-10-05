@@ -6,7 +6,7 @@
 
 ## Main Features
 
-* **Lightweight** - Only 20KB with one file.
+* **Lightweight** - 20KB around with only one file.
 
 * **Easy** - Extremely easy to learn and use, friendly construction.
 
