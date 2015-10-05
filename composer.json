@@ -6,19 +6,19 @@
 	"homepage": "http://medoo.in",
 	"license": "MIT",
 	"authors": [
-		{"name": "Angel Lai", "email": "angel.lai.cat@gmail.com"}
+		{"name": "Angel Lai", "email": "angel@catfan.me"}
 	],
 	"require": {
 		"php": ">=5.1",
 		"ext-pdo": "*"
 	},
 	"suggest": {
-		"ext-pdo-mysql": "For MySQL or MariaDB databases",
+		"ext-pdo_mysql": "For MySQL or MariaDB databases",
 		"ext-pdo_sqlsrv": "For MSSQL databases on Windows platform",
-		"ext-pdo_dblib": "For MSSQL or Sybase databases on Liunx/UNIX platform",
+		"ext-pdo_dblib": "For MSSQL or Sybase databases on Linux/UNIX platform",
 		"ext-pdo_oci": "For Oracle databases",
-		"ext-pdo-pqsql": "For PostgreSQL databases",
-		"ext-pdo-sqlite": "For SQLite databases"
+		"ext-pdo_pqsql": "For PostgreSQL databases",
+		"ext-pdo_sqlite": "For SQLite databases"
 	},
 	"autoload": {
 		"files": ["medoo.php"]
