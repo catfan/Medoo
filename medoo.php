@@ -41,6 +41,8 @@ class medoo
 
 	protected $debug_mode = false;
 
+	protected $exit_on_errors = false;
+
 	public function __construct($options = null)
 	{
 		try {
@@ -140,6 +142,11 @@ class medoo
 				$this->password,
 				$this->option
 			);
+
+			// default behavior is to silently ignore all SQL errors.  Enable PDO::ERRMODE_EXCEPTION to override this
+			if($this->exit_on_errors) {
+				$this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			}
 
 			foreach ($commands as $value)
 			{
