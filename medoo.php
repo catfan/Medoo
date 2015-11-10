@@ -41,6 +41,8 @@ class medoo
 
 	protected $debug_mode = false;
 
+	protected $fetch_class = null;
+
 	public function __construct($options = null)
 	{
 		try {
@@ -655,13 +657,39 @@ class medoo
 		return 'SELECT ' . $column . ' FROM ' . $table . $this->where_clause($where);
 	}
 
+	public function fetch_class($className='stdClass', $ctorargs=array(), $once=true)
+	{
+		if ($className) {
+			$this->fetch_class = array (
+				'name' => $className,
+				'ctorargs' => $ctorargs,
+				'once' => $once,
+			);
+		} else {
+			$this->fetch_class = null;
+		}
+		return $this;
+	}
+
 	public function select($table, $join, $columns = null, $where = null)
 	{
 		$query = $this->query($this->select_context($table, $join, $columns, $where));
 
-		return $query ? $query->fetchAll(
+		if (!$query)
+			return false;
+
+		if (isset($this->fetch_class)) {
+			$class = $this->fetch_class['name'];
+			$ctorargs = $this->fetch_class['ctorargs'];
+			if ($this->fetch_class['once']) {
+				$this->fetch_class = null;
+			}
+			return $query->fetchAll(PDO::FETCH_CLASS, $class, $ctorargs);
+		}
+
+		return $query->fetchAll(
 			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
-		) : false;
+		);
 	}
 
 	public function insert($table, $datas)
