@@ -191,8 +191,18 @@ class medoo
 	protected function column_quote($string)
 	{
 		$string = preg_replace('/(^#|\(JSON\)\s*)/', '', $string);
-		if (strpos($string, '.') > 0) // if table.column
+
+		if ($string === '*') {
+			return '*';
+		}
+
+		if (($p = strpos($string, '.')) > 0) // table.column
 		{
+			if ($string[$p + 1] === '*') // table.*
+			{
+				return '"' . $this->prefix . substr($string, 0, $p) . '".*';
+			}
+
 			$string = $this->prefix . $string;
 		}
 		return '"' . str_replace('.', '"."', $string) . '"';
@@ -212,7 +222,7 @@ class medoo
 
 		$stack = array();
 
-		foreach ($columns as $key => $value)
+		foreach ($columns as $value)
 		{
 			preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
 
