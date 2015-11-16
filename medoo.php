@@ -190,7 +190,22 @@ class medoo
 
 	protected function column_quote($string)
 	{
-		return '"' . str_replace('.', '"."', preg_replace('/(^#|\(JSON\)\s*)/', '', $string)) . '"';
+		$string = preg_replace('/(^#|\(JSON\)\s*)/', '', $string);
+
+		if ($string === '*') {
+			return '*';
+		}
+
+		if (($p = strpos($string, '.')) > 0) // table.column
+		{
+			if ($string[$p + 1] === '*') // table.*
+			{
+				return '"' . $this->prefix . substr($string, 0, $p) . '".*';
+			}
+
+			$string = $this->prefix . $string;
+		}
+		return '"' . str_replace('.', '"."', $string) . '"';
 	}
 
 	protected function column_push($columns)
@@ -207,7 +222,7 @@ class medoo
 
 		$stack = array();
 
-		foreach ($columns as $key => $value)
+		foreach ($columns as $value)
 		{
 			preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
 
@@ -276,12 +291,12 @@ class medoo
 			}
 			else
 			{
-				preg_match('/(#?)([\w\.\-]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
-				$column = $this->column_quote($match[ 2 ]);
+				preg_match('/(#?)(?P<column>[\w\.\-]+)(\[(?P<operator>\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
+				$column = $this->column_quote($match[ 'column' ]);
 
-				if (isset($match[ 4 ]))
+				if (isset($match[ 'operator' ]))
 				{
-					$operator = $match[ 4 ];
+					$operator = $match[ 'operator' ];
 
 					if ($operator == '!')
 					{
@@ -456,7 +471,7 @@ class medoo
 
 			if (isset($where[ 'ORDER' ]))
 			{
-				$rsort = '/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/';
+				$rsort = '/(?P<column>^[a-zA-Z0-9_\-\.]*)(\s*(?P<order>DESC|ASC))?/';
 				$ORDER = $where[ 'ORDER' ];
 
 				if (is_array($ORDER))
@@ -476,7 +491,7 @@ class medoo
 						{
 							preg_match($rsort, $column, $order_match);
 
-							array_push($stack, '"' . str_replace('.', '"."', $order_match[ 1 ]) . '"' . (isset($order_match[ 3 ]) ? ' ' . $order_match[ 3 ] : ''));
+							array_push($stack, $this->column_quote($order_match['column']) . (isset($order_match[ 'order' ]) ? ' ' . $order_match[ 'order' ] : ''));
 						}
 
 						$where_clause .= ' ORDER BY ' . implode($stack, ',');
@@ -486,7 +501,7 @@ class medoo
 				{
 					preg_match($rsort, $ORDER, $order_match);
 
-					$where_clause .= ' ORDER BY "' . str_replace('.', '"."', $order_match[ 1 ]) . '"' . (isset($order_match[ 3 ]) ? ' ' . $order_match[ 3 ] : '');
+					$where_clause .= ' ORDER BY ' . $this->column_quote($order_match['column']) . (isset($order_match[ 'order' ]) ? ' ' . $order_match[ 'order' ] : '');
 				}
 			}
 
@@ -548,10 +563,12 @@ class medoo
 
 			foreach($join as $sub_table => $relation)
 			{
-				preg_match('/(\[(\<|\>|\>\<|\<\>)\])?([a-zA-Z0-9_\-]*)\s?(\(([a-zA-Z0-9_\-]*)\))?/', $sub_table, $match);
+				preg_match('/(\[(?P<join_mode>\<|\>|\>\<|\<\>)\])?(?P<table>[a-zA-Z0-9_\-]*)\s?(\((?P<alias>[a-zA-Z0-9_\-]*)\))?/', $sub_table, $match);
 
-				if ($match[ 2 ] != '' && $match[ 3 ] != '')
+				if ($match['join_mode'] != '' && $match['table'] != '')
 				{
+					$join_table = $this->prefix . $match['table'];
+					$alias_table = isset($match['alias']) ? $this->prefix . $match['alias'] : null;
 					if (is_string($relation))
 					{
 						$relation = 'USING ("' . $relation . '")';
@@ -579,14 +596,14 @@ class medoo
 										$table . '."' . $key . '"'
 								) .
 								' = ' .
-								'"' . (isset($match[ 5 ]) ? $match[ 5 ] : $match[ 3 ]) . '"."' . $value . '"';
+								'"' . (isset($alias_table) ? $alias_table : $join_table) . '"."' . $value . '"';
 							}
 
 							$relation = 'ON ' . implode($joins, ' AND ');
 						}
 					}
 
-					$table_join[] = $join_array[ $match[ 2 ] ] . ' JOIN "' . $match[ 3 ] . '" ' . (isset($match[ 5 ]) ?  'AS "' . $match[ 5 ] . '" ' : '') . $relation;
+					$table_join[] = $join_array[ $match[ 'join_mode' ] ] . ' JOIN "' . $join_table . '" ' . (isset($alias_table) ?  'AS "' . $alias_table . '" ' : '') . $relation;
 				}
 			}
 
