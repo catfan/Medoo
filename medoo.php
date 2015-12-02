@@ -845,7 +845,22 @@ class medoo
 
 		if ($query)
 		{
-			$data = $query->fetchAll(PDO::FETCH_ASSOC);
+			if ($this->fetch_class)
+			{
+				$data = $query->fetchAll(
+					PDO::FETCH_CLASS,
+					$this->fetch_class['name'],
+					$this->fetch_class['ctorargs']
+				);
+				if ($this->fetch_class['once'])
+				{
+					$this->fetch_class = null;
+				}
+			}
+			else
+			{
+				$data = $query->fetchAll(PDO::FETCH_ASSOC);
+			}
 
 			if (isset($data[ 0 ]))
 			{
