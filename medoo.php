@@ -332,7 +332,7 @@ class medoo
 
 					if ($operator == '~' || $operator == '!~')
 					{
-						if ($type == 'string')
+						if (!is_array($value))
 						{
 							$value = array($value);
 
