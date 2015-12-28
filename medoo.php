@@ -335,23 +335,23 @@ class medoo
 						if ($type == 'string')
 						{
 							$value = array($value);
-						}
 
-						if (!empty($value))
-						{
-							$like_clauses = array();
-
-							foreach ($value as $item)
+							if (!empty($value))
 							{
-								if (preg_match('/^(?!%).+(?<!%)$/', $item))
+								$like_clauses = array();
+
+								foreach ($value as $item)
 								{
-									$item = '%' . $item . '%';
+									if (preg_match('/^(?!%).+(?<!%)$/', $item))
+									{
+										$item = '%' . $item . '%';
+									}
+
+									$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $this->fn_quote($key, $item);
 								}
 
-								$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $this->fn_quote($key, $item);
+								$wheres[] = implode(' OR ', $like_clauses);
 							}
-
-							$wheres[] = implode(' OR ', $like_clauses);
 						}
 					}
 
