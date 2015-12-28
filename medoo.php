@@ -419,7 +419,12 @@ class medoo
 
 			if ($single_condition != array())
 			{
-				$where_clause = ' WHERE ' . $this->data_implode($single_condition, '');
+				$condition = $this->data_implode($single_condition, '');
+
+				if ($condition != '')
+				{
+					$where_clause = ' WHERE ' . $condition;
+				}
 			}
 
 			if (!empty($where_AND))
