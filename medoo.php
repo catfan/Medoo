@@ -278,8 +278,8 @@ class medoo
 			{
 				preg_match('/(#?)([\w\.\-\(\)]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
 
-				if(strpos($match[ 2 ],'(')){
-					$column = $match[ 2 ];
+				if(preg_match('/(.+)\((.+)\)/',$match[ 2 ], $fn_match)){
+					$column = $fn_match[1] . '(' . $this->column_quote($fn_match[ 2 ]) . ')';
 				}else{
 					$column = $this->column_quote($match[ 2 ]);
 				}
