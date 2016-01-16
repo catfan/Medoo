@@ -332,37 +332,35 @@ class medoo
 
 					if ($operator == '~' || $operator == '!~')
 					{
-						if ($type == 'string')
+						if ($type != 'array')
 						{
 							$value = array($value);
-
-							if (!empty($value))
-							{
-								$like_clauses = array();
-
-								foreach ($value as $item)
-								{
-									$suffix = mb_substr($item, -1, 1); 
-									
-									if ($suffix === '_') 
-									{
-										$item = substr_replace($item, '%', -1);
-									} 
-									elseif ($suffix === '%') 
-									{
-										$item = '%' . substr_replace($item, '', -1, 1);
-									} 
-									elseif (preg_match('/^(?!%).+(?<!%)$/', $item)) 
-									{
-										$item = '%' . $item . '%';
-									}
-
-									$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $this->fn_quote($key, $item);
-								}
-
-								$wheres[] = implode(' OR ', $like_clauses);
-							}
 						}
+
+						$like_clauses = array();
+
+						foreach ($value as $item)
+						{
+							$item = strval($item);
+							$suffix = mb_substr($item, -1, 1);
+
+							if ($suffix === '_')
+							{
+								$item = substr_replace($item, '%', -1);
+							}
+							elseif ($suffix === '%')
+							{
+								$item = '%' . substr_replace($item, '', -1, 1);
+							}
+							elseif (preg_match('/^(?!%).+(?<!%)$/', $item))
+							{
+								$item = '%' . $item . '%';
+							}
+
+							$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $this->fn_quote($key, $item);
+						}
+
+						$wheres[] = implode(' OR ', $like_clauses);
 					}
 
 					if (in_array($operator, array('>', '>=', '<', '<=')))
