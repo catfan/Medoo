@@ -866,7 +866,7 @@ class medoo
 		}
 		else
 		{
-			require false;
+			return false;
 		}
 	}
 
