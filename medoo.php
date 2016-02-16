@@ -592,7 +592,7 @@ class medoo
 										$table . '."' . $key . '"'
 								) .
 								' = ' .
-								'"' . (isset($match[ 5 ]) ? $match[ 5 ] : $match[ 3 ]) . '"."' . $value . '"';
+								'"' . (isset($match[ 5 ]) ? $match[ 5 ] : $this->prefix.$match[ 3 ]) . '"."' . $value . '"';
 							}
 
 							$relation = 'ON ' . implode($joins, ' AND ');
@@ -662,6 +662,10 @@ class medoo
 		}
 		else
 		{
+			foreach ($columns as $column)
+			{
+			     $columns_wp[] = $this->prefix.$column;
+			}
 			$column = $this->column_push($columns);
 		}
 
