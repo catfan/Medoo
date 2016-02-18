@@ -9,38 +9,77 @@
  */
 class medoo
 {
-	// General
+    	/**
+     	 * @var string $database_type
+     	 * MySQL, MariaDB, MSSQL, Sybase, PostgreSQL, Oracle, sqlite
+     	 */
 	protected $database_type;
-
+    	/**
+     	 * @var $charset
+     	 * Character set
+     	 */
 	protected $charset;
-
+	/**
+	 * @var string $database_name
+	 * Database name used for connection
+	 */
 	protected $database_name;
-
-	// For MySQL, MariaDB, MSSQL, Sybase, PostgreSQL, Oracle
+	/**
+	 * @var string $server
+	 * For MySQL, MariaDB, MSSQL, Sybase, PostgreSQL, Oracle
+	 */
 	protected $server;
-
+	/**
+	 * @var string $username
+	 * Database user connection
+	 */
 	protected $username;
-
+	/**
+	 * @var string $password
+	 * Database password connection
+	 */
 	protected $password;
-
-	// For SQLite
+    	/**
+     	 * @var string $database_file
+     	 * database file for SQLITE only
+     	 */
 	protected $database_file;
-
-	// For MySQL or MariaDB with unix_socket
+    	/**
+     	 * @var string $socket
+     	 * For MySQL or MariaDB with unix_socket
+     	 */
 	protected $socket;
-
-	// Optional
+    	/**
+     	 * @var integer $port
+     	 * port connection as Optional
+     	 */
 	protected $port;
-
+    	/**
+     	 * @var string $prefix
+     	 * Database table prefix
+         */
 	protected $prefix;
-
+    	/**
+     	 * @var array $options
+     	 * record of options PDO Attribute
+     	 */
 	protected $option = array();
-
-	// Variable
+	/**
+	 * @var array $logs
+     	 * record of logs query
+     	 */
 	protected $logs = array();
-
+	/**
+	 * @var boolean
+	 * Set Medoo in debug mode or not
+	 */
 	protected $debug_mode = false;
-
+    	/**
+     	 * PHP5 contructor called first called class
+     	 * build connection the PDO
+     	 *
+     	 * @param mixed array $options the options configuration
+     	 */
 	public function __construct($options = null)
 	{
 		try {
@@ -150,9 +189,63 @@ class medoo
 			throw new Exception($e->getMessage());
 		}
 	}
-
-	public function query($query)
+	/**
+	 * Compile Bindings
+	 *     Take From CI 3 Database Query Builder, default string Binding use Question mark ( ? )
+	 * @param   string  the sql statement
+	 * @param   string|array   an array/string of binding data
+	 * @return  string
+	 */
+	public function compile_bind($sql, $binds = null)
 	{
+		if (empty($binds) || strpos($sql, '?') === false) {
+	    		return $sql;
+		} elseif ( ! is_array($binds)) {
+	    		$binds = array($binds);
+	    		$bind_count = 1;
+		} else {
+	    		// Make sure we're using numeric keys
+	    		$binds = array_values($binds);
+	    		$bind_count = count($binds);
+		}
+	
+		// Make sure not to replace a chunk inside a string that happens to match the bind marker
+		if ($c = preg_match_all("/'[^']*'/i", $sql, $matches)) {
+		    $c = preg_match_all('/\?/i',
+		        str_replace($matches[0],
+		            str_replace('?', str_repeat(' ', 1), $matches[0]),
+		            $sql, $c),
+		        $matches, PREG_OFFSET_CAPTURE);
+		
+		    // Bind values' count must match the count of markers in the query
+		    if ($bind_count !== $c) {
+		        return $sql;
+		    }
+		} elseif (($c = preg_match_all('/\?/i', $sql, $matches, PREG_OFFSET_CAPTURE)) !== $bind_count) {
+		    return $sql;
+		}
+	
+		do {
+		    $c--;
+		    $escaped_value = $this->quote($binds[$c]);
+		    if (is_array($escaped_value)) {
+		        $escaped_value = '('.implode(',', $escaped_value).')';
+		    }
+		    $sql = substr_replace($sql, $escaped_value, $matches[0][$c][1], 1);
+		} while ($c !== 0);
+		
+		return $sql;
+	}
+	/**
+     	 * Execute Query using PDO::query
+     	 *
+      	 * @param  string $query the query to run
+     	 * @param string|array  virtual binding proccess if query has question mark
+     	 * @return object  pdo statement result
+     	 */
+	public function query($query, $statements = null)
+	{
+		$query = $this->compile_bind($query, $statements);
 		if ($this->debug_mode)
 		{
 			echo $query;
@@ -166,9 +259,15 @@ class medoo
 
 		return $this->pdo->query($query);
 	}
-
-	public function exec($query)
+	/**
+	 * Execute Query using PDO::exec method
+	 *
+	 * @param  string 	$query the query to run
+	 * @param string|array  virtual binding proccess if query has question mark
+	 */
+	public function exec($query,  $statements = null)
 	{
+		$query = $this->compile_bind($query, $statements);
 		if ($this->debug_mode)
 		{
 			echo $query;
@@ -182,17 +281,32 @@ class medoo
 
 		return $this->pdo->exec($query);
 	}
-
+        /**
+         * Quote string using PDO::quote function
+         *
+         * @param  string $string the value to quoted
+         * @return string
+         */
 	public function quote($string)
 	{
 		return $this->pdo->quote($string);
 	}
-
+        /**
+         * Quote the column to make sure safe and valid for database execution
+         *
+         * @param  string $string the column string to quote
+         * @return string quoted column
+         */
 	protected function column_quote($string)
 	{
 		return '"' . str_replace('.', '"."', preg_replace('/(^#|\(JSON\)\s*)/', '', $string)) . '"';
 	}
-
+        /**
+         * converting columns into rights
+         * structures
+         * @param  string $columns
+         * @return string
+         */
 	protected function column_push($columns)
 	{
 		if ($columns == '*')
@@ -223,7 +337,12 @@ class medoo
 
 		return implode($stack, ',');
 	}
-
+        /**
+         * Deep quotes of array values
+         *
+         * @param  array  $array as value to quoted
+         * @return string
+         */
 	protected function array_quote($array)
 	{
 		$temp = array();
@@ -235,7 +354,11 @@ class medoo
 
 		return implode($temp, ',');
 	}
-
+        /**
+         * fix conjunction of sql value
+         *
+         * @return string
+         */
 	protected function inner_conjunct($data, $conjunctor, $outer_conjunctor)
 	{
 		$haystack = array();
@@ -247,7 +370,12 @@ class medoo
 
 		return implode($outer_conjunctor . ' ', $haystack);
 	}
-
+	/**
+	 * Quoting Function
+	 *
+	 * @param string $column the column target
+	 * @param string $string the string to be quoted
+	 */
 	protected function fn_quote($column, $string)
 	{
 		return (strpos($column, '#') === 0 && preg_match('/^[A-Z0-9\_]*\([^)]*\)$/', $string)) ?
@@ -256,7 +384,12 @@ class medoo
 
 			$this->quote($string);
 	}
-
+	/**
+	 * Implode data as where clause parser
+	 * @param  array  	$data
+	 * @param  string 	$conjunctor
+	 * @return string
+	 */
 	protected function data_implode($data, $conjunctor, $outer_conjunctor = null)
 	{
 		$wheres = array();
@@ -410,7 +543,12 @@ class medoo
 
 		return implode($conjunctor . ' ', $wheres);
 	}
-
+        /**
+         * Build Where Clause for database execution context that used for
+         *
+         * @param  mixed  $where array|string the context of Where clouse to database execution
+         * @return string $where_clause
+         */
 	protected function where_clause($where)
 	{
 		$where_clause = '';
@@ -539,7 +677,18 @@ class medoo
 
 		return $where_clause;
 	}
-
+        /**
+         * Build select context to database execution select used for select database operation
+         * as select proccessed with right rule
+         *
+         * @param  string             $table     table name
+         * @param  array              $join      Table relativity for table joining.
+         *                                       Ignore it if no table joining required. ( optional )
+         * @param  mixed string|array $columns   The target columns of data will be fetched.
+         * @param  array              $where     The WHERE clause to filter records. (optional)
+         * @param  string             $column_fn the column function
+         * @return string             context
+         */
 	protected function select_context($table, $join, &$columns = null, $where = null, $column_fn = null)
 	{
 		$table = '"' . $this->prefix . $table . '"';
@@ -668,6 +817,17 @@ class medoo
 		return 'SELECT ' . $column . ' FROM ' . $table . $this->where_clause($where);
 	}
 
+        /**
+         * As select operation for database execution and get data
+         *
+         * @param  string             $table   table name
+         * @param  array              $join    Table relativity for table joining.
+         *                                     Ignore it if no table joining required. ( optional )
+         * @param  mixed string|array $columns The target columns of data will be fetched.
+         * @param  array              $where   The WHERE clause to filter records. (optional)
+         * @param  integer            $param   the PDO constant attribute fetch
+         * @return array
+         */
 	public function select($table, $join, $columns = null, $where = null)
 	{
 		$query = $this->query($this->select_context($table, $join, $columns, $where));
@@ -676,7 +836,13 @@ class medoo
 			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
 		) : false;
 	}
-
+        /**
+         * Insert data to database as operation
+         *
+         * @param  string $table  the database table
+         * @param  array  $datas  the data to be exexute
+         * @return integer        the last insert id
+         */
 	public function insert($table, $datas)
 	{
 		$lastId = array();
@@ -729,7 +895,14 @@ class medoo
 
 		return count($lastId) > 1 ? $lastId : $lastId[ 0 ];
 	}
-
+        /**
+         * Update data on database with new determined value
+         *
+         * @param  string             $table the database table
+         * @param  array              $data  the data to be execute
+         * @param  mixed array|string $where the where clause
+         * @return integer            count the last affected updated row
+         */
 	public function update($table, $data, $where = null)
 	{
 		$fields = array();
@@ -778,12 +951,26 @@ class medoo
 
 		return $this->exec('UPDATE "' . $this->prefix . $table . '" SET ' . implode(', ', $fields) . $this->where_clause($where));
 	}
-
+        /**
+         * Deleting data on database
+         *
+         * @param  string             $table the table name
+         * @param  mixed array|string $where the where clause
+         * @return integer            count the last affected deleted rows
+         */
 	public function delete($table, $where)
 	{
 		return $this->exec('DELETE FROM "' . $this->prefix . $table . '"' . $this->where_clause($where));
 	}
-
+        /**
+         * Replacing data on database
+         *
+         * @param  string             $table   the table name
+         * @param  string             $search  the contains value to search
+         * @param  string             $replace the replace query
+         * @param  mixed array|string $where   the where clause
+         * @return integer            count the last affected replaced rows
+         */
 	public function replace($table, $columns, $search = null, $replace = null, $where = null)
 	{
 		if (is_array($columns))
@@ -823,7 +1010,17 @@ class medoo
 
 		return $this->exec('UPDATE "' . $this->prefix . $table . '" SET ' . $replace_query . $this->where_clause($where));
 	}
-
+        /**
+         * As get and select operation for database execution and get data
+         *
+         * @param string             $table   table name
+         * @param array              $join    Table relativity for table joining.
+         *                                    Ignore it if no table joining required. ( optional )
+         * @param mixed string|array $columns The target columns of data will be fetched.
+         * @param array              $where   The WHERE clause to filter records. (optional)
+         *
+         * @return array
+         */
 	public function get($table, $join = null, $column = null, $where = null)
 	{
 		$query = $this->query($this->select_context($table, $join, $column, $where) . ' LIMIT 1');
@@ -853,7 +1050,16 @@ class medoo
 			return false;
 		}
 	}
-
+        /**
+         * As select operation for database execution and get data if data value is exist
+         *
+         * @param string $table table name
+         * @param array  $join  Table relativity for table joining.
+         *                      Ignore it if no table joining required. ( optional )
+         * @param array  $where The WHERE clause to filter records. (optional)
+         *
+         * @return boolean true if exists
+         */
 	public function has($table, $join, $where = null)
 	{
 		$column = null;
@@ -869,14 +1075,34 @@ class medoo
 			return false;
 		}
 	}
-
+        /**
+         * Getting Count from Query execution request
+         *
+         * @param string             $table   table name
+         * @param array              $join    Table relativity for table joining.
+         *                                    Ignore it if no table joining required. ( optional )
+         * @param mixed string|array $columns The target columns of data will be fetched.
+         * @param array              $where   The WHERE clause to filter records. (optional)
+         *
+         * @return integer
+         */
 	public function count($table, $join = null, $column = null, $where = null)
 	{
 		$query = $this->query($this->select_context($table, $join, $column, $where, 'COUNT'));
 
 		return $query ? 0 + $query->fetchColumn() : false;
 	}
-
+        /**
+         * Getting Max from Query execution request
+         *
+         * @param string             $table   table name
+         * @param array              $join    Table relativity for table joining.
+         *                                    Ignore it if no table joining required. ( optional )
+         * @param mixed string|array $columns The target columns of data will be fetched.
+         * @param array              $where   The WHERE clause to filter records. (optional)
+         *
+         * @return integer
+         */
 	public function max($table, $join, $column = null, $where = null)
 	{
 		$query = $this->query($this->select_context($table, $join, $column, $where, 'MAX'));
@@ -892,7 +1118,17 @@ class medoo
 			return false;
 		}
 	}
-
+        /**
+         * Getting Min from Query execution request
+         *
+         * @param string             $table   table name
+         * @param array              $join    Table relativity for table joining.
+         *                                    Ignore it if no table joining required. ( optional )
+         * @param mixed string|array $columns The target columns of data will be fetched.
+         * @param array              $where   The WHERE clause to filter records. (optional)
+         *
+         * @return integer
+         */
 	public function min($table, $join, $column = null, $where = null)
 	{
 		$query = $this->query($this->select_context($table, $join, $column, $where, 'MIN'));
@@ -908,21 +1144,45 @@ class medoo
 			return false;
 		}
 	}
-
+        /**
+         * Getting Average from Query execution request
+         *
+         * @param string             $table   table name
+         * @param array              $join    Table relativity for table joining.
+         *                                    Ignore it if no table joining required. ( optional )
+         * @param mixed string|array $columns The target columns of data will be fetched.
+         * @param array              $where   The WHERE clause to filter records. (optional)
+         *
+         * @return integer
+         */
 	public function avg($table, $join, $column = null, $where = null)
 	{
 		$query = $this->query($this->select_context($table, $join, $column, $where, 'AVG'));
 
 		return $query ? 0 + $query->fetchColumn() : false;
 	}
-
+        /**
+         * Getting Sum from Query execution request
+         *
+         * @param string             $table   table name
+         * @param array              $join    Table relativity for table joining.
+         *                                    Ignore it if no table joining required. ( optional )
+         * @param mixed string|array $columns The target columns of data will be fetched.
+         * @param array              $where   The WHERE clause to filter records. (optional)
+         *
+         * @return integer
+         */
 	public function sum($table, $join, $column = null, $where = null)
 	{
 		$query = $this->query($this->select_context($table, $join, $column, $where, 'SUM'));
 
 		return $query ? 0 + $query->fetchColumn() : false;
 	}
-
+        /**
+         * Begin transaction action
+         *
+         * @param  callable $actions the callable function
+         */
 	public function action($actions)
 	{
 		if (is_callable($actions))
@@ -945,29 +1205,49 @@ class medoo
 			return false;
 		}
 	}
-
+	/**
+	 * Call direct as Debug mode
+	 *
+	 * @return object current called class ($this)
+	 */
 	public function debug()
 	{
 		$this->debug_mode = true;
 
 		return $this;
 	}
-
+	/**
+	 * Get PDO connection error information
+	 *
+	 * @return array
+	 */
 	public function error()
 	{
 		return $this->pdo->errorInfo();
 	}
-
+	/**
+	 * Getting last query from logs
+	 *
+	 * @return string
+	 */
 	public function last_query()
 	{
 		return end($this->logs);
 	}
-
+	/**
+	 * Get all recorded logs
+	 *
+	 * @return array
+	 */
 	public function log()
 	{
 		return $this->logs;
 	}
-
+	/**
+	 * Show Current connection Information
+	 * 
+	 * @return array
+	 */
 	public function info()
 	{
 		$output = array(
