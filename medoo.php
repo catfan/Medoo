@@ -207,17 +207,18 @@ class medoo
 
 		$stack = array();
 
-		foreach ($columns as $key => $value)
-		{
+		foreach ($columns as $key => $value) {
 			preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
 
-			if (isset($match[ 1 ], $match[ 2 ]))
+			$is_special_column = $this->is_special_column($key);
+
+			if (isset($match[1], $match[2]))
 			{
-				array_push($stack, $this->column_quote( $match[ 1 ] ) . ' AS ' . $this->column_quote( $match[ 2 ] ));
-			}
-			else
-			{
-				array_push($stack, $this->column_quote( $value ));
+				$value = $this->column_quote($match[1]);
+				array_push($stack, ($is_special_column ? $key . "(" . $value . ")" : $value) . ' AS ' . $this->column_quote($match[2]));
+			} else {
+				$value = $this->column_quote($value);
+				array_push($stack, ($is_special_column ? $key . "(" . $value . ")" : $value));
 			}
 		}
 
@@ -666,6 +667,12 @@ class medoo
 		}
 
 		return 'SELECT ' . $column . ' FROM ' . $table . $this->where_clause($where);
+	}
+
+	public function is_special_column($column)
+	{
+		$special_columns = ["COUNT", "MAX", "MIN", "SUM", "AVG", "ROUND"];
+		return in_array($column, $special_columns, true);
 	}
 
 	public function select($table, $join, $columns = null, $where = null)
