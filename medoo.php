@@ -1,4 +1,5 @@
 <?php
+namespace Medoo;
 /*!
  * Medoo database framework
  * http://medoo.in
@@ -7,7 +8,7 @@
  * Copyright 2016, Angel Lai
  * Released under the MIT license
  */
-class medoo
+class Database
 {
 	// General
 	protected $database_type;
@@ -673,7 +674,7 @@ class medoo
 		$query = $this->query($this->select_context($table, $join, $columns, $where));
 
 		return $query ? $query->fetchAll(
-			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
+			(is_string($columns) && $columns != '*') ? \PDO::FETCH_COLUMN : \PDO::FETCH_ASSOC
 		) : false;
 	}
 
@@ -830,7 +831,7 @@ class medoo
 
 		if ($query)
 		{
-			$data = $query->fetchAll(PDO::FETCH_ASSOC);
+			$data = $query->fetchAll(\PDO::FETCH_ASSOC);
 
 			if (isset($data[ 0 ]))
 			{
