@@ -561,10 +561,11 @@ class medoo
 
 			foreach($join as $sub_table => $relation)
 			{
-				preg_match('/(\[(\<|\>|\>\<|\<\>)\])?([a-zA-Z0-9_\-]*)\s?(\(([a-zA-Z0-9_\-]*)\))?/', $sub_table, $match);
+				preg_match('/(\[(\<|\>|\>\<|\<\>)\])?([a-zA-Z0-9_\-.]*)\s?(\(([a-zA-Z0-9_\-]*)\))?/', $sub_table, $match);
 
 				if ($match[ 2 ] != '' && $match[ 3 ] != '')
 				{
+					$match[ 3 ] = (strpos($match[ 3 ], '.') > 0) ? str_replace('.', '"."', $match[ 3 ]) : $match[ 3 ];
 					if (is_string($relation))
 					{
 						$relation = 'USING ("' . $relation . '")';
