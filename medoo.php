@@ -41,6 +41,13 @@ class medoo
 
 	protected $debug_mode = false;
 
+	//Keywords supported
+	const HIGH_PRIORITY = 'HIGH_PRIORITY';
+	const LOW_PRIORITY = 'LOW_PRIORITY';
+	const DELAYED = 'DELAYED';
+	const SQL_CACHE = 'SQL_CACHE';
+	const SQL_NO_CACHE = 'SQL_NO_CACHE';
+
 	public function __construct($options = null)
 	{
 		try {
@@ -677,7 +684,7 @@ class medoo
 		) : false;
 	}
 
-	public function insert($table, $datas)
+	public function insert($table, $datas, $keywords = null)
 	{
 		$lastId = array();
 
@@ -721,8 +728,34 @@ class medoo
 						break;
 				}
 			}
-
-			$this->exec('INSERT INTO "' . $this->prefix . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
+			$keywordsString = "";
+			if (!empty($keywords)) {
+				$type = strtolower($this->database_type);
+				switch ($type) {
+					case 'mysql':
+						//Delayed is deprecated in MySQL so not adding to the list
+						//See http://dev.mysql.com/doc/refman/5.7/en/insert-delayed.html
+						$supportedKeywords = [$this::HIGH_PRIORITY, $this::LOW_PRIORITY, $this::SQL_CACHE, $this::SQL_NO_CACHE];
+						break;
+					case 'mariadb':
+						$supportedKeywords = [$this::HIGH_PRIORITY, $this::LOW_PRIORITY, $this::SQL_CACHE, $this::SQL_NO_CACHE, $this::DELAYED];
+						break;
+					case 'oracle':
+						//I couldn't find documentation for HIGH_PRIORITY nor LOW_PRIORITY for Oracle
+						$supportedKeywords = [$this::SQL_CACHE, $this::SQL_NO_CACHE, $this::DELAYED];
+						break;
+					default:
+						//Default to no supported keywords so it doesn't break anything
+						$supportedKeywords = [];
+						break;
+				}
+				for ($i = 0; $i < count($keywords); $i++) {
+					//Only add keywords if they are supported by the database type
+					if (in_array($keywords[$i], $supportedKeywords))
+						$keywordsString .= " " . strtoupper($keywords[$i]);
+				}
+			}
+			$this->exec('INSERT' . $keywordsString . ' INTO "' . $this->prefix . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
 
 			$lastId[] = $this->pdo->lastInsertId();
 		}
