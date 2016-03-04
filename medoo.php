@@ -190,7 +190,12 @@ class medoo
 
 	protected function column_quote($string)
 	{
-		return '"' . str_replace('.', '"."', preg_replace('/(^#|\(JSON\)\s*)/', '', $string)) . '"';
+        $string = preg_replace('/(^#|\(JSON\)\s*)/', '', $string);
+        if (preg_match('/^[a-zA-Z0-9_\-]*\.\*$/', $string)) 
+        {
+            return '"' . str_replace('.', '".', $string);
+        }
+        return '"' . str_replace('.', '"."', $string) . '"';
 	}
 
 	protected function column_push($columns)
