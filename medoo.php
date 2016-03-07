@@ -47,6 +47,7 @@ class medoo
 	const DELAYED = 'DELAYED';
 	const SQL_CACHE = 'SQL_CACHE';
 	const SQL_NO_CACHE = 'SQL_NO_CACHE';
+	const IGNORE = 'IGNORE';
 
 	public function __construct($options = null)
 	{
@@ -729,24 +730,33 @@ class medoo
 				}
 			}
 			$keywordsString = "";
+			$suffixString = "";
 			if (!empty($keywords)) {
 				$type = strtolower($this->database_type);
 				switch ($type) {
 					case 'mysql':
 						//Delayed is deprecated in MySQL so not adding to the list
 						//See http://dev.mysql.com/doc/refman/5.7/en/insert-delayed.html
-						$supportedKeywords = [$this::HIGH_PRIORITY, $this::LOW_PRIORITY, $this::SQL_CACHE, $this::SQL_NO_CACHE];
+						$supportedKeywords = [$this::HIGH_PRIORITY, $this::LOW_PRIORITY, $this::SQL_CACHE, $this::SQL_NO_CACHE, $this::IGNORE];
+						$supportedSuffix = [];
 						break;
 					case 'mariadb':
-						$supportedKeywords = [$this::HIGH_PRIORITY, $this::LOW_PRIORITY, $this::SQL_CACHE, $this::SQL_NO_CACHE, $this::DELAYED];
+						$supportedKeywords = [$this::HIGH_PRIORITY, $this::LOW_PRIORITY, $this::SQL_CACHE, $this::SQL_NO_CACHE, $this::DELAYED, $this::IGNORE];
+						$supportedSuffix = [];
 						break;
 					case 'oracle':
 						//I couldn't find documentation for HIGH_PRIORITY nor LOW_PRIORITY for Oracle
-						$supportedKeywords = [$this::SQL_CACHE, $this::SQL_NO_CACHE, $this::DELAYED];
+						$supportedKeywords = [$this::SQL_CACHE, $this::SQL_NO_CACHE, $this::DELAYED, $this::IGNORE];
+						$supportedSuffix = [];
+						break;
+					case 'sqlite':
+						$supportedKeywords = [];
+						$supportedSuffix = [$this::IGNORE];
 						break;
 					default:
-						//Default to no supported keywords so it doesn't break anything
+						//Default to no supported keywords/suffix so it doesn't break anything
 						$supportedKeywords = [];
+						$supportedSuffix = [];
 						break;
 				}
 				for ($i = 0; $i < count($keywords); $i++) {
@@ -754,8 +764,17 @@ class medoo
 					if (in_array($keywords[$i], $supportedKeywords))
 						$keywordsString .= " " . strtoupper($keywords[$i]);
 				}
+				for ($i = 0; $i < count($keywords); $i++) {
+					//Only add suffix if they are supported by the database type
+					if (in_array($keywords[$i], $supportedSuffix)) {
+						if (strtolower($this->database_type) == 'sqlite' && $keywords[$i] == $this::IGNORE)
+							$suffixString .= " ON CONFLICT IGNORE";
+						else
+							$suffixString .= " " . strtoupper($keywords[$i]);
+					}
+				}
 			}
-			$this->exec('INSERT' . $keywordsString . ' INTO "' . $this->prefix . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
+			$this->exec('INSERT' . $keywordsString . ' INTO "' . $this->prefix . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')' . $suffixString);
 
 			$lastId[] = $this->pdo->lastInsertId();
 		}
