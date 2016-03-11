@@ -677,7 +677,7 @@ class medoo
 		) : false;
 	}
 
-	public function insert($table, $datas)
+	public function insert($table, $datas, $ignore = false)
 	{
 		$lastId = array();
 
@@ -721,8 +721,11 @@ class medoo
 						break;
 				}
 			}
-
-			$this->exec('INSERT INTO "' . $this->prefix . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
+			if ($ignore !== false) {
+				$this->exec('INSERT IGNORE INTO "' . $this->prefix . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
+			} else {
+				$this->exec('INSERT INTO "' . $this->prefix . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
+			}
 
 			$lastId[] = $this->pdo->lastInsertId();
 		}
