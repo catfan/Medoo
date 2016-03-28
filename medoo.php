@@ -542,7 +542,17 @@ class medoo
 
 	protected function select_context($table, $join, &$columns = null, $where = null, $column_fn = null)
 	{
-		$table = '"' . $this->prefix . $table . '"';
+		preg_match('/.*\(([a-zA-Z0-9_\-]*)\)/i', $table, $match);
+		if (isset($match[1])){
+			$table = '"' . $this->prefix . substr($table,0,-2-strlen($match[1])) . '"';
+			$table_alias = $match[1];
+			$table_aliased = $table_alias;
+		} else {
+			$table = "\"$this->prefix$table\"";
+			$table_alias = '';
+			$table_aliased = $table;
+		}
+
 		$join_key = is_array($join) ? array_keys($join) : null;
 
 		if (
@@ -583,13 +593,13 @@ class medoo
 
 							foreach ($relation as $key => $value)
 							{
-								$joins[] = $this->prefix . (
+								$joins[] = (
 									strpos($key, '.') > 0 ?
 										// For ['tableB.column' => 'column']
 										'"' . str_replace('.', '"."', $key) . '"' :
 
 										// For ['column1' => 'column2']
-										$table . '."' . $key . '"'
+										$table_aliased . '."' . $key . '"'
 								) .
 								' = ' .
 								'"' . (isset($match[ 5 ]) ? $match[ 5 ] : $match[ 3 ]) . '"."' . $value . '"';
@@ -599,10 +609,14 @@ class medoo
 						}
 					}
 
-					$table_join[] = $join_array[ $match[ 2 ] ] . ' JOIN "' . $this->prefix . $match[ 3 ] . '" ' . (isset($match[ 5 ]) ?  'AS "' . $match[ 5 ] . '" ' : '') . $relation;
+					$table_join[] = $join_array[ $match[ 2 ] ] . ' JOIN "' . $this->prefix . $match[ 3 ] . '" ' . (isset($match[ 5 ]) ?  'AS ' . $match[ 5 ] . ' ' : '') . $relation;
 				}
 			}
 
+			if($table_alias)
+			{
+				$table .= ' as ' . $table_alias;
+			}
 			$table .= ' ' . implode($table_join, ' ');
 		}
 		else
@@ -635,6 +649,10 @@ class medoo
 			{
 				$where = $columns;
 				$columns = $join;
+			}
+			if($table_alias)
+			{
+				$table .= " as $table_alias";
 			}
 		}
 
