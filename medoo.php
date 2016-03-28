@@ -41,6 +41,12 @@ class medoo
 
 	protected $debug_mode = false;
 
+	/**
+	 * A list of aliases, that must not be prepended with prefix
+	 * @var array
+	 */
+	protected $aliaslist = array();
+
 	public function __construct($options = null)
 	{
 		try {
@@ -188,9 +194,23 @@ class medoo
 		return $this->pdo->quote($string);
 	}
 
-	protected function column_quote($string)
+	protected function filter_aliased($key){
+		$i = strpos($key, '.');
+		if (in_array(substr($key,0,$i), $this->aliaslist)) // wee found an alias! Not prepending with table prefix
+			return str_replace('.', '."', $key) . '"';
+		else
+			return '"' . $this->prefix . str_replace('.', '"."', $key) . '"';
+	}
+
+	protected function column_quote($string, $use_prefix = true)
 	{
-		return '"' . str_replace('.', '"."', preg_replace('/(^#|\(JSON\)\s*)/', '', $string)) . '"';
+		$i = strpos($string, '.'); // detect, have we fully-qualified table field
+		if ($i=== false) // if we have a simple field, than using table prefix is nonsence
+			$use_prefix = false;
+		if ( ($i !== false) and (in_array(substr($string,0,$i), $this->aliaslist))) // we found an alias! Not prepending with table prefix
+			return str_replace('.', '."', preg_replace('/(^#|\(JSON\)\s*)/', '', $string)) . '"';
+		else  // this is a possible aliased field
+			return '"' . ( $use_prefix ? $this->prefix : '' ) . str_replace('.', '"."', preg_replace('/(^#|\(JSON\)\s*)/', '', $string)) . '"';
 	}
 
 	protected function column_push($columns)
@@ -213,7 +233,7 @@ class medoo
 
 			if (isset($match[ 1 ], $match[ 2 ]))
 			{
-				array_push($stack, $this->column_quote( $match[ 1 ] ) . ' AS ' . $this->column_quote( $match[ 2 ] ));
+				array_push($stack, $this->column_quote( $match[ 1 ] ) . ' AS ' . $this->column_quote( $match[ 2 ], false ));
 			}
 			else
 			{
@@ -221,7 +241,7 @@ class medoo
 			}
 		}
 
-		return implode($stack, ',');
+		return implode($stack, ', ');
 	}
 
 	protected function array_quote($array)
@@ -543,17 +563,27 @@ class medoo
 	protected function select_context($table, $join, &$columns = null, $where = null, $column_fn = null)
 	{
 		preg_match('/.*\(([a-zA-Z0-9_\-]*)\)/i', $table, $match);
-		if (isset($match[1])){
+		if (isset($match[1]))
+		{
 			$table = '"' . $this->prefix . substr($table,0,-2-strlen($match[1])) . '"';
 			$table_alias = $match[1];
 			$table_aliased = $table_alias;
-		} else {
+		}
+		else
+		{
 			$table = "\"$this->prefix$table\"";
 			$table_alias = '';
 			$table_aliased = $table;
 		}
 
 		$join_key = is_array($join) ? array_keys($join) : null;
+
+		$this->aliaslist=array(); // a list of aliases, that will NOT be prepended with prefix
+
+		if($table_alias)  // first, add alias for main table, if exists
+		{
+			$this->aliaslist[] = $table_alias;
+		}
 
 		if (
 			isset($join_key[ 0 ]) &&
@@ -568,6 +598,16 @@ class medoo
 				'<>' => 'FULL',
 				'><' => 'INNER'
 			);
+
+			foreach($join as $sub_table => $relation) // next, run through all other relations, extracting all existing aliases
+			{
+				preg_match('/(\[(\<|\>|\>\<|\<\>)\])?([a-zA-Z0-9_\-]*)\s?(\(([a-zA-Z0-9_\-]*)\))?/', $sub_table, $match);
+
+				if(isset($match[5]) and $match[5])
+				{
+					$this->aliaslist[]=$match[5];
+				}
+			}
 
 			foreach($join as $sub_table => $relation)
 			{
@@ -596,13 +636,11 @@ class medoo
 								$joins[] = (
 									strpos($key, '.') > 0 ?
 										// For ['tableB.column' => 'column']
-										'"' . str_replace('.', '"."', $key) . '"' :
-
+										$this->filter_aliased($key) :
 										// For ['column1' => 'column2']
 										$table_aliased . '."' . $key . '"'
-								) .
-								' = ' .
-								'"' . (isset($match[ 5 ]) ? $match[ 5 ] : $match[ 3 ]) . '"."' . $value . '"';
+								) .	' = ' .
+								(isset($match[ 5 ]) ? $match[ 5 ] : ('"' . $this->prefix . $match[ 3 ] . '"')) . '."' . $value . '"';
 							}
 
 							$relation = 'ON ' . implode($joins, ' AND ');
