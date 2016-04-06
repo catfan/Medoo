@@ -583,7 +583,7 @@ class medoo
 
 							foreach ($relation as $key => $value)
 							{
-								$joins[] = $this->prefix . (
+								$joins[] = (
 									strpos($key, '.') > 0 ?
 										// For ['tableB.column' => 'column']
 										'"' . str_replace('.', '"."', $key) . '"' :
@@ -592,7 +592,7 @@ class medoo
 										$table . '."' . $key . '"'
 								) .
 								' = ' .
-								'"' . (isset($match[ 5 ]) ? $match[ 5 ] : $match[ 3 ]) . '"."' . $value . '"';
+								'"' . (isset($match[ 5 ]) ? $match[ 5 ] : $this->prefix . $match[ 3 ]) . '"."' . $value . '"';
 							}
 
 							$relation = 'ON ' . implode($joins, ' AND ');
