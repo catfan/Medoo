@@ -344,15 +344,7 @@ class medoo
 							$item = strval($item);
 							$suffix = mb_substr($item, -1, 1);
 
-							if ($suffix === '_')
-							{
-								$item = substr_replace($item, '%', -1);
-							}
-							elseif ($suffix === '%')
-							{
-								$item = '%' . substr_replace($item, '', -1, 1);
-							}
-							elseif (preg_match('/^(?!%).+(?<!%)$/', $item))
+							if (preg_match('/^(?!(%|\[|_])).+(?<!(%|\]|_))$/', $item))
 							{
 								$item = '%' . $item . '%';
 							}
