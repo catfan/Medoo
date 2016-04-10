@@ -461,37 +461,33 @@ class medoo
 
 			if (isset($where[ 'ORDER' ]))
 			{
-				$rsort = '/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/';
 				$ORDER = $where[ 'ORDER' ];
 
 				if (is_array($ORDER))
 				{
-					if (
-						isset($ORDER[ 1 ]) &&
-						is_array($ORDER[ 1 ])
-					)
-					{
-						$where_clause .= ' ORDER BY FIELD(' . $this->column_quote($ORDER[ 0 ]) . ', ' . $this->array_quote($ORDER[ 1 ]) . ')';
-					}
-					else
-					{
-						$stack = array();
+					$stack = array();
 
-						foreach ($ORDER as $column)
+					foreach ($ORDER as $column => $value)
+					{
+						if (is_array($value))
 						{
-							preg_match($rsort, $column, $order_match);
-
-							array_push($stack, '"' . str_replace('.', '"."', $order_match[ 1 ]) . '"' . (isset($order_match[ 3 ]) ? ' ' . $order_match[ 3 ] : ''));
+							array_push($stack, 'FIELD(' . $this->column_quote($column) . ', ' . $this->array_quote($value) . ')');
 						}
-
-						$where_clause .= ' ORDER BY ' . implode($stack, ',');
+						else if ($value === 'ASC' || $value === 'DESC')
+						{
+							array_push($stack, '"' . str_replace('.', '"."', $column) . ' ' . $value . '"');
+						}
+						else if (is_int($column))
+						{
+							array_push($stack, '"' . str_replace('.', '"."', $value) . '"');
+						}
 					}
+
+					$where_clause .= ' ORDER BY ' . implode($stack, ',');
 				}
 				else
 				{
-					preg_match($rsort, $ORDER, $order_match);
-
-					$where_clause .= ' ORDER BY "' . str_replace('.', '"."', $order_match[ 1 ]) . '"' . (isset($order_match[ 3 ]) ? ' ' . $order_match[ 3 ] : '');
+					$where_clause .= ' ORDER BY "' . str_replace('.', '"."', $ORDER) . '"';
 				}
 			}
 
