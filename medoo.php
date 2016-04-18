@@ -190,7 +190,7 @@ class medoo
 
 	protected function column_quote($string)
 	{
-		return '"' . str_replace('.', '"."', preg_replace('/(^#|\(JSON\)\s*)/', '', $string)) . '"';
+		return preg_replace('/(\(JSON\)\s*|^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)/', '"$2"."$3"', $string);
 	}
 
 	protected function column_push($columns)
@@ -479,7 +479,7 @@ class medoo
 						}
 						else if (is_int($column))
 						{
-							array_push($stack, '"' . str_replace('.', '"."', $value) . '"');
+							array_push($stack, $this->column_quote($value);
 						}
 					}
 
@@ -487,7 +487,7 @@ class medoo
 				}
 				else
 				{
-					$where_clause .= ' ORDER BY "' . str_replace('.', '"."', $ORDER) . '"';
+					$where_clause .= ' ORDER BY ' . $this->column_quote($ORDER);
 				}
 			}
 
@@ -574,7 +574,7 @@ class medoo
 								$joins[] = $this->prefix . (
 									strpos($key, '.') > 0 ?
 										// For ['tableB.column' => 'column']
-										'"' . str_replace('.', '"."', $key) . '"' :
+										$this->column_quote($key) :
 
 										// For ['column1' => 'column2']
 										$table . '."' . $key . '"'
