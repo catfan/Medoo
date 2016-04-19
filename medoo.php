@@ -41,6 +41,8 @@ class medoo
 
 	protected $debug_mode = false;
 
+	protected $fetch_style=PDO::FETCH_ASSOC;
+
 	public function __construct($options = null)
 	{
 		try {
@@ -673,7 +675,7 @@ class medoo
 		$query = $this->query($this->select_context($table, $join, $columns, $where));
 
 		return $query ? $query->fetchAll(
-			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
+			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : $this->fetch_style
 		) : false;
 	}
 
@@ -830,7 +832,7 @@ class medoo
 
 		if ($query)
 		{
-			$data = $query->fetchAll(PDO::FETCH_ASSOC);
+			$data = $query->fetchAll($this->fetch_style);
 
 			if (isset($data[ 0 ]))
 			{
