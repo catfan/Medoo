@@ -190,7 +190,8 @@ class medoo
 
 	protected function column_quote($string)
 	{
-		return '"' . str_replace('.', '"."', preg_replace('/(^#|\(JSON\)\s*)/', '', $string)) . '"';
+		$prefix = (strpos($string, '.') > 0) ? $this->prefix : ''; // REPARE ERROR WITH PREFIX TABLES IN SELECT JOIN QUOTE by pietuchowski.pl
+		return '"' . $prefix . str_replace('.', '"."', preg_replace('/(^#|\(JSON\)\s*)/', '', $string)) . '"';
 	}
 
 	protected function column_push($columns)
@@ -217,7 +218,8 @@ class medoo
 			}
 			else
 			{
-				array_push($stack, $this->column_quote( $value ));
+				//array_push($stack, $this->column_quote( $value ));
+				array_push($stack, $this->column_quote( (strpos($value, '.') > 0) ? $this->prefix . $value : $value )); // REPARE ERROR WITH PREFIX TABLES IN SELECT JOIN QUOTE by pietuchowski.pl
 			}
 		}
 
@@ -592,7 +594,8 @@ class medoo
 										$table . '."' . $key . '"'
 								) .
 								' = ' .
-								'"' . (isset($match[ 5 ]) ? $match[ 5 ] : $match[ 3 ]) . '"."' . $value . '"';
+								//'"' . (isset($match[ 5 ]) ? $match[ 5 ] : $match[ 3 ]) . '"."' . $value . '"';
+								'"' . (isset($match[ 5 ]) ? $match[ 5 ] : $this->prefix . $match[ 3 ]) . '"."' . $value . '"'; // REPARE ERROR WITH PREFIX TABLES IN SELECT JOIN QUOTE by pietuchowski.pl
 							}
 
 							$relation = 'ON ' . implode($joins, ' AND ');
