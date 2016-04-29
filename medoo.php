@@ -840,7 +840,8 @@ class medoo
 
 				if (is_string($column) && $column != '*')
 				{
-					return $data[ 0 ][ $column ];
+				    $data = (array)$data[ 0 ];
+					return $data[ $column ];
 				}
 
 				return $data[ 0 ];
