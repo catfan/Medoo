@@ -190,7 +190,7 @@ class medoo
 
 	protected function column_quote($string)
 	{
-		return '"' . str_replace('.', '"."', preg_replace('/(^#|\(JSON\)\s*)/', '', $string)) . '"';
+		return '`'.$this->prefix. str_replace('.', '`.`', preg_replace('/(^#|\(JSON\)\s*)/', '', $string)) . '`';
 	}
 
 	protected function column_push($columns)
@@ -542,7 +542,7 @@ class medoo
 
 	protected function select_context($table, $join, &$columns = null, $where = null, $column_fn = null)
 	{
-		$table = '"' . $this->prefix . $table . '"';
+		$table = '`' . $this->prefix . $table . '`';
 		$join_key = is_array($join) ? array_keys($join) : null;
 
 		if (
@@ -583,23 +583,22 @@ class medoo
 
 							foreach ($relation as $key => $value)
 							{
-								$joins[] = $this->prefix . (
+								$joins[] = (
 									strpos($key, '.') > 0 ?
 										// For ['tableB.column' => 'column']
-										'"' . str_replace('.', '"."', $key) . '"' :
+										'`' . str_replace('.', '`.`', $key) . '`' :
 
 										// For ['column1' => 'column2']
-										$table . '."' . $key . '"'
+										$table . '.`' . $key . '`'
 								) .
 								' = ' .
-								'"' . (isset($match[ 5 ]) ? $match[ 5 ] : $match[ 3 ]) . '"."' . $value . '"';
+								'`' . $this->prefix . (isset($match[ 5 ]) ? $match[ 5 ] : $match[ 3 ]) . '`.`' . $value . '`';
 							}
-
 							$relation = 'ON ' . implode($joins, ' AND ');
 						}
 					}
 
-					$table_join[] = $join_array[ $match[ 2 ] ] . ' JOIN "' . $this->prefix . $match[ 3 ] . '" ' . (isset($match[ 5 ]) ?  'AS "' . $match[ 5 ] . '" ' : '') . $relation;
+					$table_join[] = $join_array[ $match[ 2 ] ] . ' JOIN `' . $this->prefix . $match[ 3 ] . '` ' . (isset($match[ 5 ]) ?  'AS `' . $match[ 5 ] . '` ' : '') . $relation;
 				}
 			}
 
