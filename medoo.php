@@ -693,7 +693,7 @@ class medoo
 
 			foreach ($data as $key => $value)
 			{
-				array_push($columns, $this->quote($key));
+				array_push($columns, $key);
 
 				switch (gettype($value))
 				{
