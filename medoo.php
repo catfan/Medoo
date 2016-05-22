@@ -479,7 +479,7 @@ class medoo
 						}
 						else if (is_int($column))
 						{
-							array_push($stack, $this->column_quote($value);
+							array_push($stack, $this->column_quote($value));
 						}
 					}
 
