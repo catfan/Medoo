@@ -209,15 +209,22 @@ class medoo
 
 		foreach ($columns as $key => $value)
 		{
-			preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
-
-			if (isset($match[ 1 ], $match[ 2 ]))
+			if (is_array($value))
 			{
-				array_push($stack, $this->column_quote( $match[ 1 ] ) . ' AS ' . $this->column_quote( $match[ 2 ] ));
+				array_push($stack, $this->column_push($value));
 			}
 			else
 			{
-				array_push($stack, $this->column_quote( $value ));
+				preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
+
+				if (isset($match[ 1 ], $match[ 2 ]))
+				{
+					array_push($stack, $this->column_quote( $match[ 1 ] ) . ' AS ' . $this->column_quote( $match[ 2 ] ));
+				}
+				else
+				{
+					array_push($stack, $this->column_quote( $value ));
+				}
 			}
 		}
 
@@ -656,13 +663,74 @@ class medoo
 		return 'SELECT ' . $column . ' FROM ' . $table . $this->where_clause($where);
 	}
 
+	protected function data_map($index, $key, $value, $data, &$stack)
+	{
+		if (is_array($value))
+		{
+			$vstack = [];
+
+			foreach ($value as $sub_key => $sub_value)
+			{
+				if (is_array($sub_value))
+				{
+					$dstack = $stack[ $index ][ $key ];
+
+					$this->data_map(false, $sub_key, $sub_value, $data, $dstack);
+
+					$stack[ $index ][ $key ][ $sub_key ] = $dstack[0][ $sub_key ];
+				}
+				else
+				{
+					$this->data_map(false, preg_replace('/^[\w]*\./i', "", $sub_value), $sub_key, $data, $vstack);
+
+					$stack[ $index ][ $key ] = $vstack;
+				}
+			}
+		}
+		else
+		{
+			if ($index !== false)
+			{
+				$stack[ $index ][ $value ] = $data[ $value ];
+			}
+			else
+			{
+				$stack[ $key ] = $data[ $key ];
+			}
+		}
+	}
+
 	public function select($table, $join, $columns = null, $where = null)
 	{
 		$query = $this->query($this->select_context($table, $join, $columns, $where));
 
-		return $query ? $query->fetchAll(
-			(is_string($columns) && $columns != '*') ? PDO::FETCH_COLUMN : PDO::FETCH_ASSOC
-		) : false;
+		$stack = array();
+
+		$index = 0;
+
+		if (!$query)
+		{
+			return false;
+		}
+
+		while ($row = $query->fetch(PDO::FETCH_ASSOC))
+		{
+			foreach ($columns as $key => $value)
+			{
+				if (is_array($value))
+				{
+					$this->data_map($index, $key, $value, $row, $stack);
+				}
+				else
+				{
+					$this->data_map($index, $key, preg_replace('/^[\w]*\./i', "", $value), $row, $stack);
+				}
+			}
+
+			$index++;
+		}
+
+		return $stack;
 	}
 
 	public function insert($table, $datas)
