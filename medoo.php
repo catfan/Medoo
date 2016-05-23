@@ -190,11 +190,6 @@ class medoo
 
 	protected function column_quote($string)
 	{
-		if (strstr($string, '.')) {
-			return '`' . $this->prefix. str_replace('.', '`.`', preg_replace('/(^#|\(JSON\)\s*)/', '', $string)) . '`';
-		} else {
-			return '`'.str_replace('.', '`.`', preg_replace('/(^#|\(JSON\)\s*)/', '', $string)) . '`';
-		}
 	}
 
 	protected function column_push($columns)
@@ -682,6 +677,11 @@ class medoo
 
 	public function insert($table, $datas)
 	{
+		$fields=array();
+		$columns = $this->query("SHOW COLUMNS FROM ".$this->prefix . $table)->fetchAll();
+		foreach ($columns as $key => $val) {
+			$fields[]   = $val['Field'];
+		}		
 		$lastId = array();
 
 		// Check indexed or associative array
@@ -697,7 +697,6 @@ class medoo
 
 			foreach ($data as $key => $value)
 			{
-				array_push($columns, $key);
 
 				switch (gettype($value))
 				{
@@ -726,6 +725,7 @@ class medoo
 			}
 
 			$this->exec('INSERT INTO `' . $this->prefix . $table . '` (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
+			$this->exec('INSERT INTO ' . $this->prefix . $table . ' (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
 
 			$lastId[] = $this->pdo->lastInsertId();
 		}
@@ -780,11 +780,13 @@ class medoo
 		}
 
 		return $this->exec('UPDATE "' . $this->prefix . $table . '" SET ' . implode(', ', $fields) . $this->where_clause($where));
+		return $this->exec('UPDATE ' . $this->prefix . $table . ' SET ' . implode(', ', $fields) . $this->where_clause($where));
 	}
 
 	public function delete($table, $where)
 	{
 		return $this->exec('DELETE FROM "' . $this->prefix . $table . '"' . $this->where_clause($where));
+		return $this->exec('DELETE FROM ' . $this->prefix . $table . ' ' . $this->where_clause($where));
 	}
 
 	public function replace($table, $columns, $search = null, $replace = null, $where = null)
@@ -825,6 +827,7 @@ class medoo
 		}
 
 		return $this->exec('UPDATE "' . $this->prefix . $table . '" SET ' . $replace_query . $this->where_clause($where));
+		return $this->exec('UPDATE ' . $this->prefix . $table . ' SET ' . $replace_query . $this->where_clause($where));
 	}
 
 	public function get($table, $join = null, $column = null, $where = null)
@@ -927,12 +930,14 @@ class medoo
 	}
 
 	public function action($actions)
+	public function action($actions,$param=NULL)
 	{
 		if (is_callable($actions))
 		{
 			$this->pdo->beginTransaction();
 
 			$result = $actions($this);
+			$result = $actions($this,$param);
 
 			if ($result === false)
 			{
@@ -942,6 +947,7 @@ class medoo
 			{
 				$this->pdo->commit();
 			}
+			return $result;
 		}
 		else
 		{
