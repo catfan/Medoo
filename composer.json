@@ -1,5 +1,5 @@
 {
-	"name": "catfan/medoo",
+	"name": "sxdd/medoo",
 	"type": "framework",
 	"description": "The Lightest PHP database framework to accelerate development",
 	"keywords": ["database", "lightweight", "PHP framework", "SQL", "MySQL", "MSSQL", "SQLite"],
