@@ -682,8 +682,12 @@ class medoo
 
 	public function insert($table, $datas)
 	{
+		$fields=array();
+		$columns = $this->query("SHOW COLUMNS FROM ".$this->prefix . $table)->fetchAll();
+		foreach ($columns as $key => $val) {
+			$fields[]   = $val['Field'];
+		}		
 		$lastId = array();
-
 		// Check indexed or associative array
 		if (!isset($datas[ 0 ]))
 		{
@@ -697,7 +701,10 @@ class medoo
 
 			foreach ($data as $key => $value)
 			{
-				array_push($columns, $key);
+				if(!in_array($key,$fields)){
+					continue;
+				}
+				array_push($columns, $this->column_quote($key));
 
 				switch (gettype($value))
 				{
@@ -725,7 +732,7 @@ class medoo
 				}
 			}
 
-			$this->exec('INSERT INTO `' . $this->prefix . $table . '` (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
+			$this->exec('INSERT INTO ' . $this->prefix . $table . ' (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
 
 			$lastId[] = $this->pdo->lastInsertId();
 		}
@@ -779,12 +786,12 @@ class medoo
 			}
 		}
 
-		return $this->exec('UPDATE "' . $this->prefix . $table . '" SET ' . implode(', ', $fields) . $this->where_clause($where));
+		return $this->exec('UPDATE ' . $this->prefix . $table . ' SET ' . implode(', ', $fields) . $this->where_clause($where));
 	}
 
 	public function delete($table, $where)
 	{
-		return $this->exec('DELETE FROM "' . $this->prefix . $table . '"' . $this->where_clause($where));
+		return $this->exec('DELETE FROM ' . $this->prefix . $table . ' ' . $this->where_clause($where));
 	}
 
 	public function replace($table, $columns, $search = null, $replace = null, $where = null)
@@ -824,7 +831,7 @@ class medoo
 			}
 		}
 
-		return $this->exec('UPDATE "' . $this->prefix . $table . '" SET ' . $replace_query . $this->where_clause($where));
+		return $this->exec('UPDATE ' . $this->prefix . $table . ' SET ' . $replace_query . $this->where_clause($where));
 	}
 
 	public function get($table, $join = null, $column = null, $where = null)
@@ -926,13 +933,13 @@ class medoo
 		return $query ? 0 + $query->fetchColumn() : false;
 	}
 
-	public function action($actions)
+	public function action($actions,$param=NULL)
 	{
 		if (is_callable($actions))
 		{
 			$this->pdo->beginTransaction();
 
-			$result = $actions($this);
+			$result = $actions($this,$param);
 
 			if ($result === false)
 			{
@@ -942,6 +949,7 @@ class medoo
 			{
 				$this->pdo->commit();
 			}
+			return $result;
 		}
 		else
 		{
