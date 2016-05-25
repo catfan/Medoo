@@ -473,7 +473,7 @@ class medoo
 
 			if (isset($where[ 'ORDER' ]))
 			{
-				$rsort = '/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC))?/';
+				$rsort = '/(^[a-zA-Z0-9_\-\.]*)(\s*(DESC|ASC|desc|asc))?/';
 				$ORDER = $where[ 'ORDER' ];
 
 				if (is_array($ORDER))
