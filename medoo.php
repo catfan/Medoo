@@ -162,7 +162,7 @@ class medoo
 			return false;
 		}
 
-		array_push($this->logs, $query);
+		$this->logs[] = $query;
 
 		return $this->pdo->query($query);
 	}
@@ -178,7 +178,7 @@ class medoo
 			return false;
 		}
 
-		array_push($this->logs, $query);
+		$this->logs[] = $query;
 
 		return $this->pdo->exec($query);
 	}
@@ -211,7 +211,7 @@ class medoo
 		{
 			if (is_array($value))
 			{
-				array_push($stack, $this->column_push($value));
+				$stack[] = $this->column_push($value);
 			}
 			else
 			{
@@ -219,11 +219,11 @@ class medoo
 
 				if (isset($match[ 1 ], $match[ 2 ]))
 				{
-					array_push($stack, $this->column_quote( $match[ 1 ] ) . ' AS ' . $this->column_quote( $match[ 2 ] ));
+					$stack[] = $this->column_quote( $match[ 1 ] ) . ' AS ' . $this->column_quote( $match[ 2 ] );
 				}
 				else
 				{
-					array_push($stack, $this->column_quote( $value ));
+					$stack[] = $this->column_quote( $value );
 				}
 			}
 		}
@@ -478,15 +478,15 @@ class medoo
 					{
 						if (is_array($value))
 						{
-							array_push($stack, 'FIELD(' . $this->column_quote($column) . ', ' . $this->array_quote($value) . ')');
+							$stack[] = 'FIELD(' . $this->column_quote($column) . ', ' . $this->array_quote($value) . ')';
 						}
 						else if ($value === 'ASC' || $value === 'DESC')
 						{
-							array_push($stack, '"' . str_replace('.', '"."', $column) . ' ' . $value . '"');
+							$stack[] = '"' . str_replace('.', '"."', $column) . ' ' . $value . '"';
 						}
 						else if (is_int($column))
 						{
-							array_push($stack, $this->column_quote($value));
+							$stack[] = $this->column_quote($value);
 						}
 					}
 
@@ -667,23 +667,23 @@ class medoo
 	{
 		if (is_array($value))
 		{
-			$vstack = [];
+			$sub_stack = array();
 
 			foreach ($value as $sub_key => $sub_value)
 			{
 				if (is_array($sub_value))
 				{
-					$dstack = $stack[ $index ][ $key ];
+					$current_stack = $stack[ $index ][ $key ];
 
-					$this->data_map(false, $sub_key, $sub_value, $data, $dstack);
+					$this->data_map(false, $sub_key, $sub_value, $data, $current_stack);
 
-					$stack[ $index ][ $key ][ $sub_key ] = $dstack[0][ $sub_key ];
+					$stack[ $index ][ $key ][ $sub_key ] = $current_stack[ 0 ][ $sub_key ];
 				}
 				else
 				{
-					$this->data_map(false, preg_replace('/^[\w]*\./i', "", $sub_value), $sub_key, $data, $vstack);
+					$this->data_map(false, preg_replace('/^[\w]*\./i', "", $sub_value), $sub_key, $data, $sub_stack);
 
-					$stack[ $index ][ $key ] = $vstack;
+					$stack[ $index ][ $key ] = $sub_stack;
 				}
 			}
 		}
@@ -750,7 +750,7 @@ class medoo
 
 			foreach ($data as $key => $value)
 			{
-				array_push($columns, $this->column_quote($key));
+				$columns[] = $this->column_quote($key);
 
 				switch (gettype($value))
 				{
