@@ -190,7 +190,7 @@ class medoo
 
 	protected function column_quote($string)
 	{
-		return preg_replace('/(\(JSON\)\s*|^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)/', '"$2"."$3"', $string);
+		return preg_replace('/(\(JSON\)\s*|^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)/', '"' . $this->prefix . '$2"."$3"', $string);
 	}
 
 	protected function column_push($columns)
@@ -578,7 +578,7 @@ class medoo
 
 							foreach ($relation as $key => $value)
 							{
-								$joins[] = $this->prefix . (
+								$joins[] = (
 									strpos($key, '.') > 0 ?
 										// For ['tableB.column' => 'column']
 										$this->column_quote($key) :
@@ -594,7 +594,14 @@ class medoo
 						}
 					}
 
-					$table_join[] = $join_array[ $match[ 2 ] ] . ' JOIN "' . $this->prefix . $match[ 3 ] . '" ' . (isset($match[ 5 ]) ?  'AS "' . $match[ 5 ] . '" ' : '') . $relation;
+					$table_name = $this->prefix . $match[ 3 ] . '" ';
+
+					if (isset($match[ 5 ]))
+					{
+						$table_name .= 'AS "' . $match[ 5 ] . '" ';
+					}
+
+					$table_join[] = $join_array[ $match[ 2 ] ] . ' JOIN "' . $table_name . $relation;
 				}
 			}
 
