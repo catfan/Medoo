@@ -598,7 +598,7 @@ class medoo
 
 					if (isset($match[ 5 ]))
 					{
-						$table_name .= 'AS "' . $match[ 5 ] . '" ';
+						$table_name .= 'AS "' . $this->prefix . $match[ 5 ] . '" ';
 					}
 
 					$table_join[] = $join_array[ $match[ 2 ] ] . ' JOIN "' . $table_name . $relation;
