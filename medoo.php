@@ -188,6 +188,11 @@ class medoo
 		return $this->pdo->quote($string);
 	}
 
+	protected function table_quote($table)
+	{
+		return '"' . $this->prefix . $table . '"';
+	}
+
 	protected function column_quote($string)
 	{
 		return preg_replace('/(\(JSON\)\s*|^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)/', '"' . $this->prefix . '$2"."$3"', $string);
@@ -537,7 +542,21 @@ class medoo
 
 	protected function select_context($table, $join, &$columns = null, $where = null, $column_fn = null)
 	{
-		$table = '"' . $this->prefix . $table . '"';
+		preg_match('/([a-zA-Z0-9_\-]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $table, $table_match);
+
+		if (isset($table_match[ 1 ], $table_match[ 2 ]))
+		{
+			$table = $this->table_quote($table_match[ 1 ]);
+
+			$table_query = $this->table_quote($table_match[ 1 ]) . ' AS ' . $this->table_quote($table_match[ 2 ]);
+		}
+		else
+		{
+			$table = $this->table_quote($table);
+
+			$table_query = $table;
+		}
+
 		$join_key = is_array($join) ? array_keys($join) : null;
 
 		if (
@@ -605,7 +624,7 @@ class medoo
 				}
 			}
 
-			$table .= ' ' . implode($table_join, ' ');
+			$table_query .= ' ' . implode($table_join, ' ');
 		}
 		else
 		{
@@ -667,7 +686,7 @@ class medoo
 			$column = $this->column_push($columns);
 		}
 
-		return 'SELECT ' . $column . ' FROM ' . $table . $this->where_clause($where);
+		return 'SELECT ' . $column . ' FROM ' . $table_query . $this->where_clause($where);
 	}
 
 	protected function data_map($index, $key, $value, $data, &$stack)
@@ -785,7 +804,7 @@ class medoo
 				}
 			}
 
-			$this->exec('INSERT INTO "' . $this->prefix . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
+			$this->exec('INSERT INTO ' . $this->table_quote($table) . ' (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
 
 			$lastId[] = $this->pdo->lastInsertId();
 		}
@@ -839,12 +858,12 @@ class medoo
 			}
 		}
 
-		return $this->exec('UPDATE "' . $this->prefix . $table . '" SET ' . implode(', ', $fields) . $this->where_clause($where));
+		return $this->exec('UPDATE ' . $this->table_quote($table) . ' SET ' . implode(', ', $fields) . $this->where_clause($where));
 	}
 
 	public function delete($table, $where)
 	{
-		return $this->exec('DELETE FROM "' . $this->prefix . $table . '"' . $this->where_clause($where));
+		return $this->exec('DELETE FROM ' . $this->table_quote($table) . $this->where_clause($where));
 	}
 
 	public function replace($table, $columns, $search = null, $replace = null, $where = null)
