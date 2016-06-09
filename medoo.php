@@ -127,7 +127,7 @@ class medoo
 			}
 
 			if (
-				in_array($type, explode(' ', 'mariadb mysql pgsql sybase mssql')) &&
+				in_array($type, array('mariadb', 'mysql', 'pgsql', 'sybase', 'mssql')) &&
 				$this->charset
 			)
 			{
@@ -428,7 +428,7 @@ class medoo
 			$where_OR = preg_grep("/^OR\s*#?$/i", $where_keys);
 
 			$single_condition = array_diff_key($where, array_flip(
-				explode(' ', 'AND OR GROUP ORDER HAVING LIMIT LIKE MATCH')
+				array('AND', 'OR', 'GROUP', 'ORDER', 'HAVING', 'LIMIT', 'LIKE', 'MATCH')
 			));
 
 			if ($single_condition != array())
@@ -608,21 +608,21 @@ class medoo
 										$table . '."' . $key . '"'
 								) .
 								' = ' .
-								'"' . (isset($match[ 5 ]) ? $match[ 5 ] : $match[ 3 ]) . '"."' . $value . '"';
+								$this->table_quote(isset($match[ 5 ]) ? $match[ 5 ] : $match[ 3 ]) . '."' . $value . '"';
 							}
 
 							$relation = 'ON ' . implode($joins, ' AND ');
 						}
 					}
 
-					$table_name = $this->prefix . $match[ 3 ] . '" ';
+					$table_name = $this->table_quote($match[ 3 ]) . ' ';
 
 					if (isset($match[ 5 ]))
 					{
-						$table_name .= 'AS "' . $this->prefix . $match[ 5 ] . '" ';
+						$table_name .= 'AS ' . $this->table_quote($match[ 5 ]) . ' ';
 					}
 
-					$table_join[] = $join_array[ $match[ 2 ] ] . ' JOIN "' . $table_name . $relation;
+					$table_join[] = $join_array[ $match[ 2 ] ] . ' JOIN ' . $table_name . $relation;
 				}
 			}
 
