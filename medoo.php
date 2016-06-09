@@ -198,7 +198,7 @@ class medoo
 		return preg_replace('/(\(JSON\)\s*|^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)/', '"' . $this->prefix . '$2"."$3"', $string);
 	}
 
-	protected function column_push($columns)
+	protected function column_push(&$columns)
 	{
 		if ($columns == '*')
 		{
@@ -225,6 +225,8 @@ class medoo
 				if (isset($match[ 1 ], $match[ 2 ]))
 				{
 					$stack[] = $this->column_quote( $match[ 1 ] ) . ' AS ' . $this->column_quote( $match[ 2 ] );
+
+					$columns[ $key ] = $match[ 2 ];
 				}
 				else
 				{
