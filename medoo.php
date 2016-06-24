@@ -365,7 +365,7 @@ class medoo
 
 					if (in_array($operator, array('>', '>=', '<', '<=')))
 					{
-						if (is_numeric($value))
+						if ($type != 'string' && is_numeric($value))
 						{
 							$wheres[] = $column . ' ' . $operator . ' ' . $value;
 						}
