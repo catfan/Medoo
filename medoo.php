@@ -665,6 +665,7 @@ class medoo
 			$column = $this->column_push($columns);
 		}
 
+		$column = preg_replace('/\"\*\"/', '*', $column);
 		return 'SELECT ' . $column . ' FROM ' . $table . $this->where_clause($where);
 	}
 
