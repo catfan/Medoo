@@ -489,7 +489,7 @@ class medoo
 						}
 						else if ($value === 'ASC' || $value === 'DESC')
 						{
-							$stack[] = '"' . str_replace('.', '"."', $column) . ' ' . $value . '"';
+							$stack[] = $this->column_quote($column) . ' ' . $value;
 						}
 						else if (is_int($column))
 						{
