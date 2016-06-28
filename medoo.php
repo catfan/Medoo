@@ -908,9 +908,13 @@ class medoo
 		return $this->exec('UPDATE ' . $this->table_quote($table) . ' SET ' . $replace_query . $this->where_clause($where));
 	}
 
-	public function get($table, $join = null, $column = null, $where = null)
+	public function get($table, $join = null, $columns = null, $where = null)
 	{
-		$query = $this->query($this->select_context($table, $join, $column, $where) . ' LIMIT 1');
+		$column = $where == null ? $join : $columns;
+
+		$is_single_column = (is_string($column) && $column !== '*');
+
+		$query = $this->query($this->select_context($table, $join, $columns, $where) . ' LIMIT 1');
 
 		if ($query)
 		{
@@ -918,14 +922,31 @@ class medoo
 
 			if (isset($data[ 0 ]))
 			{
-				$column = $where == null ? $join : $column;
-
-				if (is_string($column) && $column != '*')
+				if ($is_single_column)
 				{
-					return $data[ 0 ][ $column ];
+					return $data[ 0 ][ preg_replace('/^[\w]*\./i', "", $column) ];
+				}
+				
+				if ($column === '*')
+				{
+					return $data[ 0 ];
 				}
 
-				return $data[ 0 ];
+				$stack = array();
+
+				foreach ($columns as $key => $value)
+				{
+					if (is_array($value))
+					{
+						$this->data_map(0, $key, $value, $data[ 0 ], $stack);
+					}
+					else
+					{
+						$this->data_map(0, $key, preg_replace('/^[\w]*\./i', "", $value), $data[ 0 ], $stack);
+					}
+				}
+
+				return $stack[ 0 ];
 			}
 			else
 			{
