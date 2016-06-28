@@ -741,6 +741,11 @@ class medoo
 			return false;
 		}
 
+		if ($columns === '*')
+		{
+			return $query->fetchAll(PDO::FETCH_ASSOC);
+		}
+
 		while ($row = $query->fetch(PDO::FETCH_ASSOC))
 		{
 			foreach ($columns as $key => $value)
