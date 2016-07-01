@@ -207,7 +207,7 @@ class medoo
 
 		if (is_string($columns))
 		{
-			$columns = array($columns);
+			return $columns;
 		}
 
 		$stack = array();
@@ -744,6 +744,11 @@ class medoo
 		if ($columns === '*')
 		{
 			return $query->fetchAll(PDO::FETCH_ASSOC);
+		}
+
+		if (is_string($columns))
+		{
+			return $query->fetchAll(PDO::FETCH_COLUMN);
 		}
 
 		while ($row = $query->fetch(PDO::FETCH_ASSOC))
