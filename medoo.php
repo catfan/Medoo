@@ -813,7 +813,12 @@ class medoo
 
 			$this->exec('INSERT INTO ' . $this->table_quote($table) . ' (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
 
-			$lastId[] = $this->pdo->lastInsertId();
+			if ($this->database_type === 'pgsql') {
+				$query = $this->pdo->query('select lastval()');	
+				$lastId[] = $query->fetchColumn();
+			} else {
+				$lastId[] = $this->pdo->lastInsertId();
+			}
 		}
 
 		return count($lastId) > 1 ? $lastId : $lastId[ 0 ];
