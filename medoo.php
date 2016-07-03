@@ -783,7 +783,7 @@ class medoo
 
 			foreach ($data as $key => $value)
 			{
-				$columns[] = preg_replace("/^\(JSON\)\s*/i", "", $key);
+				$columns[] = preg_replace("/^(\(JSON\)\s*|#)/i", "", $key);
 
 				switch (gettype($value))
 				{
