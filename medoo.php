@@ -730,6 +730,10 @@ class medoo
 
 	public function select($table, $join, $columns = null, $where = null)
 	{
+		$column = $where == null ? $join : $columns;
+
+		$is_single_column = (is_string($column) && $column !== '*');
+		
 		$query = $this->query($this->select_context($table, $join, $columns, $where));
 
 		$stack = array();
@@ -744,6 +748,11 @@ class medoo
 		if ($columns === '*')
 		{
 			return $query->fetchAll(PDO::FETCH_ASSOC);
+		}
+
+		if ($is_single_column)
+		{
+			return $query->fetchAll(PDO::FETCH_COLUMN);
 		}
 
 		while ($row = $query->fetch(PDO::FETCH_ASSOC))
