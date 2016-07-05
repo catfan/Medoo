@@ -811,9 +811,7 @@ class medoo
 				}
 			}
 
-			$this->exec('INSERT INTO ' . $this->table_quote($table) . ' (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
-
-			$lastId[] = $this->pdo->lastInsertId();
+			$lastId[] = $this->exec('INSERT INTO ' . $this->table_quote($table) . ' (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')')?this->pdo->lastInsertId():false;
 		}
 
 		return count($lastId) > 1 ? $lastId : $lastId[ 0 ];
