@@ -195,7 +195,14 @@ class medoo
 
 	protected function column_quote($string)
 	{
-		return preg_replace('/(\(JSON\)\s*|^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)/', '"' . $this->prefix . '$2"."$3"', $string);
+		preg_match('/(\(JSON\)\s*|^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)/', $string, $column_match);
+
+		if (isset($column_match[ 2 ], $column_match[ 3 ]))
+		{
+			return '"' . $this->prefix . $column_match[ 2 ] . '"."' . $column_match[ 3 ] . '"';
+		}
+
+		return '"' . $string . '"';
 	}
 
 	protected function column_push(&$columns)
@@ -845,7 +852,7 @@ class medoo
 			}
 			else
 			{
-				$column = $this->column_quote($key);
+				$column = $this->column_quote(preg_replace("/^(\(JSON\)\s*|#)/i", "", $key));
 
 				switch (gettype($value))
 				{
