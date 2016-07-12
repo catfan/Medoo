@@ -56,6 +56,12 @@ $database->insert('account', [
     'age' => 25,
     'lang' => ['en', 'fr', 'jp', 'cn']
 ]);
+
+$database->select("table", [
+    "user_id",
+    "FROM_UNIXTIME" => "time(new_time)"
+]);
+
 ```
 
 ## Contribution Guides
