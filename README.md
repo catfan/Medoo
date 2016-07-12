@@ -24,7 +24,17 @@
 
 Add Medoo to composer.json configuration file.
 ```
-$ composer require catfan/Medoo
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/sxdd/medoo"
+        }
+    ],
+    "require": {
+        "sxdd/medoo": "dev-master"
+    }
+}
 ```
 
 And update the composer
