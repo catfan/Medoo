@@ -195,10 +195,14 @@ class Medoo
             preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
 
             if (isset($match[ 1 ], $match[ 2 ])) {
-                array_push($stack, $this->columnQuote($match[ 1 ]).' AS '.$this->columnQuote($match[ 2 ]));
+                $column = $this->columnQuote($match[ 1 ]).' AS '.$this->columnQuote($match[ 2 ]);
             } else {
-                array_push($stack, $this->columnQuote($value));
+                $column = $this->columnQuote($value);
             }
+            if (!is_int($key)) {
+                $column = $key.'('.$column.')';
+            }
+            array_push($stack, $column);
         }
 
         return implode($stack, ',');
