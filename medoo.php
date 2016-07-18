@@ -192,7 +192,7 @@ class medoo
 
 	protected function column_quote($string)
 	{
-		return '"' . str_replace('.', '"."', preg_replace('/(^#|\(JSON\)\s*)/', '', $string)) . '"';
+		return '`' . str_replace('.', '`.`', preg_replace('/(^#|\(JSON\)\s*)/', '', $string)) . '`';
 	}
 
 	protected function column_push($columns)
@@ -455,7 +455,7 @@ class medoo
 
 				if (is_array($MATCH) && isset($MATCH[ 'columns' ], $MATCH[ 'keyword' ]))
 				{
-					$where_clause .= ($where_clause != '' ? ' AND ' : ' WHERE ') . ' MATCH ("' . str_replace('.', '"."', implode($MATCH[ 'columns' ], '", "')) . '") AGAINST (' . $this->quote($MATCH[ 'keyword' ]) . ')';
+					$where_clause .= ($where_clause != '' ? ' AND ' : ' WHERE ') . ' MATCH (`' . str_replace('.', '`.`', implode($MATCH[ 'columns' ], '`, `')) . '`) AGAINST (' . $this->quote($MATCH[ 'keyword' ]) . ')';
 				}
 			}
 
@@ -491,7 +491,7 @@ class medoo
 						{
 							preg_match($rsort, $column, $order_match);
 
-							array_push($stack, '"' . str_replace('.', '"."', $order_match[ 1 ]) . '"' . (isset($order_match[ 3 ]) ? ' ' . $order_match[ 3 ] : ''));
+							array_push($stack, '`' . str_replace('.', '`.`', $order_match[ 1 ]) . '`' . (isset($order_match[ 3 ]) ? ' ' . $order_match[ 3 ] : ''));
 						}
 
 						$where_clause .= ' ORDER BY ' . implode($stack, ',');
@@ -501,7 +501,7 @@ class medoo
 				{
 					preg_match($rsort, $ORDER, $order_match);
 
-					$where_clause .= ' ORDER BY "' . str_replace('.', '"."', $order_match[ 1 ]) . '"' . (isset($order_match[ 3 ]) ? ' ' . $order_match[ 3 ] : '');
+					$where_clause .= ' ORDER BY `' . str_replace('.', '`.`', $order_match[ 1 ]) . '`' . (isset($order_match[ 3 ]) ? ' ' . $order_match[ 3 ] : '');
 				}
 			}
 
@@ -544,7 +544,7 @@ class medoo
 
 	protected function select_context($table, $join, &$columns = null, $where = null, $column_fn = null)
 	{
-		$table = '"' . $this->prefix . $table . '"';
+		$table = '`' . $this->prefix . $table . '`';
 		$join_key = is_array($join) ? array_keys($join) : null;
 
 		if (
@@ -569,7 +569,7 @@ class medoo
 				{
 					if (is_string($relation))
 					{
-						$relation = 'USING ("' . $relation . '")';
+						$relation = 'USING (`' . $relation . '`)';
 					}
 
 					if (is_array($relation))
@@ -577,7 +577,7 @@ class medoo
 						// For ['column1', 'column2']
 						if (isset($relation[ 0 ]))
 						{
-							$relation = 'USING ("' . implode($relation, '", "') . '")';
+							$relation = 'USING (`' . implode($relation, '`, `') . '`)';
 						}
 						else
 						{
@@ -588,20 +588,20 @@ class medoo
 								$joins[] = $this->prefix . (
 									strpos($key, '.') > 0 ?
 										// For ['tableB.column' => 'column']
-										'"' . str_replace('.', '"."', $key) . '"' :
+										'`' . str_replace('.', '`.`', $key) . '`' :
 
 										// For ['column1' => 'column2']
-										$table . '."' . $key . '"'
+										$table . '.`' . $key . '`'
 								) .
 								' = ' .
-								'"' . (isset($match[ 5 ]) ? $match[ 5 ] : $match[ 3 ]) . '"."' . $value . '"';
+								'`' . (isset($match[ 5 ]) ? $match[ 5 ] : $match[ 3 ]) . '`.`' . $value . '`';
 							}
 
 							$relation = 'ON ' . implode($joins, ' AND ');
 						}
 					}
 
-					$table_join[] = $join_array[ $match[ 2 ] ] . ' JOIN "' . $this->prefix . $match[ 3 ] . '" ' . (isset($match[ 5 ]) ?  'AS "' . $match[ 5 ] . '" ' : '') . $relation;
+					$table_join[] = $join_array[ $match[ 2 ] ] . ' JOIN `' . $this->prefix . $match[ 3 ] . '` ' . (isset($match[ 5 ]) ?  'AS `' . $match[ 5 ] . '` ' : '') . $relation;
 				}
 			}
 
@@ -724,7 +724,7 @@ class medoo
 				}
 			}
 
-			$this->exec('INSERT INTO "' . $this->prefix . $table . '" (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
+			$this->exec('INSERT INTO `' . $this->prefix . $table . '` (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
 
 			$lastId[] = $this->pdo->lastInsertId();
 		}
@@ -778,12 +778,12 @@ class medoo
 			}
 		}
 
-		return $this->exec('UPDATE "' . $this->prefix . $table . '" SET ' . implode(', ', $fields) . $this->where_clause($where));
+		return $this->exec('UPDATE `' . $this->prefix . $table . '` SET ' . implode(', ', $fields) . $this->where_clause($where));
 	}
 
 	public function delete($table, $where)
 	{
-		return $this->exec('DELETE FROM "' . $this->prefix . $table . '"' . $this->where_clause($where));
+		return $this->exec('DELETE FROM `' . $this->prefix . $table . '`' . $this->where_clause($where));
 	}
 
 	public function replace($table, $columns, $search = null, $replace = null, $where = null)
@@ -823,7 +823,7 @@ class medoo
 			}
 		}
 
-		return $this->exec('UPDATE "' . $this->prefix . $table . '" SET ' . $replace_query . $this->where_clause($where));
+		return $this->exec('UPDATE `' . $this->prefix . $table . '` SET ' . $replace_query . $this->where_clause($where));
 	}
 
 	public function get($table, $join = null, $column = null, $where = null)
