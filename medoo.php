@@ -41,6 +41,8 @@ class medoo
 
 	protected $debug_mode = false;
 
+	protected $callback = null;
+
 	public function __construct($options = null)
 	{
 		try {
@@ -164,7 +166,11 @@ class medoo
 
 		$this->logs[] = $query;
 
-		return $this->pdo->query($query);
+		$data = $this->pdo->query($query);
+		if (!is_null($this->callback)) {
+			$this->callback($query, $data);
+		}
+		return $data;
 	}
 
 	public function exec($query)
@@ -180,12 +186,20 @@ class medoo
 
 		$this->logs[] = $query;
 
-		return $this->pdo->exec($query);
+		$data = $this->pdo->exec($query);
+		if (!is_null($this->callback)) {
+			$this->callback($query, $data);
+		}
+		return $data;
 	}
 
 	public function quote($string)
 	{
 		return $this->pdo->quote($string);
+	}
+
+	public function set_callback($callback) {
+		$this->callback = $callback;
 	}
 
 	protected function table_quote($table)
@@ -740,7 +754,7 @@ class medoo
 		$column = $where == null ? $join : $columns;
 
 		$is_single_column = (is_string($column) && $column !== '*');
-		
+
 		$query = $this->query($this->select_context($table, $join, $columns, $where));
 
 		$stack = array();
@@ -947,7 +961,7 @@ class medoo
 				{
 					return $data[ 0 ][ preg_replace('/^[\w]*\./i', "", $column) ];
 				}
-				
+
 				if ($column === '*')
 				{
 					return $data[ 0 ];
