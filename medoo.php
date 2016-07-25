@@ -1116,12 +1116,11 @@ class medoo
 
 	protected function append_log($query)
 	{
-		if (count($this->logs) > $this->logs_max_count) {
+		if (count($this->logs) >= $this->logs_max_count) {
 			array_shift($this->logs);
 		}
-		else {
-			array_push($this->logs, $query);
-		}
+
+		$this->logs[] = $query;
 	}
 }
 ?>
