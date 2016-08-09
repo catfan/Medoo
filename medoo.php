@@ -41,6 +41,8 @@ class medoo
 
 	protected $debug_mode = false;
 
+	protected $logger;
+
 	public function __construct($options = null)
 	{
 		try {
@@ -73,6 +75,15 @@ class medoo
 			if (isset($options[ 'prefix' ]))
 			{
 				$this->prefix = $options[ 'prefix' ];
+			}
+
+			if (isset($options[ 'logger' ]))
+			{
+				$this->logger = $options[ 'logger' ];
+			}
+
+			if (isset($options[ 'debug_mode' ]) && $options[ 'debug_mode' ]) {
+				$this->debug_mode = true;
 			}
 
 			switch ($type)
@@ -155,11 +166,7 @@ class medoo
 	{
 		if ($this->debug_mode)
 		{
-			echo $query;
-
-			$this->debug_mode = false;
-
-			return false;
+			$this->logger->debug($query);
 		}
 
 		array_push($this->logs, $query);
@@ -171,11 +178,7 @@ class medoo
 	{
 		if ($this->debug_mode)
 		{
-			echo $query;
-
-			$this->debug_mode = false;
-
-			return false;
+			$this->logger->debug($query);
 		}
 
 		array_push($this->logs, $query);
