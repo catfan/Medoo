@@ -33,7 +33,8 @@
       "Medoo\\": "src/"
     },
     "files":[
-      "src/helpers.php"
+      "src/helpers.php",
+      "medoo.php"
     ],
     "classmap":[
       "database/"
