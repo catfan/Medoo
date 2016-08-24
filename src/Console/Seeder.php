@@ -25,16 +25,19 @@ class Seeder extends Command
     protected function execute(InputInterface $input , OutputInterface $output)
     {
         $command = new MedooStyle($input,$output);
-        $dir = realpath(__DIR__."/../../database/seeds/");
-        if(is_dir($dir)){
-            $name = $input->getArgument('name');
-            if($this->create_seeder($dir,$name)){
-                exec('composer dumpautoload');
-                $command->info('Seeder has been created successfully');
-                return true;
-            }
-            $command->error($name . ' seeder already exists!');
-            return false;
+        $dir = __DIR__."/../../database/seeds/";
+        if(!is_dir($dir)){
+            mkdir($dir,0777);
+            copy(
+                __DIR__."/../Foundation/files/DatabaseSeeder.stub",
+                $dir."/DatabaseSeeder.php"
+            );
+        }
+        $name = $input->getArgument('name');
+        if($this->create_seeder($dir,$name)){
+            exec('composer dumpautoload');
+            $command->info('Seeder has been created successfully');
+            return true;
         }
         $command->error('database/seeds/directory was not found');
         return false;
