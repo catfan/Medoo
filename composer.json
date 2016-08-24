@@ -1,5 +1,5 @@
 {
-  "name": "medoo/medoo",
+  "name": "catfan/medoo",
   "type": "framework",
   "license": "MIT",
   "authors": [
@@ -27,6 +27,12 @@
     "ext-pdo_oci": "For Oracle databases",
     "ext-pdo_pqsql": "For PostgreSQL databases",
     "ext-pdo_sqlite": "For SQLite databases"
+  },
+  "scripts": {
+    "post-root-package-install": [
+      "php -r \"file_exists('src/Foundation/files/env.yml') || copy('src/Foundation/files/env.yml', 'env.yml');\"",
+      "php -r \"file_exists('src/Foundation/files/medoo') || copy('src/Foundation/files/medoo', 'medoo');\""
+    ],
   },
   "autoload":{
     "psr-4":{
