@@ -1,7 +1,6 @@
 <?php
 
 namespace Medoo\Foundation;
-use medoo;
 
 /**
  * @author Alireza Josheghani <josheghani.dev@gmail.com>
