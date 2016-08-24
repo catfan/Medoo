@@ -30,17 +30,17 @@
   },
   "scripts": {
     "post-root-package-install": [
-      "php -r \"file_exists('src/Foundation/files/env.yml') || copy('src/Foundation/files/env.yml', 'env.yml');\"",
-      "php -r \"file_exists('src/Foundation/files/medoo') || copy('src/Foundation/files/medoo', 'medoo');\""
-    ],
+      "php -r \"!file_exists('src/Foundation/files/env.yml') || copy('src/Foundation/files/env.yml', 'env.yml');\"",
+      "php -r \"!file_exists('src/Foundation/files/medoo') || copy('src/Foundation/files/medoo', 'medoo');\"",
+      "php -r \"!is_dir(mkdir('database/',0777));\""
+    ]
   },
   "autoload":{
     "psr-4":{
       "Medoo\\": "src/"
     },
     "files":[
-      "src/helpers.php",
-      "medoo.php"
+      "src/helpers.php"
     ],
     "classmap":[
       "database/"
