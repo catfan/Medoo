@@ -29,6 +29,8 @@ Add Medoo to composer.json configuration file.
 $ composer require catfan/Medoo
 ```
 
+### Configure your database with env.yml file
+
 And update the composer
 ```
 $ composer update
