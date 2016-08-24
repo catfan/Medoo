@@ -1,26 +1,42 @@
 {
-	"name": "catfan/medoo",
-	"type": "framework",
-	"description": "The Lightest PHP database framework to accelerate development",
-	"keywords": ["database", "lightweight", "PHP framework", "SQL", "MySQL", "MSSQL", "SQLite"],
-	"homepage": "http://medoo.in",
-	"license": "MIT",
-	"authors": [
-		{"name": "Angel Lai", "email": "angel@catfan.me"}
-	],
-	"require": {
-		"php": ">=5.1",
-		"ext-pdo": "*"
-	},
-	"suggest": {
-		"ext-pdo_mysql": "For MySQL or MariaDB databases",
-		"ext-pdo_sqlsrv": "For MSSQL databases on Windows platform",
-		"ext-pdo_dblib": "For MSSQL or Sybase databases on Linux/UNIX platform",
-		"ext-pdo_oci": "For Oracle databases",
-		"ext-pdo_pqsql": "For PostgreSQL databases",
-		"ext-pdo_sqlite": "For SQLite databases"
-	},
-	"autoload": {
-		"files": ["medoo.php"]
-	}
+  "name": "medoo/medoo",
+  "type": "framework",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Angel Lai",
+      "email": "angel@catfan.me"
+    },
+    {
+      "name": "Alireza",
+      "email": "josheghani.dev@gmail.com"
+    }
+  ],
+  "require" : {
+    "php": ">=5.1",
+    "ext-pdo": "*"
+  },
+  "require-dev":{
+    "symfony/console": "^3.1",
+    "symfony/yaml": "^3.1"
+  },
+  "suggest": {
+    "ext-pdo_mysql": "For MySQL or MariaDB databases",
+    "ext-pdo_sqlsrv": "For MSSQL databases on Windows platform",
+    "ext-pdo_dblib": "For MSSQL or Sybase databases on Linux/UNIX platform",
+    "ext-pdo_oci": "For Oracle databases",
+    "ext-pdo_pqsql": "For PostgreSQL databases",
+    "ext-pdo_sqlite": "For SQLite databases"
+  },
+  "autoload":{
+    "psr-4":{
+      "Medoo\\": "src/"
+    },
+    "files":[
+      "src/helpers.php"
+    ],
+    "classmap":[
+      "database/"
+    ]
+  }
 }
