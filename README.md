@@ -1,4 +1,4 @@
-![](https://raw.githubusercontent.com/catfan/Medoo/develop/src/medoo-logo.png)
+![](http://medoo.in/images/medoo-logo-256.png)
 
 ## [Medoo](http://medoo.in)
 
@@ -16,6 +16,8 @@
 
 * **Security** - Prevent SQL injection.
 
+* **Console Component** - Support Migration and database Seeder
+
 * **Free** - Under MIT license, you can use it anywhere if you want.
 
 ## Get Started
@@ -27,35 +29,16 @@ Add Medoo to composer.json configuration file.
 $ composer require catfan/Medoo
 ```
 
+### Configure your database with env.yml file
+
 And update the composer
 ```
 $ composer update
 ```
 
-```php
-// If you installed via composer, just use this code to requrie autoloader on the top of your projects.
-require 'vendor/autoload.php';
-
-// Or if you just download the medoo.php into directory, require it with the correct path.
-require_once 'medoo.php';
-
-// Initialize
-$database = new medoo([
-    'database_type' => 'mysql',
-    'database_name' => 'name',
-    'server' => 'localhost',
-    'username' => 'your_username',
-    'password' => 'your_password',
-    'charset' => 'utf8'
-]);
-
-// Enjoy
-$database->insert('account', [
-    'user_name' => 'foo',
-    'email' => 'foo@bar.com',
-    'age' => 25,
-    'lang' => ['en', 'fr', 'jp', 'cn']
-]);
+List all of commands
+```
+$ php medoo
 ```
 
 ## Contribution Guides

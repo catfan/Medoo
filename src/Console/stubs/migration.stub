@@ -1,0 +1,36 @@
+<?php
+
+namespace Medoo\Migrations;
+use Medoo\Foundation\Migration;
+use Medoo\Foundation\TablePrint;
+use Medoo\Foundation\Table;
+
+/**
+ * @package Migration
+ * @created_at DummyDate
+ * */
+
+class DummyClass extends Migration {
+    public function up()
+    {
+        /**
+         * Up method of migration
+         * Create table in database
+         * @return void
+         * */
+        Table::create('DummyName',function(TablePrint $table){
+            $table->increments('id');
+            $table->timestamps();
+        });
+    }
+
+    public function down()
+    {
+        /**
+         * Down method of migration
+         * Drop the table from database
+         * @return void
+         * */
+        Table::drop('DummyName');
+    }
+}
