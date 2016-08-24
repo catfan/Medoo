@@ -1,0 +1,12 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Register the autoloader
+ */
+use Medoo\Bootstrap\Console;
+
+require __DIR__.'/vendor/autoload.php';
+
+$console = new Console();
+$console->fire();

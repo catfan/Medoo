@@ -1,0 +1,17 @@
+<?php
+
+namespace Medoo\Seeds;
+use Medoo\Foundation\Seeder;
+
+class DummyClass extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        //
+    }
+}
