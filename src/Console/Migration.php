@@ -30,22 +30,17 @@ class Migration extends Command
     protected function execute(InputInterface $input , OutputInterface $output)
     {
         $command = new MedooStyle($input,$output);
-        $dir = realpath(__DIR__."/../../database/migrations/");
+        $dir = __DIR__."/../../database/migrations/";
         $name = $input->getArgument('name');
-        if(is_dir($dir)){
-            if($this->create_migration($dir,$name)){
-                exec('composer dumpautoload');
-                $command->info('Migration has been created successfully');
-                return true;
-            }
-            $command->error($name . ' migration has exits !');
-            return false;
+        if(!is_dir($dir)){
+            mkdir($dir,0777);
         }
-        $command->error(
-            config('migration_dir','/migrations/','information')
-            . ' directory was not found'
-        );
-        $command->error('Config medoo in "env.yml" file');
+        if($this->create_migration($dir,$name)){
+            exec('composer dumpautoload');
+            $command->info('Migration has been created successfully');
+            return true;
+        }
+        $command->error($name . ' migration has exits !');
         return false;
     }
 
