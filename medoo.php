@@ -114,7 +114,10 @@ class medoo
 					$dsn = strstr(PHP_OS, 'WIN') ?
 						'sqlsrv:server=' . $this->server . ($is_port ? ',' . $port : '') . ';database=' . $this->database_name :
 						'dblib:host=' . $this->server . ($is_port ? ':' . $port : '') . ';dbname=' . $this->database_name;
-
+                    //Add ODBC support
+					if ($this->odbc) {
+						$dsn = 'odbc:'.$this->odbc_datasource_name;
+					}
 					// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
 					$commands[] = 'SET QUOTED_IDENTIFIER ON';
 					break;
@@ -185,7 +188,7 @@ class medoo
 
 	public function quote($string)
 	{
-		return $this->pdo->quote($string);
+        return $this->odbc ? "'" . str_replace("'", "''", $string) . "'" : $this->pdo->quote($string);
 	}
 
 	protected function table_quote($table)
