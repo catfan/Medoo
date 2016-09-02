@@ -421,6 +421,7 @@ class medoo
 			}
 		}
 
+		$wheres = array_map(function($v){return sprintf('(%s)', $v);}, $wheres);
 		return implode($conjunctor . ' ', $wheres);
 	}
 
@@ -740,7 +741,7 @@ class medoo
 		$column = $where == null ? $join : $columns;
 
 		$is_single_column = (is_string($column) && $column !== '*');
-		
+
 		$query = $this->query($this->select_context($table, $join, $columns, $where));
 
 		$stack = array();
@@ -947,7 +948,7 @@ class medoo
 				{
 					return $data[ 0 ][ preg_replace('/^[\w]*\./i', "", $column) ];
 				}
-				
+
 				if ($column === '*')
 				{
 					return $data[ 0 ];
