@@ -730,6 +730,11 @@ class medoo
 			}
 			else
 			{
+				if (preg_match('/[a-zA-Z0-9_\-\.]*\s*\(([a-zA-Z0-9_\-]*)\)/i', $key, $key_match))
+				{
+					$key = $key_match[ 1 ];
+				}
+
 				$stack[ $key ] = $data[ $key ];
 			}
 		}
@@ -799,7 +804,7 @@ class medoo
 
 			foreach ($data as $key => $value)
 			{
-				$columns[] = preg_replace("/^(\(JSON\)\s*|#)/i", "", $key);
+				$columns[] = $this->column_quote(preg_replace("/^(\(JSON\)\s*|#)/i", "", $key));
 
 				switch (gettype($value))
 				{
