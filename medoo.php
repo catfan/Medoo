@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * http://medoo.in
- * Version 1.1.2
+ * Version 1.1.3
  *
  * Copyright 2016, Angel Lai
  * Released under the MIT license
@@ -363,7 +363,6 @@ class medoo
 						foreach ($value as $item)
 						{
 							$item = strval($item);
-							$suffix = mb_substr($item, -1, 1);
 
 							if (preg_match('/^(?!(%|\[|_])).+(?<!(%|\]|_))$/', $item))
 							{
@@ -378,18 +377,22 @@ class medoo
 
 					if (in_array($operator, array('>', '>=', '<', '<=')))
 					{
+						$condition = $column . ' ' . $operator . ' ';
+
 						if (is_numeric($value))
 						{
-							$wheres[] = $column . ' ' . $operator . ' ' . $value;
+							$condition .= $value;
 						}
 						elseif (strpos($key, '#') === 0)
 						{
-							$wheres[] = $column . ' ' . $operator . ' ' . $this->fn_quote($key, $value);
+							$condition .= $this->fn_quote($key, $value);
 						}
 						else
 						{
-							$wheres[] = $column . ' ' . $operator . ' ' . $this->quote($value);
+							$condition .= $this->quote($value);
 						}
+
+						$wheres[] = $condition;
 					}
 				}
 				else
