@@ -297,8 +297,13 @@ class medoo
 			}
 			else
 			{
-				preg_match('/(#?)([\w\.\-]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
-				$column = $this->column_quote($match[ 2 ]);
+				preg_match('/(#?)([\w\.\-\(\)]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
+
+				if(preg_match('/(.+)\((.+)\)/',$match[ 2 ], $fn_match)){
+					$column = $fn_match[1] . '(' . $this->column_quote($fn_match[ 2 ]) . ')';
+				}else{
+					$column = $this->column_quote($match[ 2 ]);
+				}
 
 				if (isset($match[ 4 ]))
 				{
