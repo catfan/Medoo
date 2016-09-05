@@ -56,6 +56,7 @@ class medoo
 			}
 			else
 			{
+				trigger_error ( 'Invalid $options passed.', E_USER_NOTICE );
 				return false;
 			}
 
