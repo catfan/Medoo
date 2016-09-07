@@ -978,8 +978,8 @@ class medoo
 				return $stack[ 0 ];
 			}
 			else
-			{
-				return false;
+			{	
+				return array();
 			}
 		}
 		else
