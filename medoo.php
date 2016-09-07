@@ -1057,7 +1057,7 @@ class medoo
 		return $query ? 0 + $query->fetchColumn() : false;
 	}
 
-	public function action($actions)
+	public function action($actions  , $callback = "")
 	{
 		if (is_callable($actions))
 		{
@@ -1068,10 +1068,18 @@ class medoo
 			if ($result === false)
 			{
 				$this->pdo->rollBack();
+				if (is_callable($callback))
+		                {
+		                    $callback($this, false);
+		                }
 			}
 			else
 			{
 				$this->pdo->commit();
+				if (is_callable($callback))
+		                {
+		                    $callback($this, true);
+		                }
 			}
 		}
 		else
