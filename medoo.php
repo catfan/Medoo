@@ -1089,7 +1089,11 @@ class medoo
 
 	public function error()
 	{
-		return $this->pdo->errorInfo();
+		if ($this->pdo->errorCode() !== '00000' OR $this->pdo->errorInfo()[2] !== null)
+		{
+			return $this->pdo->errorInfo();
+		}
+		return FALSE;
 	}
 
 	public function last_query()
