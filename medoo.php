@@ -39,6 +39,8 @@ class medoo
 	// Variable
 	protected $logs = array();
 
+	protected $logs_max_count = 100;
+
 	protected $debug_mode = false;
 
 	public function __construct($options = null)
@@ -162,7 +164,7 @@ class medoo
 			return false;
 		}
 
-		$this->logs[] = $query;
+		$this->append_log($query);
 
 		return $this->pdo->query($query);
 	}
@@ -178,7 +180,7 @@ class medoo
 			return false;
 		}
 
-		$this->logs[] = $query;
+		$this->append_log($query);
 
 		return $this->pdo->exec($query);
 	}
@@ -1118,6 +1120,15 @@ class medoo
 		}
 
 		return $output;
+	}
+
+	protected function append_log($query)
+	{
+		if (count($this->logs) >= $this->logs_max_count) {
+			array_shift($this->logs);
+		}
+
+		$this->logs[] = $query;
 	}
 }
 ?>
