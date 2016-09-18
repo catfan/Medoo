@@ -522,12 +522,21 @@ class medoo
 				if (is_numeric($LIMIT))
 				{
 					$where_clause .= ' LIMIT ' . $LIMIT;
-				}
+				} else if(
+                    isset($LIMIT[ 0 ]) &&
+                    !isset($LIMIT[ 1 ])
+                )
+                {
+                    $where_clause .= ' LIMIT ' . $LIMIT[0];
+                }
 
 				if (
 					is_array($LIMIT) &&
 					is_numeric($LIMIT[ 0 ]) &&
-					is_numeric($LIMIT[ 1 ])
+                    (
+                        isset($LIMIT[ 1 ]) &&
+                        is_numeric($LIMIT[ 1 ])
+                    )
 				)
 				{
 					if ($this->database_type === 'pgsql')
