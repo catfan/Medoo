@@ -79,6 +79,7 @@ class medoo
 			{
 				case 'mariadb':
 					$type = 'mysql';
+					break;
 
 				case 'mysql':
 					if ($this->socket)
