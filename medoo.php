@@ -45,7 +45,7 @@ class Medoo
 
 	protected $debug_mode = false;
 
-	public function __construct($options = null, $externalPDO = null)
+	public function __construct($options = null, $externalPDOs = null)
 	{
 
 		if(isset($externalPDO)) {
