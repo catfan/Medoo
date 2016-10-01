@@ -45,6 +45,7 @@ class Medoo
 
 	protected $debug_mode = false;
 
+
 	public function __construct($options = null, $externalPDO = null)
 	{
 
