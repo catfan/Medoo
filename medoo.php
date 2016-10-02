@@ -208,10 +208,10 @@ class Medoo
 
 		if (isset($column_match[ 2 ], $column_match[ 3 ]))
 		{
-			return '"' . $this->prefix . $column_match[ 2 ] . '"."' . $column_match[ 3 ] . '"';
+			return '`' . $this->prefix . $column_match[ 2 ] . '"."' . $column_match[ 3 ] . '`';
 		}
 
-		return '"' . $string . '"';
+		return '`' . $string . '`';
 	}
 
 	protected function column_push(&$columns)
