@@ -45,10 +45,8 @@ class Medoo
 
 	protected $debug_mode = false;
 
-
-	public function __construct($options = null, $externalPDO = null)
+	public function __construct($options = null, , $externalPDO = null)
 	{
-
 		if(isset($externalPDO)) {
 			$this->pdo = $externalPDO;
 		} else {
@@ -147,7 +145,7 @@ class Medoo
 					$dsn,
 					$this->username,
 					$this->password,
-	                array(PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING)
+					$this->option
 				);
 
 				foreach ($commands as $value)
@@ -155,12 +153,10 @@ class Medoo
 					$this->pdo->exec($value);
 				}
 			}
-			catch (\PDOException $e) {
+			catch (PDOException $e) {
 				throw new Exception($e->getMessage());
 			}
 		}
-
-
 	}
 
 	public function query($query)
@@ -1132,4 +1128,3 @@ class Medoo
 		return $output;
 	}
 }
-?>
