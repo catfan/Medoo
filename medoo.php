@@ -3,6 +3,7 @@
 namespace Medoo;
 
 use \PDO;
+
 /*!
  * Medoo database framework
  * http://medoo.in
