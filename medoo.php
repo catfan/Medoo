@@ -202,7 +202,7 @@ class Medoo
 
 	protected function table_quote($table)
 	{
-		return '"' . $this->prefix . $table . '"';
+		return '`' . $this->prefix . $table . '`';
 	}
 
 	protected function column_quote($string)
