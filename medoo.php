@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * http://medoo.in
- * Version 1.1.3
+ * Version 1.2
  *
  * Copyright 2016, Angel Lai
  * Released under the MIT license
@@ -34,17 +34,17 @@ class medoo
 
 	protected $prefix;
 
-	protected $option = array();
+	protected $option = [];
 
 	// Variable
-	protected $logs = array();
+	protected $logs = [];
 
 	protected $debug_mode = false;
 
 	public function __construct($options = null)
 	{
 		try {
-			$commands = array();
+			$commands = [];
 			$dsn = '';
 
 			if (is_array($options))
@@ -127,7 +127,7 @@ class medoo
 			}
 
 			if (
-				in_array($type, array('mariadb', 'mysql', 'pgsql', 'sybase', 'mssql')) &&
+				in_array($type, ['mariadb', 'mysql', 'pgsql', 'sybase', 'mssql']) &&
 				$this->charset
 			)
 			{
@@ -214,10 +214,10 @@ class medoo
 
 		if (is_string($columns))
 		{
-			$columns = array($columns);
+			$columns = [$columns];
 		}
 
-		$stack = array();
+		$stack = [];
 
 		foreach ($columns as $key => $value)
 		{
@@ -247,7 +247,7 @@ class medoo
 
 	protected function array_quote($array)
 	{
-		$temp = array();
+		$temp = [];
 
 		foreach ($array as $value)
 		{
@@ -259,7 +259,7 @@ class medoo
 
 	protected function inner_conjunct($data, $conjunctor, $outer_conjunctor)
 	{
-		$haystack = array();
+		$haystack = [];
 
 		foreach ($data as $value)
 		{
@@ -280,7 +280,7 @@ class medoo
 
 	protected function data_implode($data, $conjunctor, $outer_conjunctor = null)
 	{
-		$wheres = array();
+		$wheres = [];
 
 		foreach ($data as $key => $value)
 		{
@@ -355,10 +355,10 @@ class medoo
 					{
 						if ($type != 'array')
 						{
-							$value = array($value);
+							$value = [$value];
 						}
 
-						$like_clauses = array();
+						$like_clauses = [];
 
 						foreach ($value as $item)
 						{
@@ -375,7 +375,7 @@ class medoo
 						$wheres[] = implode(' OR ', $like_clauses);
 					}
 
-					if (in_array($operator, array('>', '>=', '<', '<=')))
+					if (in_array($operator, ['>', '>=', '<', '<=']))
 					{
 						$condition = $column . ' ' . $operator . ' ';
 
@@ -438,10 +438,10 @@ class medoo
 			$where_OR = preg_grep("/^OR\s*#?$/i", $where_keys);
 
 			$single_condition = array_diff_key($where, array_flip(
-				array('AND', 'OR', 'GROUP', 'ORDER', 'HAVING', 'LIMIT', 'LIKE', 'MATCH')
+				['AND', 'OR', 'GROUP', 'ORDER', 'HAVING', 'LIMIT', 'LIKE', 'MATCH']
 			));
 
-			if ($single_condition != array())
+			if ($single_condition != [])
 			{
 				$condition = $this->data_implode($single_condition, '');
 
@@ -489,7 +489,7 @@ class medoo
 
 				if (is_array($ORDER))
 				{
-					$stack = array();
+					$stack = [];
 
 					foreach ($ORDER as $column => $value)
 					{
@@ -576,14 +576,14 @@ class medoo
 			strpos($join_key[ 0 ], '[') === 0
 		)
 		{
-			$table_join = array();
+			$table_join = [];
 
-			$join_array = array(
+			$join_array = [
 				'>' => 'LEFT',
 				'<' => 'RIGHT',
 				'<>' => 'FULL',
 				'><' => 'INNER'
-			);
+			];
 
 			foreach($join as $sub_table => $relation)
 			{
@@ -605,7 +605,7 @@ class medoo
 						}
 						else
 						{
-							$joins = array();
+							$joins = [];
 
 							foreach ($relation as $key => $value)
 							{
@@ -705,7 +705,7 @@ class medoo
 	{
 		if (is_array($value))
 		{
-			$sub_stack = array();
+			$sub_stack = [];
 
 			foreach ($value as $sub_key => $sub_value)
 			{
@@ -751,7 +751,7 @@ class medoo
 		
 		$query = $this->query($this->select_context($table, $join, $columns, $where));
 
-		$stack = array();
+		$stack = [];
 
 		$index = 0;
 
@@ -792,18 +792,18 @@ class medoo
 
 	public function insert($table, $datas)
 	{
-		$lastId = array();
+		$lastId = [];
 
 		// Check indexed or associative array
 		if (!isset($datas[ 0 ]))
 		{
-			$datas = array($datas);
+			$datas = [$datas];
 		}
 
 		foreach ($datas as $data)
 		{
-			$values = array();
-			$columns = array();
+			$values = [];
+			$columns = [];
 
 			foreach ($data as $key => $value)
 			{
@@ -845,7 +845,7 @@ class medoo
 
 	public function update($table, $data, $where = null)
 	{
-		$fields = array();
+		$fields = [];
 
 		foreach ($data as $key => $value)
 		{
@@ -901,7 +901,7 @@ class medoo
 	{
 		if (is_array($columns))
 		{
-			$replace_query = array();
+			$replace_query = [];
 
 			foreach ($columns as $column => $replacements)
 			{
@@ -918,7 +918,7 @@ class medoo
 		{
 			if (is_array($search))
 			{
-				$replace_query = array();
+				$replace_query = [];
 
 				foreach ($search as $replace_search => $replace_replacement)
 				{
@@ -961,7 +961,7 @@ class medoo
 					return $data[ 0 ];
 				}
 
-				$stack = array();
+				$stack = [];
 
 				foreach ($columns as $key => $value)
 				{
@@ -1104,13 +1104,13 @@ class medoo
 
 	public function info()
 	{
-		$output = array(
+		$output = [
 			'server' => 'SERVER_INFO',
 			'driver' => 'DRIVER_NAME',
 			'client' => 'CLIENT_VERSION',
 			'version' => 'SERVER_VERSION',
 			'connection' => 'CONNECTION_STATUS'
-		);
+		];
 
 		foreach ($output as $key => $value)
 		{
