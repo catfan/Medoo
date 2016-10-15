@@ -18,6 +18,7 @@
 
 * **Powerful** - Support various common and complex SQL queries.
 
+* **Compatible** - Support all SQL databases, including MySQL, MSSQL, SQLite, MariaDB, Sybase, Oracle, PostgreSQL and more.
 
 * **Security** - Prevent SQL injection.
 
