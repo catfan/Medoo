@@ -3,9 +3,7 @@
 ## [Medoo](http://medoo.in)
 
 [![Total Downloads](https://poser.pugx.org/catfan/medoo/downloads)](https://packagist.org/packages/catfan/medoo)
-
 [![Latest Stable Version](https://poser.pugx.org/catfan/medoo/v/stable)](https://packagist.org/packages/catfan/medoo)
-
 [![License](https://poser.pugx.org/catfan/medoo/license)](https://packagist.org/packages/catfan/medoo)
 
 > The Lightest PHP database framework to accelerate development
