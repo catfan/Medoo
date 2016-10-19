@@ -1,4 +1,6 @@
 <?php
+namespace Medoo;
+
 /*!
  * Medoo database framework
  * http://medoo.in
@@ -7,7 +9,8 @@
  * Copyright 2016, Angel Lai
  * Released under the MIT license
  */
-class medoo
+
+class Medoo
 {
 	// General
 	protected $database_type;
