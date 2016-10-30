@@ -1,4 +1,4 @@
-![](https://raw.githubusercontent.com/catfan/Medoo/develop/src/medoo-logo.png)
+![](https://cloud.githubusercontent.com/assets/1467904/19835326/ca62bc36-9ebd-11e6-8b37-7240d76319cd.png)
 
 ## [Medoo](http://medoo.in)
 
@@ -43,8 +43,11 @@ require 'vendor/autoload.php';
 // Or if you just download the medoo.php into directory, require it with the correct path.
 require_once 'medoo.php';
 
+// Using Medoo namespace
+use Medoo\Medoo;
+
 // Initialize
-$database = new medoo([
+$database = new Medoo([
     'database_type' => 'mysql',
     'database_name' => 'name',
     'server' => 'localhost',
