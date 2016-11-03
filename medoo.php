@@ -195,10 +195,14 @@ class medoo
 
 	protected function column_quote($string)
 	{
-		preg_match('/(\(JSON\)\s*|^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)/', $string, $column_match);
+		preg_match('/(\(JSON\)\s*|^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_*]*)/', $string, $column_match);
 
 		if (isset($column_match[ 2 ], $column_match[ 3 ]))
 		{
+			if($column_match[3] === '*')
+			{
+				return '"' . $this->prefix . $column_match[ 2 ] . '".' . $column_match[ 3 ];
+			}
 			return '"' . $this->prefix . $column_match[ 2 ] . '"."' . $column_match[ 3 ] . '"';
 		}
 
@@ -747,10 +751,9 @@ class medoo
 	{
 		$column = $where == null ? $join : $columns;
 
-		$is_single_column = (is_string($column) && $column !== '*');
-		
-		$query = $this->query($this->select_context($table, $join, $columns, $where));
+		$is_single_column = (is_string($column) && $column !== '*' && !preg_match('![a-z0-9_\-]+\.\*!i', $column));
 
+		$query = $this->query($this->select_context($table, $join, $columns, $where));
 		$stack = array();
 
 		$index = 0;
@@ -760,8 +763,9 @@ class medoo
 			return false;
 		}
 
-		if ($columns === '*')
+		if ($columns === '*' || preg_match('![a-z0-9_\-]+\.\*!i', $column))
 		{
+
 			return $query->fetchAll(PDO::FETCH_ASSOC);
 		}
 
@@ -955,7 +959,7 @@ class medoo
 				{
 					return $data[ 0 ][ preg_replace('/^[\w]*\./i', "", $column) ];
 				}
-				
+
 				if ($column === '*')
 				{
 					return $data[ 0 ];
