@@ -1102,6 +1102,22 @@ class medoo
 		return $this->logs;
 	}
 
+	public function dump_log($path=null)
+        {
+                $log_buffer = $this->logs;
+                $str = "\n\n----------Log Instance---------\n\n";
+                foreach($log_buffer as $key => $value){
+                        $date = date('m/d/Y h:i:s a', time());
+                        $str = $str."[$date] : $value\n";
+                }
+                
+                if(isset($path))
+                file_put_contents($path,$str,FILE_APPEND);
+                else
+                file_put_contents("medoo.log",$str,FILE_APPEND);
+        }
+
+
 	public function info()
 	{
 		$output = array(
