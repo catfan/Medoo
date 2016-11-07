@@ -1,6 +1,10 @@
 <?php
 namespace Medoo;
 
+use Exception;
+use PDO;
+use PDOException;
+
 /*!
  * Medoo database framework
  * http://medoo.in
