@@ -1,143 +1,213 @@
 <?php
+namespace Medoo;
+
 /*!
  * Medoo database framework
  * http://medoo.in
- * Version 1.1.3
+ * Version 1.2
  *
  * Copyright 2016, Angel Lai
  * Released under the MIT license
  */
-class medoo
+
+class Medoo
 {
 	// General
 	protected $database_type;
 
-	protected $charset;
-
-	protected $database_name;
-
-	// For MySQL, MariaDB, MSSQL, Sybase, PostgreSQL, Oracle
-	protected $server;
-
-	protected $username;
-
-	protected $password;
-
-	// For SQLite
-	protected $database_file;
-
-	// For MySQL or MariaDB with unix_socket
-	protected $socket;
-
 	// Optional
-	protected $port;
-
 	protected $prefix;
 
-	protected $option = array();
+	protected $option = [];
 
 	// Variable
-	protected $logs = array();
+	protected $logs = [];
 
 	protected $debug_mode = false;
 
 	public function __construct($options = null)
 	{
 		try {
-			$commands = array();
-			$dsn = '';
+			$commands = [];
 
 			if (is_array($options))
 			{
-				foreach ($options as $option => $value)
-				{
-					$this->$option = $value;
-				}
+				$this->database_type = strtolower($options['database_type']);
 			}
 			else
 			{
 				return false;
 			}
 
+			if (isset($options['prefix']))
+			{
+				$this->prefix = $options['prefix'];
+			}
+
+			if (isset($options['option']))
+			{
+				$this->option = $options['option'];
+			}
+
+			if (isset($options['dsn']))
+			{
+				if (isset($options['dsn']['driver']))
+				{
+					$attr = $options['dsn'];
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else
+			{
+				if (
+					isset($options['port']) &&
+					is_int($options['port'] * 1)
+				)
+				{
+					$port = $options['port'];
+				}
+
+				$is_port = isset($port);
+
+				switch ($this->database_type)
+				{
+					case 'mariadb':
+					case 'mysql':
+						$attr = [
+							'driver' => 'mysql',
+							'dbname' => $options['database_name']
+						];
+
+						if (isset($options['socket']))
+						{
+							$attr['unix_socket'] = $options['socket'];
+						}
+						else
+						{
+							$attr['host'] = $options['server'];
+
+							if ($is_port)
+							{
+								$dsn['port'] = $port;
+							}
+						}
+
+						// Make MySQL using standard quoted identifier
+						$commands[] = 'SET SQL_MODE=ANSI_QUOTES';
+						break;
+
+					case 'pgsql':
+						$attr = [
+							'driver' => 'pgsql',
+							'host' => $options['server'],
+							'dbname' => $options['database_name']
+						];
+
+						if ($is_port)
+						{
+							$dsn['port'] = $port;
+						}
+
+						break;
+
+					case 'sybase':
+						$attr = [
+							'driver' => 'dblib',
+							'host' => $options['server'],
+							'dbname' => $options['database_name']
+						];
+
+						if ($is_port)
+						{
+							$dsn['port'] = $port;
+						}
+
+						break;
+
+					case 'oracle':
+						$attr = [
+							'driver' => 'oci',
+							'dbname' => $options['server'] ?
+								'//' . $options['server'] . ($is_port ? ':' . $port : ':1521') . '/' . $options['database_name'] :
+								$options['database_name']
+						];
+
+						if (isset($options['charset']))
+						{
+							$dsn['charset'] = $options['charset'];
+						}
+
+						break;
+
+					case 'mssql':
+						if (strstr(PHP_OS, 'WIN'))
+						{
+							$attr = [
+								'driver' => 'sqlsrv',
+								'server' => $options['server'],
+								'database' => $options['database_name']
+							];
+						}
+						else
+						{
+							$attr = [
+								'driver' => 'dblib',
+								'host' => $options['server'],
+								'dbname' => $options['database_name']
+							];
+						}
+
+						if ($is_port)
+						{
+							$dsn['port'] = $port;
+						}
+
+						// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
+						$commands[] = 'SET QUOTED_IDENTIFIER ON';
+						break;
+
+					case 'sqlite':
+						$this->pdo = new PDO('sqlite:' . $options['database_file'], null, null, $this->option);
+
+						return $this;
+				}
+			}
+
+			$driver = $attr['driver'];
+
+			unset($attr['driver']);
+
+			$stack = [];
+
+			foreach ($attr as $key => $value)
+			{
+				if (is_int($key))
+				{
+					$stack[] = $value;
+				}
+				else
+				{
+					$stack[] = $key . '=' . $value;
+				}
+			}
+
+			$dsn = $driver . ':' . implode($stack, ';');
+
 			if (
-				isset($this->port) &&
-				is_int($this->port * 1)
+				in_array($this->database_type, ['mariadb', 'mysql', 'pgsql', 'sybase', 'mssql']) &&
+				$options['charset']
 			)
 			{
-				$port = $this->port;
-			}
-
-			$type = strtolower($this->database_type);
-			$is_port = isset($port);
-
-			if (isset($options[ 'prefix' ]))
-			{
-				$this->prefix = $options[ 'prefix' ];
-			}
-
-			switch ($type)
-			{
-				case 'mariadb':
-					$type = 'mysql';
-
-				case 'mysql':
-					if ($this->socket)
-					{
-						$dsn = $type . ':unix_socket=' . $this->socket . ';dbname=' . $this->database_name;
-					}
-					else
-					{
-						$dsn = $type . ':host=' . $this->server . ($is_port ? ';port=' . $port : '') . ';dbname=' . $this->database_name;
-					}
-
-					// Make MySQL using standard quoted identifier
-					$commands[] = 'SET SQL_MODE=ANSI_QUOTES';
-					break;
-
-				case 'pgsql':
-					$dsn = $type . ':host=' . $this->server . ($is_port ? ';port=' . $port : '') . ';dbname=' . $this->database_name;
-					break;
-
-				case 'sybase':
-					$dsn = 'dblib:host=' . $this->server . ($is_port ? ':' . $port : '') . ';dbname=' . $this->database_name;
-					break;
-
-				case 'oracle':
-					$dbname = $this->server ?
-						'//' . $this->server . ($is_port ? ':' . $port : ':1521') . '/' . $this->database_name :
-						$this->database_name;
-
-					$dsn = 'oci:dbname=' . $dbname . ($this->charset ? ';charset=' . $this->charset : '');
-					break;
-
-				case 'mssql':
-					$dsn = strstr(PHP_OS, 'WIN') ?
-						'sqlsrv:server=' . $this->server . ($is_port ? ',' . $port : '') . ';database=' . $this->database_name :
-						'dblib:host=' . $this->server . ($is_port ? ':' . $port : '') . ';dbname=' . $this->database_name;
-
-					// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
-					$commands[] = 'SET QUOTED_IDENTIFIER ON';
-					break;
-
-				case 'sqlite':
-					$dsn = $type . ':' . $this->database_file;
-					$this->username = null;
-					$this->password = null;
-					break;
-			}
-
-			if (
-				in_array($type, array('mariadb', 'mysql', 'pgsql', 'sybase', 'mssql')) &&
-				$this->charset
-			)
-			{
-				$commands[] = "SET NAMES '" . $this->charset . "'";
+				$commands[] = "SET NAMES '" . $options['charset'] . "'";
 			}
 
 			$this->pdo = new PDO(
 				$dsn,
-				$this->username,
-				$this->password,
+				$options['username'],
+				$options['password'],
 				$this->option
 			);
 
@@ -214,10 +284,10 @@ class medoo
 
 		if (is_string($columns))
 		{
-			$columns = array($columns);
+			$columns = [$columns];
 		}
 
-		$stack = array();
+		$stack = [];
 
 		foreach ($columns as $key => $value)
 		{
@@ -247,7 +317,7 @@ class medoo
 
 	protected function array_quote($array)
 	{
-		$temp = array();
+		$temp = [];
 
 		foreach ($array as $value)
 		{
@@ -259,7 +329,7 @@ class medoo
 
 	protected function inner_conjunct($data, $conjunctor, $outer_conjunctor)
 	{
-		$haystack = array();
+		$haystack = [];
 
 		foreach ($data as $value)
 		{
@@ -280,7 +350,7 @@ class medoo
 
 	protected function data_implode($data, $conjunctor, $outer_conjunctor = null)
 	{
-		$wheres = array();
+		$wheres = [];
 
 		foreach ($data as $key => $value)
 		{
@@ -355,10 +425,10 @@ class medoo
 					{
 						if ($type != 'array')
 						{
-							$value = array($value);
+							$value = [$value];
 						}
 
-						$like_clauses = array();
+						$like_clauses = [];
 
 						foreach ($value as $item)
 						{
@@ -375,7 +445,7 @@ class medoo
 						$wheres[] = implode(' OR ', $like_clauses);
 					}
 
-					if (in_array($operator, array('>', '>=', '<', '<=')))
+					if (in_array($operator, ['>', '>=', '<', '<=']))
 					{
 						$condition = $column . ' ' . $operator . ' ';
 
@@ -438,10 +508,10 @@ class medoo
 			$where_OR = preg_grep("/^OR\s*#?$/i", $where_keys);
 
 			$single_condition = array_diff_key($where, array_flip(
-				array('AND', 'OR', 'GROUP', 'ORDER', 'HAVING', 'LIMIT', 'LIKE', 'MATCH')
+				['AND', 'OR', 'GROUP', 'ORDER', 'HAVING', 'LIMIT', 'LIKE', 'MATCH']
 			));
 
-			if ($single_condition != array())
+			if ($single_condition != [])
 			{
 				$condition = $this->data_implode($single_condition, '');
 
@@ -489,7 +559,7 @@ class medoo
 
 				if (is_array($ORDER))
 				{
-					$stack = array();
+					$stack = [];
 
 					foreach ($ORDER as $column => $value)
 					{
@@ -576,14 +646,14 @@ class medoo
 			strpos($join_key[ 0 ], '[') === 0
 		)
 		{
-			$table_join = array();
+			$table_join = [];
 
-			$join_array = array(
+			$join_array = [
 				'>' => 'LEFT',
 				'<' => 'RIGHT',
 				'<>' => 'FULL',
 				'><' => 'INNER'
-			);
+			];
 
 			foreach($join as $sub_table => $relation)
 			{
@@ -605,7 +675,7 @@ class medoo
 						}
 						else
 						{
-							$joins = array();
+							$joins = [];
 
 							foreach ($relation as $key => $value)
 							{
@@ -705,7 +775,7 @@ class medoo
 	{
 		if (is_array($value))
 		{
-			$sub_stack = array();
+			$sub_stack = [];
 
 			foreach ($value as $sub_key => $sub_value)
 			{
@@ -751,7 +821,7 @@ class medoo
 		
 		$query = $this->query($this->select_context($table, $join, $columns, $where));
 
-		$stack = array();
+		$stack = [];
 
 		$index = 0;
 
@@ -792,18 +862,18 @@ class medoo
 
 	public function insert($table, $datas)
 	{
-		$lastId = array();
+		$lastId = [];
 
 		// Check indexed or associative array
 		if (!isset($datas[ 0 ]))
 		{
-			$datas = array($datas);
+			$datas = [$datas];
 		}
 
 		foreach ($datas as $data)
 		{
-			$values = array();
-			$columns = array();
+			$values = [];
+			$columns = [];
 
 			foreach ($data as $key => $value)
 			{
@@ -845,7 +915,7 @@ class medoo
 
 	public function update($table, $data, $where = null)
 	{
-		$fields = array();
+		$fields = [];
 
 		foreach ($data as $key => $value)
 		{
@@ -901,7 +971,7 @@ class medoo
 	{
 		if (is_array($columns))
 		{
-			$replace_query = array();
+			$replace_query = [];
 
 			foreach ($columns as $column => $replacements)
 			{
@@ -918,7 +988,7 @@ class medoo
 		{
 			if (is_array($search))
 			{
-				$replace_query = array();
+				$replace_query = [];
 
 				foreach ($search as $replace_search => $replace_replacement)
 				{
@@ -961,7 +1031,7 @@ class medoo
 					return $data[ 0 ];
 				}
 
-				$stack = array();
+				$stack = [];
 
 				foreach ($columns as $key => $value)
 				{
@@ -1104,13 +1174,13 @@ class medoo
 
 	public function info()
 	{
-		$output = array(
+		$output = [
 			'server' => 'SERVER_INFO',
 			'driver' => 'DRIVER_NAME',
 			'client' => 'CLIENT_VERSION',
 			'version' => 'SERVER_VERSION',
 			'connection' => 'CONNECTION_STATUS'
-		);
+		];
 
 		foreach ($output as $key => $value)
 		{

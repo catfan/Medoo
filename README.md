@@ -1,18 +1,22 @@
-![](https://raw.githubusercontent.com/catfan/Medoo/develop/src/medoo-logo.png)
+![](https://cloud.githubusercontent.com/assets/1467904/19835326/ca62bc36-9ebd-11e6-8b37-7240d76319cd.png)
 
 ## [Medoo](http://medoo.in)
+
+[![Total Downloads](https://poser.pugx.org/catfan/medoo/downloads)](https://packagist.org/packages/catfan/medoo)
+[![Latest Stable Version](https://poser.pugx.org/catfan/medoo/v/stable)](https://packagist.org/packages/catfan/medoo)
+[![License](https://poser.pugx.org/catfan/medoo/license)](https://packagist.org/packages/catfan/medoo)
 
 > The Lightest PHP database framework to accelerate development
 
 ## Main Features
 
-* **Lightweight** - 20KB around with only one file.
+* **Lightweight** - 25KB around with only one file.
 
 * **Easy** - Extremely easy to learn and use, friendly construction.
 
 * **Powerful** - Support various common and complex SQL queries.
 
-* **Compatible** - Support various SQL database, including MySQL, MSSQL, SQLite, MariaDB, Sybase, Oracle, PostgreSQL and more.
+* **Compatible** - Support all SQL databases, including MySQL, MSSQL, SQLite, MariaDB, Sybase, Oracle, PostgreSQL and more.
 
 * **Security** - Prevent SQL injection.
 
@@ -39,8 +43,11 @@ require 'vendor/autoload.php';
 // Or if you just download the medoo.php into directory, require it with the correct path.
 require_once 'medoo.php';
 
+// Using Medoo namespace
+use Medoo\Medoo;
+
 // Initialize
-$database = new medoo([
+$database = new Medoo([
     'database_type' => 'mysql',
     'database_name' => 'name',
     'server' => 'localhost',

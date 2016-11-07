@@ -9,7 +9,7 @@
 		{"name": "Angel Lai", "email": "angel@catfan.me"}
 	],
 	"require": {
-		"php": ">=5.1",
+		"php": ">=5.4",
 		"ext-pdo": "*"
 	},
 	"suggest": {
@@ -21,6 +21,8 @@
 		"ext-pdo_sqlite": "For SQLite databases"
 	},
 	"autoload": {
-		"files": ["medoo.php"]
+		"psr-4": {
+			"Medoo\\": "/src"
+		}
 	}
 }
