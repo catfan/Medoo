@@ -190,7 +190,10 @@ class medoo
 
 	protected function table_quote($table)
 	{
-		return '"' . $this->prefix . $table . '"';
+		$tableArr = explode(".", $table);	// Split schema and tablename - schema.table_name
+		array_push($tableArr, $this->prefix . array_pop($tableArr));	// Add table prefix 
+		$tableArr = array_map(function($val) {return '"' . $val . '"';}, $tableArr);	// Add quotes to schema and tablenames
+		return implode(".",$tableArr);	//Join schema and tablename
 	}
 
 	protected function column_quote($string)
