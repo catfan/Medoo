@@ -167,6 +167,9 @@ class Medoo
 
 						// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
 						$commands[] = 'SET QUOTED_IDENTIFIER ON';
+
+						// Make ANSI_NULLS is ON for NULL value
+						$commands[] = 'SET ANSI_NULLS ON';
 						break;
 
 					case 'sqlite':
