@@ -865,7 +865,7 @@ class Medoo
 
 	public function insert($table, $datas)
 	{
-		$lastId = [];
+		$results = [];
 
 		// Check indexed or associative array
 		if (!isset($datas[ 0 ]))
@@ -908,12 +908,10 @@ class Medoo
 				}
 			}
 
-			$this->exec('INSERT INTO ' . $this->table_quote($table) . ' (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
-
-			$lastId[] = $this->pdo->lastInsertId();
+			$results[] = $this->exec('INSERT INTO ' . $this->table_quote($table) . ' (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
 		}
 
-		return count($lastId) > 1 ? $lastId : $lastId[ 0 ];
+		return count($results) > 1 ? $results : $results[ 0 ];
 	}
 
 	public function update($table, $data, $where = null)
@@ -1151,6 +1149,20 @@ class Medoo
 		{
 			return false;
 		}
+	}
+
+	public function lastInsertId()
+	{
+		if ($this->database_type == 'oracle')
+		{
+			return 0;
+		}
+		elseif ($this->database_type == 'mssql')
+		{
+			return $this->pdo->query('SELECT SCOPE_IDENTITY()')->fetchColumn();
+		}
+
+		return $this->pdo->lastInsertId();
 	}
 
 	public function debug()
