@@ -41,6 +41,9 @@ class medoo
 
 	protected $debug_mode = false;
 
+	// whether the connection has already been closed
+	protected $closed = false;
+
 	public function __construct($options = null)
 	{
 		try {
@@ -1118,6 +1121,46 @@ class medoo
 		}
 
 		return $output;
+	}
+
+	public function close()
+	{
+		// in PDO you can't explicitly close a connection
+		// you have to set the link to null and wait for the reference counter to do the job ...
+		$this->pdo = null;
+	}
+
+	public function isAlive()
+	{
+		// https://stackoverflow.com/questions/26004807/pdo-how-to-check-if-connection-is-active-for-real
+
+		$old_errlevel = 0;
+
+		try
+		{
+			// reset the error level
+            $old_errlevel = error_reporting(0);
+
+            // test the connection by doing a simple query
+			$this->query("SELECT 1");
+        }
+        catch (PDOException $e)
+        {
+			// set error reporting back to its old level & return false
+			error_reporting($old_errlevel);
+			return false;
+        }
+
+        // set error reporting back to its old level & return true
+        error_reporting($old_errlevel);
+        return true;
+	}
+
+	public function __destruct()
+	{
+		// close the connection if it isn't already closed
+		if(!$this->closed)
+			$this->close();
 	}
 }
 ?>
