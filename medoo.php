@@ -545,7 +545,7 @@ class medoo
 		{
 			if ($where != null)
 			{
-				$where_clause .= ' ' . $where;
+				$where_clause .= ' WHERE ' . $where;
 			}
 		}
 
