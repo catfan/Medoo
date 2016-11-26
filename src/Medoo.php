@@ -10,6 +10,8 @@ namespace Medoo;
  * Released under the MIT license
  */
 
+use PDO;
+
 class Medoo
 {
 	// General
