@@ -185,7 +185,7 @@ class medoo
 
 	public function quote($string)
 	{
-		return $this->pdo->quote($string);
+		return ($string === 'NOW()') ? 'NOW()' : $this->pdo->quote($string);
 	}
 
 	protected function table_quote($table)
