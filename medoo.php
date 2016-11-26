@@ -945,7 +945,7 @@ class medoo
 
 		$query = $this->query($this->select_context($table, $join, $columns, $where) . ' LIMIT 1');
 
-		if ($query)
+		if ($query !== false)
 		{
 			$data = $query->fetchAll(PDO::FETCH_ASSOC);
 
