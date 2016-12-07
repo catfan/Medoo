@@ -372,128 +372,140 @@ class Medoo
 			}
 			else
 			{
-				preg_match('/(#?)([\w\.\-]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
-				$column = $this->column_quote($match[ 2 ]);
-
-				if (isset($match[ 4 ]))
+				if (
+					is_int($key) &&
+					preg_match('/([\w\.\-]+)\[(\>|\>\=|\<|\<\=|\!|\=)\]([\w\.\-]+)/i', $value, $match)
+				)
 				{
-					$operator = $match[ 4 ];
+					$operator = $match[ 2 ];
+					
+					$wheres[] = $this->column_quote($match[ 1 ]) . ' ' . $operator . ' ' . $this->column_quote($match[ 3 ]);
+				}
+				else
+				{
+					preg_match('/(#?)([\w\.\-]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
+					$column = $this->column_quote($match[ 2 ]);
 
-					if ($operator == '!')
+					if (isset($match[ 4 ]))
+					{
+						$operator = $match[ 4 ];
+
+						if ($operator == '!')
+						{
+							switch ($type)
+							{
+								case 'NULL':
+									$wheres[] = $column . ' IS NOT NULL';
+									break;
+
+								case 'array':
+									$wheres[] = $column . ' NOT IN (' . $this->array_quote($value) . ')';
+									break;
+
+								case 'integer':
+								case 'double':
+									$wheres[] = $column . ' != ' . $value;
+									break;
+
+								case 'boolean':
+									$wheres[] = $column . ' != ' . ($value ? '1' : '0');
+									break;
+
+								case 'string':
+									$wheres[] = $column . ' != ' . $this->fn_quote($key, $value);
+									break;
+							}
+						}
+
+						if ($operator == '<>' || $operator == '><')
+						{
+							if ($type == 'array')
+							{
+								if ($operator == '><')
+								{
+									$column .= ' NOT';
+								}
+
+								if (is_numeric($value[ 0 ]) && is_numeric($value[ 1 ]))
+								{
+									$wheres[] = '(' . $column . ' BETWEEN ' . $value[ 0 ] . ' AND ' . $value[ 1 ] . ')';
+								}
+								else
+								{
+									$wheres[] = '(' . $column . ' BETWEEN ' . $this->quote($value[ 0 ]) . ' AND ' . $this->quote($value[ 1 ]) . ')';
+								}
+							}
+						}
+
+						if ($operator == '~' || $operator == '!~')
+						{
+							if ($type != 'array')
+							{
+								$value = [$value];
+							}
+
+							$like_clauses = [];
+
+							foreach ($value as $item)
+							{
+								$item = strval($item);
+
+								if (preg_match('/^(?!(%|\[|_])).+(?<!(%|\]|_))$/', $item))
+								{
+									$item = '%' . $item . '%';
+								}
+
+								$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $this->fn_quote($key, $item);
+							}
+
+							$wheres[] = implode(' OR ', $like_clauses);
+						}
+
+						if (in_array($operator, ['>', '>=', '<', '<=']))
+						{
+							$condition = $column . ' ' . $operator . ' ';
+
+							if (is_numeric($value))
+							{
+								$condition .= $value;
+							}
+							elseif (strpos($key, '#') === 0)
+							{
+								$condition .= $this->fn_quote($key, $value);
+							}
+							else
+							{
+								$condition .= $this->quote($value);
+							}
+
+							$wheres[] = $condition;
+						}
+					}
+					else
 					{
 						switch ($type)
 						{
 							case 'NULL':
-								$wheres[] = $column . ' IS NOT NULL';
+								$wheres[] = $column . ' IS NULL';
 								break;
 
 							case 'array':
-								$wheres[] = $column . ' NOT IN (' . $this->array_quote($value) . ')';
+								$wheres[] = $column . ' IN (' . $this->array_quote($value) . ')';
 								break;
 
 							case 'integer':
 							case 'double':
-								$wheres[] = $column . ' != ' . $value;
+								$wheres[] = $column . ' = ' . $value;
 								break;
 
 							case 'boolean':
-								$wheres[] = $column . ' != ' . ($value ? '1' : '0');
+								$wheres[] = $column . ' = ' . ($value ? '1' : '0');
 								break;
 
 							case 'string':
-								$wheres[] = $column . ' != ' . $this->fn_quote($key, $value);
+								$wheres[] = $column . ' = ' . $this->fn_quote($key, $value);
 								break;
 						}
-					}
-
-					if ($operator == '<>' || $operator == '><')
-					{
-						if ($type == 'array')
-						{
-							if ($operator == '><')
-							{
-								$column .= ' NOT';
-							}
-
-							if (is_numeric($value[ 0 ]) && is_numeric($value[ 1 ]))
-							{
-								$wheres[] = '(' . $column . ' BETWEEN ' . $value[ 0 ] . ' AND ' . $value[ 1 ] . ')';
-							}
-							else
-							{
-								$wheres[] = '(' . $column . ' BETWEEN ' . $this->quote($value[ 0 ]) . ' AND ' . $this->quote($value[ 1 ]) . ')';
-							}
-						}
-					}
-
-					if ($operator == '~' || $operator == '!~')
-					{
-						if ($type != 'array')
-						{
-							$value = [$value];
-						}
-
-						$like_clauses = [];
-
-						foreach ($value as $item)
-						{
-							$item = strval($item);
-
-							if (preg_match('/^(?!(%|\[|_])).+(?<!(%|\]|_))$/', $item))
-							{
-								$item = '%' . $item . '%';
-							}
-
-							$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $this->fn_quote($key, $item);
-						}
-
-						$wheres[] = implode(' OR ', $like_clauses);
-					}
-
-					if (in_array($operator, ['>', '>=', '<', '<=']))
-					{
-						$condition = $column . ' ' . $operator . ' ';
-
-						if (is_numeric($value))
-						{
-							$condition .= $value;
-						}
-						elseif (strpos($key, '#') === 0)
-						{
-							$condition .= $this->fn_quote($key, $value);
-						}
-						else
-						{
-							$condition .= $this->quote($value);
-						}
-
-						$wheres[] = $condition;
-					}
-				}
-				else
-				{
-					switch ($type)
-					{
-						case 'NULL':
-							$wheres[] = $column . ' IS NULL';
-							break;
-
-						case 'array':
-							$wheres[] = $column . ' IN (' . $this->array_quote($value) . ')';
-							break;
-
-						case 'integer':
-						case 'double':
-							$wheres[] = $column . ' = ' . $value;
-							break;
-
-						case 'boolean':
-							$wheres[] = $column . ' = ' . ($value ? '1' : '0');
-							break;
-
-						case 'string':
-							$wheres[] = $column . ' = ' . $this->fn_quote($key, $value);
-							break;
 					}
 				}
 			}
