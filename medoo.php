@@ -1119,5 +1119,10 @@ class medoo
 
 		return $output;
 	}
+	
+	public function get_database_type() 
+	{
+        	return $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+    	}
 }
 ?>
