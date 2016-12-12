@@ -1008,7 +1008,24 @@ class medoo
 
 	public function count($table, $join = null, $column = null, $where = null)
 	{
-		$query = $this->query($this->select_context($table, $join, $column, $where, 'COUNT'));
+		$hasGroup = false;
+		$checkingWhere = $where === null ? $join : $where;
+		
+		if (is_array($checkingWhere) && array_key_exists('GROUP', $checkingWhere)) {
+			$hasGroup = true;
+		}
+		unset($checkingWhere);
+
+		if ($hasGroup) {
+
+			$sql = 'SELECT COUNT(*) FROM ( ' . $this->select_context($table, $join, $column, $where, 'COUNT') .
+				' ) AS tmp_tbl';
+
+		} else {
+			$sql = $this->select_context($table, $join, $column, $where, 'COUNT');
+		}
+
+		$query = $this->query($sql);
 
 		return $query ? 0 + $query->fetchColumn() : false;
 	}
