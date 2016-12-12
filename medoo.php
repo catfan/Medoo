@@ -472,7 +472,9 @@ class medoo
 
 			if (isset($where[ 'GROUP' ]))
 			{
-				$where_clause .= ' GROUP BY ' . $this->column_quote($where[ 'GROUP' ]);
+				$GROUP = is_array($where['GROUP']) ? $where['GROUP'] : array($where['GROUP']);
+				$where_clause .= ' GROUP BY ' .
+					implode(', ', array_map(array($this, 'column_quote'), $GROUP));
 
 				if (isset($where[ 'HAVING' ]))
 				{
@@ -1110,6 +1112,11 @@ class medoo
 		}
 
 		return $output;
+	}
+
+	public function generateWhereClause($where)
+	{
+		return $this->where_clause($where);
 	}
 }
 ?>
