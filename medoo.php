@@ -182,6 +182,13 @@ class medoo
 
 		return $this->pdo->exec($query);
 	}
+	
+	public function lastInsertId()
+    	{
+        	return $this->pdo->lastInsertId();
+
+    	}
+    
 
 	public function quote($string)
 	{
