@@ -1025,8 +1025,13 @@ class medoo
 		unset($checkingWhere);
 
 		if ($hasGroup) {
+			$columnFn = null;
 
-			$sql = 'SELECT COUNT(*) FROM ( ' . $this->select_context($table, $join, $column, $where, 'COUNT') .
+			if ($column === null && $where === null) {
+				$columnFn = 'COUNT';
+			}
+
+			$sql = 'SELECT COUNT(*) FROM ( ' . $this->select_context($table, $join, $column, $where, $columnFn) .
 				' ) AS tmp_tbl';
 
 		} else {
