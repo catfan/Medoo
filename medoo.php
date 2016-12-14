@@ -297,7 +297,7 @@ class medoo
 			}
 			else
 			{
-				preg_match('/(#?)([\w\.\-\:]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
+				preg_match('/(#?)([\w\.\-\:]+)(\[(\>|\>\=|REGEXP|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
 				$column = $this->column_quote($match[ 2 ]);
 
 				if (isset($match[ 4 ]))
@@ -329,6 +329,14 @@ class medoo
 								$wheres[] = $column . ' != ' . $this->fn_quote($key, $value);
 								break;
 						}
+					}
+
+					/**
+					 * For regular expression
+					 * @todo SQL sql injection check for regular expression
+					 */
+					if ($operator == 'REGEXP') {
+						$wheres[] = $column . ' REGEXP ' . "('$value')";
 					}
 
 					if ($operator == '<>' || $operator == '><')
