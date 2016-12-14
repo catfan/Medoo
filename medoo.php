@@ -151,7 +151,7 @@ class medoo
 		}
 	}
 
-	public function query($query)
+	public function query($query, $params = array())
 	{
 		if ($this->debug_mode)
 		{
@@ -164,9 +164,13 @@ class medoo
 
 		$this->logs[] = $query;
 
-		return $this->pdo->query($query);
-	}
+		$request = $this->pdo->prepare($query);
 
+		$request->execute($params);
+
+		return $request;
+	}
+	
 	public function exec($query)
 	{
 		if ($this->debug_mode)
