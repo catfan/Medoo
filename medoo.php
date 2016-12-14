@@ -297,7 +297,7 @@ class medoo
 			}
 			else
 			{
-				preg_match('/(#?)([\w\.\-]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
+				preg_match('/(#?)([\w\.\-\:]+)(\[(\>|\>\=|REGEXP|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
 				$column = $this->column_quote($match[ 2 ]);
 
 				if (isset($match[ 4 ]))
@@ -329,6 +329,14 @@ class medoo
 								$wheres[] = $column . ' != ' . $this->fn_quote($key, $value);
 								break;
 						}
+					}
+
+					/**
+					 * For regular expression
+					 * @todo SQL sql injection check for regular expression
+					 */
+					if ($operator == 'REGEXP') {
+						$wheres[] = $column . ' REGEXP ' . "('$value')";
 					}
 
 					if ($operator == '<>' || $operator == '><')
@@ -475,7 +483,9 @@ class medoo
 
 			if (isset($where[ 'GROUP' ]))
 			{
-				$where_clause .= ' GROUP BY ' . $this->column_quote($where[ 'GROUP' ]);
+				$GROUP = is_array($where['GROUP']) ? $where['GROUP'] : array($where['GROUP']);
+				$where_clause .= ' GROUP BY ' .
+					implode(', ', array_map(array($this, 'column_quote'), $GROUP));
 
 				if (isset($where[ 'HAVING' ]))
 				{
@@ -1006,7 +1016,29 @@ class medoo
 
 	public function count($table, $join = null, $column = null, $where = null)
 	{
-		$query = $this->query($this->select_context($table, $join, $column, $where, 'COUNT'));
+		$hasGroup = false;
+		$checkingWhere = $where === null ? $join : $where;
+		
+		if (is_array($checkingWhere) && array_key_exists('GROUP', $checkingWhere)) {
+			$hasGroup = true;
+		}
+		unset($checkingWhere);
+
+		if ($hasGroup) {
+			$columnFn = null;
+
+			if ($column === null && $where === null) {
+				$columnFn = 'COUNT';
+			}
+
+			$sql = 'SELECT COUNT(*) FROM ( ' . $this->select_context($table, $join, $column, $where, $columnFn) .
+				' ) AS tmp_tbl';
+
+		} else {
+			$sql = $this->select_context($table, $join, $column, $where, 'COUNT');
+		}
+
+		$query = $this->query($sql);
 
 		return $query ? 0 + $query->fetchColumn() : false;
 	}
@@ -1118,6 +1150,11 @@ class medoo
 		}
 
 		return $output;
+	}
+
+	public function generateWhereClause($where)
+	{
+		return $this->where_clause($where);
 	}
 }
 ?>
