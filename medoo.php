@@ -1119,5 +1119,10 @@ class medoo
 
 		return $output;
 	}
+	
+	public function close()
+	{
+		$this->pdo = null;
+	}
 }
 ?>
