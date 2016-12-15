@@ -1102,6 +1102,11 @@ class medoo
 		return $this->logs;
 	}
 
+	public function clear_logs()
+	{
+		$this->logs = [];
+	}
+
 	public function info()
 	{
 		$output = array(
