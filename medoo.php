@@ -41,6 +41,9 @@ class medoo
 
 	protected $debug_mode = false;
 
+	protected $dns_string='';
+	protected $commands=[];
+
 	public function __construct($options = null)
 	{
 		try {
@@ -134,6 +137,8 @@ class medoo
 				$commands[] = "SET NAMES '" . $this->charset . "'";
 			}
 
+			$this->dns_string=$dsn;
+			$this->commands=$commands;
 			$this->pdo = new PDO(
 				$dsn,
 				$this->username,
@@ -151,6 +156,23 @@ class medoo
 		}
 	}
 
+	public function reConn(){
+		try {
+			$this->pdo = null;
+			$this->pdo = new PDO(
+				$this->dns_string,
+				$this->username,
+				$this->password,
+				$this->option
+			);
+			foreach ($this->commands as $value) {
+				$this->pdo->exec($value);
+			}
+		}catch (PDOException $e){
+			throw new Exception($e->getMessage());
+		}
+	}
+
 	public function query($query)
 	{
 		if ($this->debug_mode)
@@ -164,7 +186,15 @@ class medoo
 
 		$this->logs[] = $query;
 
-		return $this->pdo->query($query);
+		try {
+			return @$this->pdo->query($query);
+		}catch (\PDOException $e) {
+			$code = $e->errorInfo[1];
+			if ($code === 2006 || $code === 2013 || $code === 70100) {
+				$this->reConn();
+				return @$this->pdo->query($query);
+			}
+		}
 	}
 
 	public function exec($query)
@@ -180,7 +210,15 @@ class medoo
 
 		$this->logs[] = $query;
 
-		return $this->pdo->exec($query);
+		try {
+			return @$this->pdo->exec($query);
+		}catch (\PDOException $e) {
+			$code = $e->errorInfo[1];
+			if ($code === 2006 || $code === 2013 || $code === 70100) {
+				$this->reConn();
+				return @$this->pdo->exec($query);
+			}
+		}
 	}
 
 	public function quote($string)
@@ -748,7 +786,7 @@ class medoo
 		$column = $where == null ? $join : $columns;
 
 		$is_single_column = (is_string($column) && $column !== '*');
-		
+
 		$query = $this->query($this->select_context($table, $join, $columns, $where));
 
 		$stack = array();
@@ -955,7 +993,7 @@ class medoo
 				{
 					return $data[ 0 ][ preg_replace('/^[\w]*\./i', "", $column) ];
 				}
-				
+
 				if ($column === '*')
 				{
 					return $data[ 0 ];
