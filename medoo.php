@@ -979,7 +979,7 @@ class medoo
 			}
 			else
 			{
-				return false;
+				return [];
 			}
 		}
 		else
