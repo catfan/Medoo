@@ -6,7 +6,7 @@ namespace Medoo;
  * http://medoo.in
  * Version 1.2
  *
- * Copyright 2016, Angel Lai
+ * Copyright 2017, Angel Lai
  * Released under the MIT license
  */
 
