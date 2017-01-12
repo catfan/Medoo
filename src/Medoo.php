@@ -556,7 +556,10 @@ class Medoo
 
 				if (is_array($MATCH) && isset($MATCH[ 'columns' ], $MATCH[ 'keyword' ]))
 				{
-					$where_clause .= ($where_clause != '' ? ' AND ' : ' WHERE ') . ' MATCH ("' . str_replace('.', '"."', implode($MATCH[ 'columns' ], '", "')) . '") AGAINST (' . $this->quote($MATCH[ 'keyword' ]) . ')';
+					$columns = str_replace('.', '"."', implode($MATCH[ 'columns' ], '", "'));
+					$keywords = $this->quote($MATCH[ 'keyword' ]);
+
+					$where_clause .= ($where_clause != '' ? ' AND ' : ' WHERE ') . ' MATCH ("' . $columns . '") AGAINST (' . $keywords . ')';
 				}
 			}
 
@@ -647,7 +650,7 @@ class Medoo
 		{
 			$table = $this->table_quote($table_match[ 1 ]);
 
-			$table_query = $this->table_quote($table_match[ 1 ]) . ' AS ' . $this->table_quote($table_match[ 2 ]);
+			$table_query = $table . ' AS ' . $this->table_quote($table_match[ 2 ]);
 		}
 		else
 		{
@@ -861,14 +864,12 @@ class Medoo
 		{
 			foreach ($columns as $key => $value)
 			{
-				if (is_array($value))
+				if (!is_array($value))
 				{
-					$this->data_map($index, $key, $value, $row, $stack);
+					$value = preg_replace('/^[\w]*\./i', "", $value);
 				}
-				else
-				{
-					$this->data_map($index, $key, preg_replace('/^[\w]*\./i', "", $value), $row, $stack);
-				}
+
+				$this->data_map($index, $key, $value, $row, $stack);
 			}
 
 			$index++;
@@ -1050,14 +1051,12 @@ class Medoo
 
 				foreach ($columns as $key => $value)
 				{
-					if (is_array($value))
+					if (!is_array($value))
 					{
-						$this->data_map(0, $key, $value, $data[ 0 ], $stack);
+						$value = preg_replace('/^[\w]*\./i', "", $value);
 					}
-					else
-					{
-						$this->data_map(0, $key, preg_replace('/^[\w]*\./i', "", $value), $data[ 0 ], $stack);
-					}
+
+					$this->data_map(0, $key, $value, $data[ 0 ], $stack);
 				}
 
 				return $stack[ 0 ];
