@@ -530,7 +530,7 @@ class Medoo
 
 			if ($single_condition != [])
 			{
-				$condition = $this->data_implode($single_condition, '');
+				$condition = $this->data_implode($single_condition, ' AND');
 
 				if ($condition != '')
 				{
