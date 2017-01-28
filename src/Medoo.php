@@ -34,7 +34,10 @@ class Medoo
 
 			if (is_array($options))
 			{
-				$this->database_type = strtolower($options['database_type']);
+				if (isset($options['database_type']))
+				{
+					$this->database_type = strtolower($options['database_type']);
+				}
 			}
 			else
 			{
