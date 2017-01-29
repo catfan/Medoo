@@ -883,7 +883,9 @@ class Medoo
 
 	public function insert($table, $datas)
 	{
-		$results = [];
+		$stack = [];
+		$columns = [];
+		$fields = [];
 
 		// Check indexed or associative array
 		if (!isset($datas[ 0 ]))
@@ -893,43 +895,64 @@ class Medoo
 
 		foreach ($datas as $data)
 		{
-			$values = [];
-			$columns = [];
-
 			foreach ($data as $key => $value)
 			{
-				$columns[] = $this->column_quote(preg_replace("/^(\(JSON\)\s*|#)/i", "", $key));
+				$columns[] = $key;
+			}
+		}
 
-				switch (gettype($value))
+		$columns = array_unique($columns);
+
+		foreach ($datas as $data)
+		{
+			$values = [];
+
+			foreach ($columns as $key)
+			{
+				if (!isset($data[$key]))
 				{
-					case 'NULL':
-						$values[] = 'NULL';
-						break;
+					$values[] = 'NULL';
+				}
+				else
+				{
+					$value = $data[$key];
 
-					case 'array':
-						preg_match("/\(JSON\)\s*([\w]+)/i", $key, $column_match);
+					switch (gettype($value))
+					{
+						case 'NULL':
+							$values[] = 'NULL';
+							break;
 
-						$values[] = isset($column_match[ 0 ]) ?
-							$this->quote(json_encode($value)) :
-							$this->quote(serialize($value));
-						break;
+						case 'array':
+							preg_match("/\(JSON\)\s*([\w]+)/i", $key, $column_match);
 
-					case 'boolean':
-						$values[] = ($value ? '1' : '0');
-						break;
+							$values[] = isset($column_match[ 0 ]) ?
+								$this->quote(json_encode($value)) :
+								$this->quote(serialize($value));
+							break;
 
-					case 'integer':
-					case 'double':
-					case 'string':
-						$values[] = $this->fn_quote($key, $value);
-						break;
+						case 'boolean':
+							$values[] = ($value ? '1' : '0');
+							break;
+
+						case 'integer':
+						case 'double':
+						case 'string':
+							$values[] = $this->fn_quote($key, $value);
+							break;
+					}
 				}
 			}
 
-			$results[] = $this->exec('INSERT INTO ' . $this->table_quote($table) . ' (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
+			$stack[] = '(' . implode($values, ', ') . ')';
 		}
 
-		return count($results) > 1 ? $results : $results[ 0 ];
+		foreach ($columns as $key)
+		{
+			$fields[] = $this->column_quote(preg_replace("/^(\(JSON\)\s*|#)/i", "", $key));
+		}
+
+		return $this->exec('INSERT INTO ' . $this->table_quote($table) . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $stack));
 	}
 
 	public function update($table, $data, $where = null)
