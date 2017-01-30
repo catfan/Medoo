@@ -30,8 +30,6 @@ class Medoo
 	public function __construct($options = null)
 	{
 		try {
-			$commands = [];
-
 			if (is_array($options))
 			{
 				if (isset($options['database_type']))
@@ -52,6 +50,15 @@ class Medoo
 			if (isset($options['option']))
 			{
 				$this->option = $options['option'];
+			}
+
+			if (isset($options['command']) && is_array($options['command']))
+			{
+				$commands = $options['command'];
+			}
+			else
+			{
+				$commands = [];
 			}
 
 			if (isset($options['dsn']))
