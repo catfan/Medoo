@@ -297,7 +297,7 @@ class medoo
 			}
 			else
 			{
-				preg_match('/(#?)([\w\.\-]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
+				preg_match('/(#?)([\w\.\-]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~|\+?~)\])?/i', $key, $match);
 				$column = $this->column_quote($match[ 2 ]);
 
 				if (isset($match[ 4 ]))
@@ -351,7 +351,7 @@ class medoo
 						}
 					}
 
-					if ($operator == '~' || $operator == '!~')
+					if ($operator == '~' || $operator == '!~' || $operator == '+~')
 					{
 						if ($type != 'array')
 						{
@@ -372,7 +372,14 @@ class medoo
 							$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $this->fn_quote($key, $item);
 						}
 
-						$wheres[] = implode(' OR ', $like_clauses);
+						if (strpos($operator, '+') !== false) 
+						{
+							$wheres[] = implode(' AND ', $like_clauses);
+						} 
+						else 
+						{
+							$wheres[] = implode(' OR ', $like_clauses);
+						}
 					}
 
 					if (in_array($operator, array('>', '>=', '<', '<=')))
