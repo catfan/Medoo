@@ -454,6 +454,18 @@ class Medoo
 								$value = [$value];
 							}
 
+							$connector = ' OR ';
+							$stack = array_values($value);
+
+							if (is_array($stack[0]))
+							{
+								if (isset($value['AND']) || isset($value['OR']))
+								{
+									$connector = ' ' . array_keys($value)[0] . ' ';
+									$value = $stack[0];
+								}
+							}
+
 							$like_clauses = [];
 
 							foreach ($value as $item)
@@ -468,7 +480,7 @@ class Medoo
 								$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $this->fnQuote($key, $item);
 							}
 
-							$wheres[] = implode(' OR ', $like_clauses);
+							$wheres[] = implode($connector, $like_clauses);
 						}
 
 						if (in_array($operator, ['>', '>=', '<', '<=']))
