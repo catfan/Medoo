@@ -480,7 +480,7 @@ class Medoo
 								$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $this->fnQuote($key, $item);
 							}
 
-							$wheres[] = implode($connector, $like_clauses);
+							$wheres[] = '(' . implode($connector, $like_clauses) . ')';
 						}
 
 						if (in_array($operator, ['>', '>=', '<', '<=']))
