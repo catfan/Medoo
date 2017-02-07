@@ -1235,7 +1235,7 @@ class Medoo
 		return $this->pdo->errorInfo();
 	}
 
-	public function lastQuery()
+	public function last()
 	{
 		return end($this->logs);
 	}
