@@ -1257,7 +1257,7 @@ class Medoo
 
 		foreach ($output as $key => $value)
 		{
-			$output[ $key ] = $this->pdo->getAttribute(constant('PDO::ATTR_' . $value));
+			$output[ $key ] = @$this->pdo->getAttribute(constant('PDO::ATTR_' . $value));
 		}
 
 		return $output;
