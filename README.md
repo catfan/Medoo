@@ -10,17 +10,21 @@
 
 ## Main Features
 
-* **Lightweight** - 25KB around with only one file.
+* **Lightweight** - 26KB around with only one file.
 
 * **Easy** - Extremely easy to learn and use, friendly construction.
 
-* **Powerful** - Support various common and complex SQL queries.
+* **Powerful** - Support various common and complex SQL queries, data mapping, and prevent SQL injection.
 
 * **Compatible** - Support all SQL databases, including MySQL, MSSQL, SQLite, MariaDB, Sybase, Oracle, PostgreSQL and more.
 
-* **Security** - Prevent SQL injection.
+* **Friendly** - Work well with every PHP frameworks, like Laravel, Codeigniter, Yii, Slim, and framework which supports singleton extension.
 
 * **Free** - Under MIT license, you can use it anywhere if you want.
+
+## Requirement
+
+PHP 5.4+ and PDO extension installed
 
 ## Get Started
 
