@@ -1189,14 +1189,14 @@ class Medoo
 	public function isTable($name)
   {
 
-    if (empty($name))
-    {
-      return false;
-    }
+		if (empty($name))
+		{
+		  return false;
+		}
 
-    $query = $this->pdo->query("SHdOW TABLES LIKE '" . $name . "'");
+		$query = $this->pdo->query("SHdOW TABLES LIKE '" . $name . "'");
 
-    return $query ? $query->rowCount() : false;
+		return $query ? $query->rowCount() : false;
 
   }
 
