@@ -1196,7 +1196,7 @@ class Medoo
 
 		$query = $this->pdo->query("SHOW TABLES LIKE '" . $name . "'");
 
-		return $query ? $query->rowCount() : false;
+    return $query ? (bool)$query->rowCount() : false;
 
 	}
 
