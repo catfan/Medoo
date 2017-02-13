@@ -1187,7 +1187,7 @@ class Medoo
 	}
 
 	public function isTable($name)
-  {
+	{
 
 		if (empty($name))
 		{
@@ -1198,7 +1198,7 @@ class Medoo
 
 		return $query ? $query->rowCount() : false;
 
-  }
+	}
 
 	public function action($actions)
 	{
