@@ -103,7 +103,7 @@ class Medoo
 
 							if ($is_port)
 							{
-								$dsn['port'] = $port;
+								$attr['port'] = $port;
 							}
 						}
 
@@ -120,7 +120,7 @@ class Medoo
 
 						if ($is_port)
 						{
-							$dsn['port'] = $port;
+							$attr['port'] = $port;
 						}
 
 						break;
@@ -134,7 +134,7 @@ class Medoo
 
 						if ($is_port)
 						{
-							$dsn['port'] = $port;
+							$attr['port'] = $port;
 						}
 
 						break;
@@ -149,7 +149,7 @@ class Medoo
 
 						if (isset($options['charset']))
 						{
-							$dsn['charset'] = $options['charset'];
+							$attr['charset'] = $options['charset'];
 						}
 
 						break;
@@ -174,7 +174,7 @@ class Medoo
 
 						if ($is_port)
 						{
-							$dsn['port'] = $port;
+							$attr['port'] = $port;
 						}
 
 						// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
