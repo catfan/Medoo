@@ -54,7 +54,7 @@ $database = new Medoo([
     'server' => 'localhost',
     'username' => 'your_username',
     'password' => 'your_password',
-    'charset' => 'utf8'
+    'charset' => 'utf-8'
 ]);
 
 // Enjoy
