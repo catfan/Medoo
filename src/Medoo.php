@@ -388,7 +388,7 @@ class Medoo
 				)
 				{
 					$operator = $match[ 2 ];
-					
+
 					$wheres[] = $this->columnQuote($match[ 1 ]) . ' ' . $operator . ' ' . $this->columnQuote($match[ 3 ]);
 				}
 				else
@@ -563,13 +563,19 @@ class Medoo
 			if (!empty($where_AND))
 			{
 				$value = array_values($where_AND);
-				$where_clause = ' WHERE ' . $this->dataImplode($where[ $value[ 0 ] ], ' AND');
+                $and_clause = $this->dataImplode($where[ $value[ 0 ] ], ' AND');
+                if (!empty($and_clause)) {
+			    	$where_clause = ' WHERE ' . $and_clause;
+                }
 			}
 
 			if (!empty($where_OR))
 			{
 				$value = array_values($where_OR);
-				$where_clause = ' WHERE ' . $this->dataImplode($where[ $value[ 0 ] ], ' OR');
+                $or_clause = $this->dataImplode($where[ $value[ 0 ] ], ' AND');
+                if (!empty($or_clause)) {
+				    $where_clause = ' WHERE ' . $or_clause;
+                }
 			}
 
 			if (isset($where[ 'MATCH' ]))
@@ -860,7 +866,7 @@ class Medoo
 		$column = $where == null ? $join : $columns;
 
 		$is_single_column = (is_string($column) && $column !== '*');
-		
+
 		$query = $this->query($this->selectContext($table, $join, $columns, $where));
 
 		$stack = [];
@@ -1086,7 +1092,7 @@ class Medoo
 				{
 					return $data[ 0 ][ preg_replace('/^[\w]*\./i', "", $column) ];
 				}
-				
+
 				if ($column === '*')
 				{
 					return $data[ 0 ];
