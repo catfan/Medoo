@@ -951,7 +951,10 @@ class Medoo
 							break;
 
 						case 'boolean':
-							$values[] = ($value ? '1' : '0');
+						    if ($this->database_type === 'pgsql')
+						        $values[] = ($value ? 'true' : 'false');
+						    else
+							    $values[] = ($value ? '1' : '0');
 							break;
 
 						case 'integer':
