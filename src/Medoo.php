@@ -11,6 +11,8 @@ namespace Medoo;
  */
 
 use PDO;
+use Exception;
+use PDOException;
 
 class Medoo
 {
