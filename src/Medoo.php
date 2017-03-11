@@ -27,6 +27,9 @@ class Medoo
 
 	protected $debug_mode = false;
 
+	// Constant
+	const BOUNDARY = "MeDoOBoUnDaRy";
+
 	public function __construct($options = null)
 	{
 		try {
@@ -274,6 +277,10 @@ class Medoo
 			{
 				$query = str_replace($key, $this->quote($value[ 0 ]), $query);
 			}
+			elseif ($value[ 1 ] === PDO::PARAM_NULL)
+			{
+				$query = str_replace($key, 'NULL', $query);
+			}
 			else
 			{
 				$query = str_replace($key, $value[ 0 ], $query);
@@ -382,11 +389,10 @@ class Medoo
 	{
 		$wheres = [];
 		$index = 0;
-		$boundary = "MeDoOBoUnDaRy";
 
 		foreach ($data as $key => $value)
 		{
-			$index_key = ':' . $boundary . $dimension . '_' . $index;
+			$index_key = ':' . self::BOUNDARY . $dimension . '_' . $index;
 
 			$type = gettype($value);
 
@@ -960,15 +966,23 @@ class Medoo
 
 		$columns = array_unique($columns);
 
+		$section = 0;
+		$map = [];
+
 		foreach ($datas as $data)
 		{
 			$values = [];
+			$index = 0;
 
 			foreach ($columns as $key)
 			{
+				$index_key = ':' . self::BOUNDARY . $section . '_' . $index;
+
+				$values[] = $index_key;
+
 				if (!isset($data[$key]))
 				{
-					$values[] = 'NULL';
+					$map[ $index_key ] = [null, PDO::PARAM_NULL];
 				}
 				else
 				{
@@ -977,31 +991,41 @@ class Medoo
 					switch (gettype($value))
 					{
 						case 'NULL':
-							$values[] = 'NULL';
+							$map[ $index_key ] = [null, PDO::PARAM_NULL];
 							break;
 
 						case 'array':
 							preg_match("/\(JSON\)\s*([\w]+)/i", $key, $column_match);
 
-							$values[] = isset($column_match[ 0 ]) ?
-								$this->quote(json_encode($value)) :
-								$this->quote(serialize($value));
+							$map[ $index_key ] = [
+								isset($column_match[ 0 ]) ?
+									$this->quote(json_encode($value)) :
+									$this->quote(serialize($value)),
+								PDO::PARAM_STR
+							];
 							break;
 
 						case 'boolean':
-							$values[] = ($value ? '1' : '0');
+							$map[ $index_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
 							break;
 
 						case 'integer':
 						case 'double':
+							$map[ $index_key ] = [$value, PDO::PARAM_INT];
+							break;
+
 						case 'string':
-							$values[] = $this->fnQuote($key, $value);
+							$map[ $index_key ] = [$value, PDO::PARAM_STR];
 							break;
 					}
 				}
+
+				$index++;
 			}
 
 			$stack[] = '(' . implode($values, ', ') . ')';
+
+			$section++;
 		}
 
 		foreach ($columns as $key)
@@ -1009,7 +1033,7 @@ class Medoo
 			$fields[] = $this->columnQuote(preg_replace("/^(\(JSON\)\s*|#)/i", "", $key));
 		}
 
-		return $this->exec('INSERT INTO ' . $this->tableQuote($table) . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $stack));
+		return $this->exec('INSERT INTO ' . $this->tableQuote($table) . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $stack), $map);
 	}
 
 	public function update($table, $data, $where = null)
