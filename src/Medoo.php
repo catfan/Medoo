@@ -1112,7 +1112,9 @@ class Medoo
 
 		$is_single_column = (is_string($column) && $column !== '*');
 
-		$query = $this->query($this->selectContext($table, $join, $columns, $where) . ' LIMIT 1');
+		$map = [];
+
+		$query = $this->exec($this->selectContext($table, $map, $join, $columns, $where) . ' LIMIT 1', $map);
 
 		if ($query)
 		{
@@ -1159,7 +1161,9 @@ class Medoo
 	{
 		$column = null;
 
-		$query = $this->query('SELECT EXISTS(' . $this->selectContext($table, $join, $column, $where, 1) . ')');
+		$map = [];
+
+		$query = $this->exec('SELECT EXISTS(' . $this->selectContext($table, $map, $join, $column, $where, 1) . ')', $map);
 
 		if ($query)
 		{
@@ -1173,14 +1177,18 @@ class Medoo
 
 	public function count($table, $join = null, $column = null, $where = null)
 	{
-		$query = $this->query($this->selectContext($table, $join, $column, $where, 'COUNT'));
+		$map = [];
+
+		$query = $this->exec($this->selectContext($table, $map, $join, $column, $where, 'COUNT'), $map);
 
 		return $query ? 0 + $query->fetchColumn() : false;
 	}
 
 	public function max($table, $join, $column = null, $where = null)
 	{
-		$query = $this->query($this->selectContext($table, $join, $column, $where, 'MAX'));
+		$map = [];
+
+		$query = $this->query($this->selectContext($table, $map, $join, $column, $where, 'MAX'), $map);
 
 		if ($query)
 		{
@@ -1196,7 +1204,9 @@ class Medoo
 
 	public function min($table, $join, $column = null, $where = null)
 	{
-		$query = $this->query($this->selectContext($table, $join, $column, $where, 'MIN'));
+		$map = [];
+
+		$query = $this->query($this->selectContext($table, $map, $join, $column, $where, 'MIN'), $map);
 
 		if ($query)
 		{
@@ -1212,14 +1222,18 @@ class Medoo
 
 	public function avg($table, $join, $column = null, $where = null)
 	{
-		$query = $this->query($this->selectContext($table, $join, $column, $where, 'AVG'));
+		$map = [];
+
+		$query = $this->query($this->selectContext($table, $map, $join, $column, $where, 'AVG'), $map);
 
 		return $query ? 0 + $query->fetchColumn() : false;
 	}
 
 	public function sum($table, $join, $column = null, $where = null)
 	{
-		$query = $this->query($this->selectContext($table, $join, $column, $where, 'SUM'));
+		$map = [];
+
+		$query = $this->query($this->selectContext($table, $map, $join, $column, $where, 'SUM'), $map);
 
 		return $query ? 0 + $query->fetchColumn() : false;
 	}
