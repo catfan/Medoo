@@ -1100,7 +1100,9 @@ class Medoo
 
 	public function delete($table, $where)
 	{
-		return $this->exec('DELETE FROM ' . $this->tableQuote($table) . $this->whereClause($where));
+		$map = [];
+
+		return $this->exec('DELETE FROM ' . $this->tableQuote($table) . $this->whereClause($where, $map), $map);
 	}
 
 	public function replace($table, $columns, $search = null, $replace = null, $where = null)
