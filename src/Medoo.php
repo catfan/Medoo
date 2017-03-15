@@ -1039,9 +1039,13 @@ class Medoo
 	public function update($table, $data, $where = null)
 	{
 		$fields = [];
+		$map = [];
+		$index = 0;
 
 		foreach ($data as $key => $value)
 		{
+			$index_key = ':' . self::BOUNDARY . '_' . $index;
+
 			preg_match('/([\w]+)(\[(\+|\-|\*|\/)\])?/i', $key, $match);
 
 			if (isset($match[ 3 ]))
@@ -1054,35 +1058,44 @@ class Medoo
 			else
 			{
 				$column = $this->columnQuote(preg_replace("/^(\(JSON\)\s*|#)/i", "", $key));
+				$fields[] = $column . ' = ' . $index_key;
 
 				switch (gettype($value))
 				{
 					case 'NULL':
-						$fields[] = $column . ' = NULL';
+						$map[ $index_key ] = [null, PDO::PARAM_NULL];
 						break;
 
 					case 'array':
 						preg_match("/\(JSON\)\s*([\w]+)/i", $key, $column_match);
 
-						$fields[] = $column . ' = ' . $this->quote(
-								isset($column_match[ 0 ]) ? json_encode($value) : serialize($value)
-							);
+						$map[ $index_key ] = [
+							isset($column_match[ 0 ]) ?
+								$this->quote(json_encode($value)) :
+								$this->quote(serialize($value)),
+							PDO::PARAM_STR
+						];
 						break;
 
 					case 'boolean':
-						$fields[] = $column . ' = ' . ($value ? '1' : '0');
+						$map[ $index_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
 						break;
 
 					case 'integer':
 					case 'double':
+						$map[ $index_key ] = [$value, PDO::PARAM_INT];
+						break;
+
 					case 'string':
-						$fields[] = $column . ' = ' . $this->fnQuote($key, $value);
+						$map[ $index_key ] = [$value, PDO::PARAM_STR];
 						break;
 				}
 			}
+
+			$index++;
 		}
 
-		return $this->exec('UPDATE ' . $this->tableQuote($table) . ' SET ' . implode(', ', $fields) . $this->whereClause($where));
+		return $this->exec('UPDATE ' . $this->tableQuote($table) . ' SET ' . implode(', ', $fields) . $this->whereClause($where, $map), $map);
 	}
 
 	public function delete($table, $where)
