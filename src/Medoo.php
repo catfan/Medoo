@@ -1105,44 +1105,50 @@ class Medoo
 		return $this->exec('DELETE FROM ' . $this->tableQuote($table) . $this->whereClause($where, $map), $map);
 	}
 
-	public function replace($table, $columns, $search = null, $replace = null, $where = null)
+	public function replace($table, $columns, $where = null)
 	{
+		$map = [];
+		$index = 0;
+
 		if (is_array($columns))
 		{
 			$replace_query = [];
 
 			foreach ($columns as $column => $replacements)
 			{
-				foreach ($replacements as $replace_search => $replace_replacement)
+				if (is_array($replacements[ 0 ]))
 				{
-					$replace_query[] = $column . ' = REPLACE(' . $this->columnQuote($column) . ', ' . $this->quote($replace_search) . ', ' . $this->quote($replace_replacement) . ')';
+					$dimension = 0;
+
+					foreach ($replacements as $replacement)
+					{
+						$index_key = ':' . self::BOUNDARY . $dimension . '_' . $index;
+
+						$replace_query[] = $this->columnQuote($column) . ' = REPLACE(' . $this->columnQuote($column) . ', ' . $index_key . 'a, ' . $index_key . 'b)';
+
+						$map[ $index_key . 'a' ] = [$replacement[ 0 ], PDO::PARAM_STR];
+						$map[ $index_key . 'b' ] = [$replacement[ 1 ], PDO::PARAM_STR];
+
+						$dimension++;
+					}
 				}
+				else
+				{
+					$index_key = ':' . self::BOUNDARY . '_' . $index;
+
+					$replace_query[] = $this->columnQuote($column) . ' = REPLACE(' . $this->columnQuote($column) . ', ' . $index_key . 'a, ' . $index_key . 'b)';
+
+					$map[ $index_key . 'a' ] = [$replacements[ 0 ], PDO::PARAM_STR];
+					$map[ $index_key . 'b' ] = [$replacements[ 1 ], PDO::PARAM_STR];
+				}
+
+				$index++;
 			}
 
 			$replace_query = implode(', ', $replace_query);
-			$where = $search;
-		}
-		else
-		{
-			if (is_array($search))
-			{
-				$replace_query = [];
-
-				foreach ($search as $replace_search => $replace_replacement)
-				{
-					$replace_query[] = $columns . ' = REPLACE(' . $this->columnQuote($columns) . ', ' . $this->quote($replace_search) . ', ' . $this->quote($replace_replacement) . ')';
-				}
-
-				$replace_query = implode(', ', $replace_query);
-				$where = $replace;
-			}
-			else
-			{
-				$replace_query = $columns . ' = REPLACE(' . $this->columnQuote($columns) . ', ' . $this->quote($search) . ', ' . $this->quote($replace) . ')';
-			}
 		}
 
-		return $this->exec('UPDATE ' . $this->tableQuote($table) . ' SET ' . $replace_query . $this->whereClause($where));
+		return $this->exec('UPDATE ' . $this->tableQuote($table) . ' SET ' . $replace_query . $this->whereClause($where, $map), $map);
 	}
 
 	public function get($table, $join = null, $columns = null, $where = null)
