@@ -27,9 +27,6 @@ class Medoo
 
 	protected $debug_mode = false;
 
-	// Constant
-	const BOUNDARY = "MeDoOBoUnDaRy";
-
 	public function __construct($options = null)
 	{
 		try {
@@ -300,6 +297,13 @@ class Medoo
 		return '"' . $this->prefix . $table . '"';
 	}
 
+	protected function mapKey($type, &$index, $dimension = 0)
+	{
+		$index++;
+
+		return ':MeDoO_' . $type . '_' . $index . '_' . $dimension;
+	}
+
 	protected function columnQuote($string)
 	{
 		preg_match('/(\(JSON\)\s*|^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)/', $string, $column_match);
@@ -392,7 +396,7 @@ class Medoo
 
 		foreach ($data as $key => $value)
 		{
-			$index_key = ':' . self::BOUNDARY . $dimension . '_' . $index;
+			$map_key = $this->mapKey('where', $index);
 
 			$type = gettype($value);
 
@@ -439,18 +443,18 @@ class Medoo
 
 								case 'integer':
 								case 'double':
-									$wheres[] = $column . ' != ' . $index_key;
-									$map[ $index_key ] = [$value, PDO::PARAM_INT];
+									$wheres[] = $column . ' != ' . $map_key;
+									$map[ $map_key ] = [$value, PDO::PARAM_INT];
 									break;
 
 								case 'boolean':
-									$wheres[] = $column . ' != ' . $index_key;
-									$map[ $index_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
+									$wheres[] = $column . ' != ' . $map_key;
+									$map[ $map_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
 									break;
 
 								case 'string':
-									$wheres[] = $column . ' != ' . $index_key;
-									$map[ $index_key ] = [$value, PDO::PARAM_STR];
+									$wheres[] = $column . ' != ' . $map_key;
+									$map[ $map_key ] = [$value, PDO::PARAM_STR];
 									break;
 							}
 						}
@@ -464,17 +468,17 @@ class Medoo
 									$column .= ' NOT';
 								}
 
-								$wheres[] = '(' . $column . ' BETWEEN ' . $index_key . 'a AND ' . $index_key . 'b)';
+								$wheres[] = '(' . $column . ' BETWEEN ' . $map_key . 'a AND ' . $map_key . 'b)';
 
 								if (is_numeric($value[ 0 ]) && is_numeric($value[ 1 ]))
 								{
-									$map[ $index_key . 'a' ] = [$value[ 0 ], PDO::PARAM_INT];
-									$map[ $index_key . 'b' ] = [$value[ 1 ], PDO::PARAM_INT];
+									$map[ $map_key . 'a' ] = [$value[ 0 ], PDO::PARAM_INT];
+									$map[ $map_key . 'b' ] = [$value[ 1 ], PDO::PARAM_INT];
 								}
 								else
 								{
-									$map[ $index_key . 'a' ] = [$value[ 0 ], PDO::PARAM_STR];
-									$map[ $index_key . 'b' ] = [$value[ 1 ], PDO::PARAM_STR];
+									$map[ $map_key . 'a' ] = [$value[ 0 ], PDO::PARAM_STR];
+									$map[ $map_key . 'b' ] = [$value[ 1 ], PDO::PARAM_STR];
 								}
 							}
 						}
@@ -502,7 +506,7 @@ class Medoo
 
 							foreach ($value as $index => $item)
 							{
-								$index_key .= 'L' . $index;
+								$map_key .= 'L' . $index;
 
 								$item = strval($item);
 
@@ -511,8 +515,8 @@ class Medoo
 									$item = '%' . $item . '%';
 								}
 
-								$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $index_key;
-								$map[ $index_key ] = [$item, PDO::PARAM_STR];
+								$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $map_key;
+								$map[ $map_key ] = [$item, PDO::PARAM_STR];
 							}
 
 							$wheres[] = '(' . implode($connector, $like_clauses) . ')';
@@ -524,8 +528,8 @@ class Medoo
 
 							if (is_numeric($value))
 							{
-								$condition .= $index_key;
-								$map[ $index_key ] = [$value, PDO::PARAM_INT];
+								$condition .= $map_key;
+								$map[ $map_key ] = [$value, PDO::PARAM_INT];
 							}
 							elseif (strpos($key, '#') === 0)
 							{
@@ -533,8 +537,8 @@ class Medoo
 							}
 							else
 							{
-								$condition .= $index_key;
-								$map[ $index_key ] = [$value, PDO::PARAM_STR];
+								$condition .= $map_key;
+								$map[ $map_key ] = [$value, PDO::PARAM_STR];
 							}
 
 							$wheres[] = $condition;
@@ -554,25 +558,23 @@ class Medoo
 
 							case 'integer':
 							case 'double':
-								$wheres[] = $column . ' = ' . $index_key;
-								$map[ $index_key ] = [$value, PDO::PARAM_INT];
+								$wheres[] = $column . ' = ' . $map_key;
+								$map[ $map_key ] = [$value, PDO::PARAM_INT];
 								break;
 
 							case 'boolean':
-								$wheres[] = $column . ' = ' . $index_key;
-								$map[ $index_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
+								$wheres[] = $column . ' = ' . $map_key;
+								$map[ $map_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
 								break;
 
 							case 'string':
-								$wheres[] = $column . ' = ' . $index_key;
-								$map[ $index_key ] = [$value, PDO::PARAM_STR];
+								$wheres[] = $column . ' = ' . $map_key;
+								$map[ $map_key ] = [$value, PDO::PARAM_STR];
 								break;
 						}
 					}
 				}
 			}
-
-			$index++;
 		}
 
 		return implode($conjunctor . ' ', $wheres);
@@ -976,13 +978,13 @@ class Medoo
 
 			foreach ($columns as $key)
 			{
-				$index_key = ':' . self::BOUNDARY . $section . '_' . $index;
+				$map_key =$this->mapKey('insert', $index, $section);
 
-				$values[] = $index_key;
+				$values[] = $map_key;
 
 				if (!isset($data[$key]))
 				{
-					$map[ $index_key ] = [null, PDO::PARAM_NULL];
+					$map[ $map_key ] = [null, PDO::PARAM_NULL];
 				}
 				else
 				{
@@ -991,13 +993,13 @@ class Medoo
 					switch (gettype($value))
 					{
 						case 'NULL':
-							$map[ $index_key ] = [null, PDO::PARAM_NULL];
+							$map[ $map_key ] = [null, PDO::PARAM_NULL];
 							break;
 
 						case 'array':
 							preg_match("/\(JSON\)\s*([\w]+)/i", $key, $column_match);
 
-							$map[ $index_key ] = [
+							$map[ $map_key ] = [
 								isset($column_match[ 0 ]) ?
 									$this->quote(json_encode($value)) :
 									$this->quote(serialize($value)),
@@ -1006,21 +1008,19 @@ class Medoo
 							break;
 
 						case 'boolean':
-							$map[ $index_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
+							$map[ $map_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
 							break;
 
 						case 'integer':
 						case 'double':
-							$map[ $index_key ] = [$value, PDO::PARAM_INT];
+							$map[ $map_key ] = [$value, PDO::PARAM_INT];
 							break;
 
 						case 'string':
-							$map[ $index_key ] = [$value, PDO::PARAM_STR];
+							$map[ $map_key ] = [$value, PDO::PARAM_STR];
 							break;
 					}
 				}
-
-				$index++;
 			}
 
 			$stack[] = '(' . implode($values, ', ') . ')';
@@ -1044,7 +1044,7 @@ class Medoo
 
 		foreach ($data as $key => $value)
 		{
-			$index_key = ':' . self::BOUNDARY . '_' . $index;
+			$map_key = $this->mapKey('update', $index);
 
 			preg_match('/([\w]+)(\[(\+|\-|\*|\/)\])?/i', $key, $match);
 
@@ -1058,18 +1058,18 @@ class Medoo
 			else
 			{
 				$column = $this->columnQuote(preg_replace("/^(\(JSON\)\s*|#)/i", "", $key));
-				$fields[] = $column . ' = ' . $index_key;
+				$fields[] = $column . ' = ' . $map_key;
 
 				switch (gettype($value))
 				{
 					case 'NULL':
-						$map[ $index_key ] = [null, PDO::PARAM_NULL];
+						$map[ $map_key ] = [null, PDO::PARAM_NULL];
 						break;
 
 					case 'array':
 						preg_match("/\(JSON\)\s*([\w]+)/i", $key, $column_match);
 
-						$map[ $index_key ] = [
+						$map[ $map_key ] = [
 							isset($column_match[ 0 ]) ?
 								$this->quote(json_encode($value)) :
 								$this->quote(serialize($value)),
@@ -1078,21 +1078,19 @@ class Medoo
 						break;
 
 					case 'boolean':
-						$map[ $index_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
+						$map[ $map_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
 						break;
 
 					case 'integer':
 					case 'double':
-						$map[ $index_key ] = [$value, PDO::PARAM_INT];
+						$map[ $map_key ] = [$value, PDO::PARAM_INT];
 						break;
 
 					case 'string':
-						$map[ $index_key ] = [$value, PDO::PARAM_STR];
+						$map[ $map_key ] = [$value, PDO::PARAM_STR];
 						break;
 				}
 			}
-
-			$index++;
 		}
 
 		return $this->exec('UPDATE ' . $this->tableQuote($table) . ' SET ' . implode(', ', $fields) . $this->whereClause($where, $map), $map);
@@ -1122,27 +1120,25 @@ class Medoo
 
 					foreach ($replacements as $replacement)
 					{
-						$index_key = ':' . self::BOUNDARY . $dimension . '_' . $index;
+						$map_key = $this->mapKey('replace', $index, $dimension);
 
-						$replace_query[] = $this->columnQuote($column) . ' = REPLACE(' . $this->columnQuote($column) . ', ' . $index_key . 'a, ' . $index_key . 'b)';
+						$replace_query[] = $this->columnQuote($column) . ' = REPLACE(' . $this->columnQuote($column) . ', ' . $map_key . 'a, ' . $map_key . 'b)';
 
-						$map[ $index_key . 'a' ] = [$replacement[ 0 ], PDO::PARAM_STR];
-						$map[ $index_key . 'b' ] = [$replacement[ 1 ], PDO::PARAM_STR];
+						$map[ $map_key . 'a' ] = [$replacement[ 0 ], PDO::PARAM_STR];
+						$map[ $map_key . 'b' ] = [$replacement[ 1 ], PDO::PARAM_STR];
 
 						$dimension++;
 					}
 				}
 				else
 				{
-					$index_key = ':' . self::BOUNDARY . '_' . $index;
+					$map_key = $this->mapKey('replace', $index);
 
-					$replace_query[] = $this->columnQuote($column) . ' = REPLACE(' . $this->columnQuote($column) . ', ' . $index_key . 'a, ' . $index_key . 'b)';
+					$replace_query[] = $this->columnQuote($column) . ' = REPLACE(' . $this->columnQuote($column) . ', ' . $map_key . 'a, ' . $map_key . 'b)';
 
-					$map[ $index_key . 'a' ] = [$replacements[ 0 ], PDO::PARAM_STR];
-					$map[ $index_key . 'b' ] = [$replacements[ 1 ], PDO::PARAM_STR];
+					$map[ $map_key . 'a' ] = [$replacements[ 0 ], PDO::PARAM_STR];
+					$map[ $map_key . 'b' ] = [$replacements[ 1 ], PDO::PARAM_STR];
 				}
-
-				$index++;
 			}
 
 			$replace_query = implode(', ', $replace_query);
