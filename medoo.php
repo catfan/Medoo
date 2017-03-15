@@ -793,7 +793,6 @@ class medoo
 	public function insert($table, $datas)
 	{
 		$lastId = array();
-		$rownums = 0;
 
 		// Check indexed or associative array
 		if (!isset($datas[ 0 ]))
@@ -836,26 +835,12 @@ class medoo
 				}
 			}
 
-			$res      = $this->exec('INSERT INTO ' . $this->table_quote($table) . ' (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
-            $rownums += $res;
+			$this->exec('INSERT INTO ' . $this->table_quote($table) . ' (' . implode(', ', $columns) . ') VALUES (' . implode($values, ', ') . ')');
 
 			$lastId[] = $this->pdo->lastInsertId();
 		}
 
-		/* 返回数据，有ID的返回ID，没有ID返回影响行数 */
-        if( empty($rownums) )
-        {
-            return 0;
-        }
-        else 
-        {
-            $returnid = count($lastId) > 1 ? $lastId : $lastId[ 0 ];
-            if( $rownums > 0 && ( is_array($returnid) ? array_sum($returnid) === 0 : $returnid == 0 ) )
-            {
-                return $rownums;
-            }
-            return $returnid;
-        }
+		return count($lastId) > 1 ? $lastId : $lastId[ 0 ];
 	}
 
 	public function update($table, $data, $where = null)
