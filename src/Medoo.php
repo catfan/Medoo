@@ -297,11 +297,9 @@ class Medoo
 		return '"' . $this->prefix . $table . '"';
 	}
 
-	protected function mapKey($type, &$index, $dimension = 0)
+	protected function mapKey()
 	{
-		$index++;
-
-		return ':MeDoO_' . $type . '_' . $index . '_' . $dimension;
+		return uniqid(':MeDoO_', true);
 	}
 
 	protected function columnQuote($string)
@@ -389,14 +387,13 @@ class Medoo
 			$this->quote($string);
 	}
 
-	protected function dataImplode($data, &$map, $conjunctor, $dimension = 0)
+	protected function dataImplode($data, &$map, $conjunctor)
 	{
 		$wheres = [];
-		$index = 0;
 
 		foreach ($data as $key => $value)
 		{
-			$map_key = $this->mapKey('where', $index);
+			$map_key = $this->mapKey();
 
 			$type = gettype($value);
 
@@ -406,7 +403,7 @@ class Medoo
 			)
 			{
 				$wheres[] = 0 !== count(array_diff_key($value, array_keys(array_keys($value)))) ?
-					'(' . $this->dataImplode($value, $map, ' ' . $relation_match[ 1 ], $dimension++) . ')' :
+					'(' . $this->dataImplode($value, $map, ' ' . $relation_match[ 1 ]) . ')' :
 					'(' . $this->innerConjunct($value, $map, ' ' . $relation_match[ 1 ], $conjunctor) . ')';
 			}
 			else
@@ -951,6 +948,7 @@ class Medoo
 		$stack = [];
 		$columns = [];
 		$fields = [];
+		$map = [];
 
 		// Check indexed or associative array
 		if (!isset($datas[ 0 ]))
@@ -968,17 +966,13 @@ class Medoo
 
 		$columns = array_unique($columns);
 
-		$section = 0;
-		$map = [];
-
 		foreach ($datas as $data)
 		{
 			$values = [];
-			$index = 0;
 
 			foreach ($columns as $key)
 			{
-				$map_key =$this->mapKey('insert', $index, $section);
+				$map_key =$this->mapKey();
 
 				$values[] = $map_key;
 
@@ -1024,8 +1018,6 @@ class Medoo
 			}
 
 			$stack[] = '(' . implode($values, ', ') . ')';
-
-			$section++;
 		}
 
 		foreach ($columns as $key)
@@ -1040,11 +1032,10 @@ class Medoo
 	{
 		$fields = [];
 		$map = [];
-		$index = 0;
 
 		foreach ($data as $key => $value)
 		{
-			$map_key = $this->mapKey('update', $index);
+			$map_key = $this->mapKey();
 
 			preg_match('/([\w]+)(\[(\+|\-|\*|\/)\])?/i', $key, $match);
 
@@ -1106,7 +1097,6 @@ class Medoo
 	public function replace($table, $columns, $where = null)
 	{
 		$map = [];
-		$index = 0;
 
 		if (is_array($columns))
 		{
@@ -1116,23 +1106,19 @@ class Medoo
 			{
 				if (is_array($replacements[ 0 ]))
 				{
-					$dimension = 0;
-
 					foreach ($replacements as $replacement)
 					{
-						$map_key = $this->mapKey('replace', $index, $dimension);
+						$map_key = $this->mapKey();
 
 						$replace_query[] = $this->columnQuote($column) . ' = REPLACE(' . $this->columnQuote($column) . ', ' . $map_key . 'a, ' . $map_key . 'b)';
 
 						$map[ $map_key . 'a' ] = [$replacement[ 0 ], PDO::PARAM_STR];
 						$map[ $map_key . 'b' ] = [$replacement[ 1 ], PDO::PARAM_STR];
-
-						$dimension++;
 					}
 				}
 				else
 				{
-					$map_key = $this->mapKey('replace', $index);
+					$map_key = $this->mapKey();
 
 					$replace_query[] = $this->columnQuote($column) . ' = REPLACE(' . $this->columnQuote($column) . ', ' . $map_key . 'a, ' . $map_key . 'b)';
 
