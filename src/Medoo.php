@@ -299,7 +299,7 @@ class Medoo
 
 	protected function mapKey()
 	{
-		return uniqid(':MeDoO_', true);
+		return ':MeDoO_' . uniqid();
 	}
 
 	protected function columnQuote($string)
@@ -620,9 +620,10 @@ class Medoo
 				if (is_array($MATCH) && isset($MATCH[ 'columns' ], $MATCH[ 'keyword' ]))
 				{
 					$columns = str_replace('.', '"."', implode($MATCH[ 'columns' ], '", "'));
-					$keywords = $this->quote($MATCH[ 'keyword' ]);
+					$map_key = $this->mapKey();
+					$map[ $map_key ] = [$MATCH[ 'keyword' ], PDO::PARAM_STR];
 
-					$where_clause .= ($where_clause != '' ? ' AND ' : ' WHERE ') . ' MATCH ("' . $columns . '") AGAINST (' . $keywords . ')';
+					$where_clause .= ($where_clause != '' ? ' AND ' : ' WHERE') . ' MATCH ("' . $columns . '") AGAINST (' . $map_key . ')';
 				}
 			}
 
