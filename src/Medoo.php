@@ -619,11 +619,25 @@ class Medoo
 
 				if (is_array($MATCH) && isset($MATCH[ 'columns' ], $MATCH[ 'keyword' ]))
 				{
-					$columns = str_replace('.', '"."', implode($MATCH[ 'columns' ], '", "'));
+					$mode = '';
+
+					$mode_array = [
+						"natural" => "IN NATURAL LANGUAGE MODE",
+						"natural+query" => "IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION",
+						"boolean" => "IN BOOLEAN MODE",
+						"query" => "WITH QUERY EXPANSION"
+					];
+
+					if (isset($MATCH[ 'mode' ]) && isset($mode_array[ $MATCH[ 'mode' ] ]))
+					{
+						$mode = ' ' . $mode_array[ $MATCH[ 'mode' ] ];
+					}
+
+					$columns = implode(array_map([$this, 'columnQuote'], $MATCH[ 'columns' ]), ', ');
 					$map_key = $this->mapKey();
 					$map[ $map_key ] = [$MATCH[ 'keyword' ], PDO::PARAM_STR];
 
-					$where_clause .= ($where_clause != '' ? ' AND ' : ' WHERE') . ' MATCH ("' . $columns . '") AGAINST (' . $map_key . ')';
+					$where_clause .= ($where_clause != '' ? ' AND ' : ' WHERE') . ' MATCH (' . $columns . ') AGAINST (' . $map_key . $mode . ')';
 				}
 			}
 
