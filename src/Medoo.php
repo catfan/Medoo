@@ -622,13 +622,13 @@ class Medoo
 					$mode = '';
 
 					$mode_array = [
-						"natural" => "IN NATURAL LANGUAGE MODE",
-						"natural+query" => "IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION",
-						"boolean" => "IN BOOLEAN MODE",
-						"query" => "WITH QUERY EXPANSION"
+						'natural' => 'IN NATURAL LANGUAGE MODE',
+						'natural+query' => 'IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION',
+						'boolean' => 'IN BOOLEAN MODE',
+						'query' => 'WITH QUERY EXPANSION'
 					];
 
-					if (isset($MATCH[ 'mode' ]) && isset($mode_array[ $MATCH[ 'mode' ] ]))
+					if (isset($MATCH[ 'mode' ], $mode_array[ $MATCH[ 'mode' ] ]))
 					{
 						$mode = ' ' . $mode_array[ $MATCH[ 'mode' ] ];
 					}
