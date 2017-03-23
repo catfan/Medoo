@@ -1006,12 +1006,10 @@ class Medoo
 							break;
 
 						case 'array':
-							preg_match("/\(JSON\)\s*([\w]+)/i", $key, $column_match);
-
 							$map[ $map_key ] = [
-								isset($column_match[ 0 ]) ?
-									$this->quote(json_encode($value)) :
-									$this->quote(serialize($value)),
+								strpos($key, '(JSON)') === 0 ?
+									json_encode($value) :
+									serialize($value),
 								PDO::PARAM_STR
 							];
 							break;
@@ -1073,12 +1071,10 @@ class Medoo
 						break;
 
 					case 'array':
-						preg_match("/\(JSON\)\s*([\w]+)/i", $key, $column_match);
-
 						$map[ $map_key ] = [
-							isset($column_match[ 0 ]) ?
-								$this->quote(json_encode($value)) :
-								$this->quote(serialize($value)),
+							strpos($key, '(JSON)') === 0 ?
+								json_encode($value) :
+								serialize($value),
 							PDO::PARAM_STR
 						];
 						break;
