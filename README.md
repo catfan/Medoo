@@ -66,6 +66,40 @@ $database->insert('account', [
 ]);
 ```
 
+**To use the class Result**
+```php
+// **To use the class Result**
+use Medoo\Result;
+
+// Initialize
+$database = new Result([
+    'database_type' => 'mysql',
+    'database_name' => 'name',
+    'server' => 'localhost',
+    'username' => 'your_username',
+    'password' => 'your_password',
+    'charset' => 'utf8'
+]);
+
+// Enjoy
+$database->insert('account', [
+    'user_name' => 'foo',
+    'email' => 'foo@bar.com',
+    'age' => 25,
+    'lang' => ['en', 'fr', 'jp', 'cn']
+]);
+
+// To get
+$query = $database->query("SELECT * FROM `TABLE`");
+
+print_r($query->row); // To first record
+print_r($query->rows); // To all records
+print_r($query->num_rows); // To get records quantity found
+
+print_r($database->countAffected()); // To get a number of records affected last query
+
+```
+
 ## Contribution Guides
 
 For most of time, Medoo is using develop branch for adding feature and fixing bug, and the branch will be merged into master branch while releasing a public version. For contribution, submit your code to the develop branch, and start a pull request into it.
