@@ -248,6 +248,10 @@ class Medoo
 						$map[ $key ] = [null, PDO::PARAM_NULL];
 						break;
 
+					case 'resource':
+						$map[ $key ] = [$value, PDO::PARAM_LOB];
+						break;
+
 					case 'boolean':
 						$map[ $key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
 						break;
@@ -1040,6 +1044,10 @@ class Medoo
 							];
 							break;
 
+						case 'resource':
+							$map[ $map_key ] = [$value, PDO::PARAM_LOB];
+							break;
+
 						case 'boolean':
 							$map[ $map_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
 							break;
@@ -1103,6 +1111,10 @@ class Medoo
 								serialize($value),
 							PDO::PARAM_STR
 						];
+						break;
+
+					case 'resource':
+						$map[ $map_key ] = [$value, PDO::PARAM_LOB];
 						break;
 
 					case 'boolean':
