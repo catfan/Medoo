@@ -236,9 +236,35 @@ class Medoo
 		}
 	}
 
-	public function query($query, $map)
+	public function query($query, $map = [])
 	{
-		$this->exec($query, $map);
+		if (!empty($map))
+		{
+			foreach ($map as $key => $value)
+			{
+				switch (gettype($value))
+				{
+					case 'NULL':
+						$map[ $key ] = [null, PDO::PARAM_NULL];
+						break;
+
+					case 'boolean':
+						$map[ $key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
+						break;
+
+					case 'integer':
+					case 'double':
+						$map[ $key ] = [$value, PDO::PARAM_INT];
+						break;
+
+					case 'string':
+						$map[ $key ] = [$value, PDO::PARAM_STR];
+						break;
+				}
+			}
+		}
+
+		return $this->exec($query, $map);
 	}
 
 	public function exec($query, $map)
@@ -1226,7 +1252,7 @@ class Medoo
 	{
 		$map = [];
 
-		$query = $this->query($this->selectContext($table, $map, $join, $column, $where, 'MAX'), $map);
+		$query = $this->exec($this->selectContext($table, $map, $join, $column, $where, 'MAX'), $map);
 
 		if ($query)
 		{
@@ -1244,7 +1270,7 @@ class Medoo
 	{
 		$map = [];
 
-		$query = $this->query($this->selectContext($table, $map, $join, $column, $where, 'MIN'), $map);
+		$query = $this->exec($this->selectContext($table, $map, $join, $column, $where, 'MIN'), $map);
 
 		if ($query)
 		{
@@ -1262,7 +1288,7 @@ class Medoo
 	{
 		$map = [];
 
-		$query = $this->query($this->selectContext($table, $map, $join, $column, $where, 'AVG'), $map);
+		$query = $this->exec($this->selectContext($table, $map, $join, $column, $where, 'AVG'), $map);
 
 		return $query ? 0 + $query->fetchColumn() : false;
 	}
@@ -1271,7 +1297,7 @@ class Medoo
 	{
 		$map = [];
 
-		$query = $this->query($this->selectContext($table, $map, $join, $column, $where, 'SUM'), $map);
+		$query = $this->exec($this->selectContext($table, $map, $join, $column, $where, 'SUM'), $map);
 
 		return $query ? 0 + $query->fetchColumn() : false;
 	}
