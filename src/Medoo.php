@@ -32,9 +32,9 @@ class Medoo
 		try {
 			if (is_array($options))
 			{
-				if (isset($options['database_type']))
+				if (isset($options[ 'database_type' ]))
 				{
-					$this->database_type = strtolower($options['database_type']);
+					$this->database_type = strtolower($options[ 'database_type' ]);
 				}
 			}
 			else
@@ -42,30 +42,30 @@ class Medoo
 				return false;
 			}
 
-			if (isset($options['prefix']))
+			if (isset($options[ 'prefix' ]))
 			{
-				$this->prefix = $options['prefix'];
+				$this->prefix = $options[ 'prefix' ];
 			}
 
-			if (isset($options['option']))
+			if (isset($options[ 'option' ]))
 			{
-				$this->option = $options['option'];
+				$this->option = $options[ 'option' ];
 			}
 
-			if (isset($options['command']) && is_array($options['command']))
+			if (isset($options[ 'command' ]) && is_array($options[ 'command' ]))
 			{
-				$commands = $options['command'];
+				$commands = $options[ 'command' ];
 			}
 			else
 			{
 				$commands = [];
 			}
 
-			if (isset($options['dsn']))
+			if (isset($options[ 'dsn' ]))
 			{
-				if (isset($options['dsn']['driver']))
+				if (isset($options[ 'dsn' ][ 'driver' ]))
 				{
-					$attr = $options['dsn'];
+					$attr = $options[ 'dsn' ];
 				}
 				else
 				{
@@ -75,11 +75,11 @@ class Medoo
 			else
 			{
 				if (
-					isset($options['port']) &&
-					is_int($options['port'] * 1)
+					isset($options[ 'port' ]) &&
+					is_int($options[ 'port' ] * 1)
 				)
 				{
-					$port = $options['port'];
+					$port = $options[ 'port' ];
 				}
 
 				$is_port = isset($port);
@@ -90,20 +90,20 @@ class Medoo
 					case 'mysql':
 						$attr = [
 							'driver' => 'mysql',
-							'dbname' => $options['database_name']
+							'dbname' => $options[ 'database_name' ]
 						];
 
-						if (isset($options['socket']))
+						if (isset($options[ 'socket' ]))
 						{
-							$attr['unix_socket'] = $options['socket'];
+							$attr[ 'unix_socket' ] = $options[ 'socket' ];
 						}
 						else
 						{
-							$attr['host'] = $options['server'];
+							$attr[ 'host' ] = $options[ 'server' ];
 
 							if ($is_port)
 							{
-								$attr['port'] = $port;
+								$attr[ 'port' ] = $port;
 							}
 						}
 
@@ -114,13 +114,13 @@ class Medoo
 					case 'pgsql':
 						$attr = [
 							'driver' => 'pgsql',
-							'host' => $options['server'],
-							'dbname' => $options['database_name']
+							'host' => $options[ 'server' ],
+							'dbname' => $options[ 'database_name' ]
 						];
 
 						if ($is_port)
 						{
-							$attr['port'] = $port;
+							$attr[ 'port' ] = $port;
 						}
 
 						break;
@@ -128,13 +128,13 @@ class Medoo
 					case 'sybase':
 						$attr = [
 							'driver' => 'dblib',
-							'host' => $options['server'],
-							'dbname' => $options['database_name']
+							'host' => $options[ 'server' ],
+							'dbname' => $options[ 'database_name' ]
 						];
 
 						if ($is_port)
 						{
-							$attr['port'] = $port;
+							$attr[ 'port' ] = $port;
 						}
 
 						break;
@@ -142,14 +142,14 @@ class Medoo
 					case 'oracle':
 						$attr = [
 							'driver' => 'oci',
-							'dbname' => $options['server'] ?
-								'//' . $options['server'] . ($is_port ? ':' . $port : ':1521') . '/' . $options['database_name'] :
-								$options['database_name']
+							'dbname' => $options[ 'server' ] ?
+								'//' . $options[ 'server' ] . ($is_port ? ':' . $port : ':1521') . '/' . $options[ 'database_name' ] :
+								$options[ 'database_name' ]
 						];
 
-						if (isset($options['charset']))
+						if (isset($options[ 'charset' ]))
 						{
-							$attr['charset'] = $options['charset'];
+							$attr[ 'charset' ] = $options[ 'charset' ];
 						}
 
 						break;
@@ -159,22 +159,22 @@ class Medoo
 						{
 							$attr = [
 								'driver' => 'sqlsrv',
-								'server' => $options['server'],
-								'database' => $options['database_name']
+								'server' => $options[ 'server' ],
+								'database' => $options[ 'database_name' ]
 							];
 						}
 						else
 						{
 							$attr = [
 								'driver' => 'dblib',
-								'host' => $options['server'],
-								'dbname' => $options['database_name']
+								'host' => $options[ 'server' ],
+								'dbname' => $options[ 'database_name' ]
 							];
 						}
 
 						if ($is_port)
 						{
-							$attr['port'] = $port;
+							$attr[ 'port' ] = $port;
 						}
 
 						// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
@@ -185,15 +185,15 @@ class Medoo
 						break;
 
 					case 'sqlite':
-						$this->pdo = new PDO('sqlite:' . $options['database_file'], null, null, $this->option);
+						$this->pdo = new PDO('sqlite:' . $options[ 'database_file' ], null, null, $this->option);
 
 						return $this;
 				}
 			}
 
-			$driver = $attr['driver'];
+			$driver = $attr[ 'driver' ];
 
-			unset($attr['driver']);
+			unset($attr[ 'driver' ]);
 
 			$stack = [];
 
@@ -213,16 +213,16 @@ class Medoo
 
 			if (
 				in_array($this->database_type, ['mariadb', 'mysql', 'pgsql', 'sybase', 'mssql']) &&
-				$options['charset']
+				$options[ 'charset' ]
 			)
 			{
-				$commands[] = "SET NAMES '" . $options['charset'] . "'";
+				$commands[] = "SET NAMES '" . $options[ 'charset' ] . "'";
 			}
 
 			$this->pdo = new PDO(
 				$dsn,
-				$options['username'],
-				$options['password'],
+				$options[ 'username' ],
+				$options[ 'password' ],
 				$this->option
 			);
 
@@ -346,7 +346,7 @@ class Medoo
 
 	protected function columnPush(&$columns)
 	{
-		if ($columns == '*')
+		if ($columns === '*')
 		{
 			return $columns;
 		}
@@ -429,7 +429,7 @@ class Medoo
 
 			if (
 				preg_match("/^(AND|OR)(\s+#.*)?$/i", $key, $relation_match) &&
-				$type == 'array'
+				$type === 'array'
 			)
 			{
 				$wheres[] = 0 !== count(array_diff_key($value, array_keys(array_keys($value)))) ?
@@ -456,7 +456,7 @@ class Medoo
 					{
 						$operator = $match[ 4 ];
 
-						if ($operator == '!')
+						if ($operator === '!')
 						{
 							switch ($type)
 							{
@@ -486,33 +486,27 @@ class Medoo
 							}
 						}
 
-						if ($operator == '<>' || $operator == '><')
+						if ($operator === '<>' || $operator === '><')
 						{
-							if ($type == 'array')
+							if ($type === 'array')
 							{
-								if ($operator == '><')
+								if ($operator === '><')
 								{
 									$column .= ' NOT';
 								}
 
 								$wheres[] = '(' . $column . ' BETWEEN ' . $map_key . 'a AND ' . $map_key . 'b)';
 
-								if (is_numeric($value[ 0 ]) && is_numeric($value[ 1 ]))
-								{
-									$map[ $map_key . 'a' ] = [$value[ 0 ], PDO::PARAM_INT];
-									$map[ $map_key . 'b' ] = [$value[ 1 ], PDO::PARAM_INT];
-								}
-								else
-								{
-									$map[ $map_key . 'a' ] = [$value[ 0 ], PDO::PARAM_STR];
-									$map[ $map_key . 'b' ] = [$value[ 1 ], PDO::PARAM_STR];
-								}
+								$data_type = (is_numeric($value[ 0 ]) && is_numeric($value[ 1 ])) ? PDO::PARAM_INT : PDO::PARAM_STR;
+
+								$map[ $map_key . 'a' ] = [$value[ 0 ], $data_type];
+								$map[ $map_key . 'b' ] = [$value[ 1 ], $data_type];
 							}
 						}
 
-						if ($operator == '~' || $operator == '!~')
+						if ($operator === '~' || $operator === '!~')
 						{
-							if ($type != 'array')
+							if ($type !== 'array')
 							{
 								$value = [$value];
 							}
@@ -522,7 +516,7 @@ class Medoo
 
 							if (is_array($stack[0]))
 							{
-								if (isset($value['AND']) || isset($value['OR']))
+								if (isset($value[ 'AND' ]) || isset($value[ 'OR' ]))
 								{
 									$connector = ' ' . array_keys($value)[0] . ' ';
 									$value = $stack[0];
@@ -621,11 +615,11 @@ class Medoo
 				['AND', 'OR', 'GROUP', 'ORDER', 'HAVING', 'LIMIT', 'LIKE', 'MATCH']
 			));
 
-			if ($single_condition != [])
+			if ($single_condition !== [])
 			{
 				$condition = $this->dataImplode($single_condition, $map, ' AND');
 
-				if ($condition != '')
+				if ($condition !== '')
 				{
 					$where_clause = ' WHERE ' . $condition;
 				}
@@ -667,7 +661,7 @@ class Medoo
 					$map_key = $this->mapKey();
 					$map[ $map_key ] = [$MATCH[ 'keyword' ], PDO::PARAM_STR];
 
-					$where_clause .= ($where_clause != '' ? ' AND ' : ' WHERE') . ' MATCH (' . $columns . ') AGAINST (' . $map_key . $mode . ')';
+					$where_clause .= ($where_clause !== '' ? ' AND ' : ' WHERE') . ' MATCH (' . $columns . ') AGAINST (' . $map_key . $mode . ')';
 				}
 			}
 
@@ -741,7 +735,7 @@ class Medoo
 		}
 		else
 		{
-			if ($where != null)
+			if ($where !== null)
 			{
 				$where_clause .= ' ' . $where;
 			}
@@ -787,7 +781,7 @@ class Medoo
 			{
 				preg_match('/(\[(\<|\>|\>\<|\<\>)\])?([a-zA-Z0-9_\-]*)\s?(\(([a-zA-Z0-9_\-]*)\))?/', $sub_table, $match);
 
-				if ($match[ 2 ] != '' && $match[ 3 ] != '')
+				if ($match[ 2 ] !== '' && $match[ 3 ] !== '')
 				{
 					if (is_string($relation))
 					{
@@ -871,7 +865,7 @@ class Medoo
 
 		if (isset($column_fn))
 		{
-			if ($column_fn == 1)
+			if ($column_fn === 1)
 			{
 				$column = '1';
 
@@ -917,7 +911,7 @@ class Medoo
 				}
 				else
 				{
-					$this->dataMap(false, preg_replace('/^[\w]*\./i', "", $sub_value), $sub_key, $data, $sub_stack);
+					$this->dataMap(false, preg_replace('/^[\w]*\./i', '', $sub_value), $sub_key, $data, $sub_stack);
 
 					$stack[ $index ][ $key ] = $sub_stack;
 				}
@@ -943,7 +937,7 @@ class Medoo
 
 	public function select($table, $join, $columns = null, $where = null)
 	{
-		$column = $where == null ? $join : $columns;
+		$column = $where === null ? $join : $columns;
 
 		$is_single_column = (is_string($column) && $column !== '*');
 		
@@ -976,7 +970,7 @@ class Medoo
 			{
 				if (!is_array($value))
 				{
-					$value = preg_replace('/^[\w]*\./i', "", $value);
+					$value = preg_replace('/^[\w]*\./i', '', $value);
 				}
 
 				$this->dataMap($index, $key, $value, $row, $stack);
@@ -1069,7 +1063,7 @@ class Medoo
 
 		foreach ($columns as $key)
 		{
-			$fields[] = $this->columnQuote(preg_replace("/^(\(JSON\)\s*|#)/i", "", $key));
+			$fields[] = $this->columnQuote(preg_replace("/^(\(JSON\)\s*|#)/i", '', $key));
 		}
 
 		return $this->exec('INSERT INTO ' . $this->tableQuote($table) . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $stack), $map);
@@ -1095,7 +1089,7 @@ class Medoo
 			}
 			else
 			{
-				$column = $this->columnQuote(preg_replace("/^(\(JSON\)\s*|#)/i", "", $key));
+				$column = $this->columnQuote(preg_replace("/^(\(JSON\)\s*|#)/i", '', $key));
 				$fields[] = $column . ' = ' . $map_key;
 
 				switch (gettype($value))
@@ -1184,7 +1178,7 @@ class Medoo
 
 	public function get($table, $join = null, $columns = null, $where = null)
 	{
-		$column = $where == null ? $join : $columns;
+		$column = $where === null ? $join : $columns;
 
 		$is_single_column = (is_string($column) && $column !== '*');
 
@@ -1200,7 +1194,7 @@ class Medoo
 			{
 				if ($is_single_column)
 				{
-					return $data[ 0 ][ preg_replace('/^[\w]*\./i', "", $column) ];
+					return $data[ 0 ][ preg_replace('/^[\w]*\./i', '', $column) ];
 				}
 				
 				if ($column === '*')
@@ -1214,7 +1208,7 @@ class Medoo
 				{
 					if (!is_array($value))
 					{
-						$value = preg_replace('/^[\w]*\./i', "", $value);
+						$value = preg_replace('/^[\w]*\./i', '', $value);
 					}
 
 					$this->dataMap(0, $key, $value, $data[ 0 ], $stack);
@@ -1339,11 +1333,11 @@ class Medoo
 
 	public function id()
 	{
-		if ($this->database_type == 'oracle')
+		if ($this->database_type === 'oracle')
 		{
 			return 0;
 		}
-		elseif ($this->database_type == 'mssql')
+		elseif ($this->database_type === 'mssql')
 		{
 			return $this->pdo->query('SELECT SCOPE_IDENTITY()')->fetchColumn();
 		}
