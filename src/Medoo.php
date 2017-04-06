@@ -25,6 +25,8 @@ class Medoo
 	// Variable
 	protected $logs = [];
 
+	protected $logging = false;
+
 	protected $debug_mode = false;
 
 	public function __construct($options = null)
@@ -50,6 +52,11 @@ class Medoo
 			if (isset($options[ 'option' ]))
 			{
 				$this->option = $options[ 'option' ];
+			}
+
+			if (isset($options[ 'logging' ]) && is_bool($options[ 'logging' ]))
+			{
+				$this->logging = $options[ 'logging' ];
 			}
 
 			if (isset($options[ 'command' ]) && is_array($options[ 'command' ]))
@@ -282,7 +289,14 @@ class Medoo
 			return false;
 		}
 
-		$this->logs[] = [$query, $map];
+		if ($this->logging)
+		{
+			$this->logs[] = [$query, $map];
+		}
+		else
+		{
+			$this->logs = [[$query, $map]];
+		}
 
 		$statement = $this->pdo->prepare($query);
 
