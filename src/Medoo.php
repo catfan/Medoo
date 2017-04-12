@@ -1219,6 +1219,10 @@ class Medoo
 		{
 			return $this->pdo->query('SELECT SCOPE_IDENTITY()')->fetchColumn();
 		}
+		elseif($this->database_type == 'pgsql')
+		{
+			return $this->pdo->query('SELECT lastval()')->fetchColumn();
+		}
 
 		return $this->pdo->lastInsertId();
 	}
