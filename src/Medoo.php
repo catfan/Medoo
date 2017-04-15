@@ -380,17 +380,17 @@ class Medoo
 			}
 			else
 			{
-				preg_match('/([a-zA-Z0-9_\-\.]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $value, $match);
+				preg_match('/(?<column>[\w\-\.]*)(?:\s*\((?<alias>[\w\-]+)\)|\s*\[(?<type>(String|Bool|Int|Number))\])?/i', $value, $match);
 
-				if (isset($match[ 1 ], $match[ 2 ]))
+				if (!empty($match[ 'alias' ]))
 				{
-					$stack[] = $this->columnQuote( $match[ 1 ] ) . ' AS ' . $this->columnQuote( $match[ 2 ] );
+					$stack[] = $this->columnQuote( $match[ 'column' ] ) . ' AS ' . $this->columnQuote( $match[ 'alias' ] );
 
-					$columns[ $key ] = $match[ 2 ];
+					$columns[ $key ] = $match[ 'alias' ];
 				}
 				else
 				{
-					$stack[] = $this->columnQuote( $value );
+					$stack[] = $this->columnQuote( $match[ 'column' ] );
 				}
 			}
 		}
@@ -907,44 +907,124 @@ class Medoo
 		return 'SELECT ' . $column . ' FROM ' . $table_query . $this->whereClause($where, $map);
 	}
 
-	protected function dataMap($index, $key, $value, $data, &$stack)
+	protected function dataMap($key, $index, $value, $data, &$column_map, &$stack)
 	{
+		if (
+			!is_int($key) &&
+			!isset($column_map[ $key ])
+		)
+		{
+			preg_match('/(?<column>[\w\-\.]*)(?:\s*\((?<alias>[\w\-]+)\)|\s*\[(?<type>(String|Bool|Int|Number))\])?/i', $key, $key_match);
+
+			$column_key = !empty($key_match[ 'alias' ]) ?
+				$key_match[ 'alias' ] :
+				preg_replace('/^[\w]*\./i', '', $key_match[ 'column' ]);
+
+			if (isset($key_match[ 'type' ]))
+			{
+				$column_map[ $key ] = [$column_key, $key_match[ 'type' ]];
+			}
+			else
+			{
+				$column_map[ $key ] = [$column_key];
+			}
+		}
+
 		if (is_array($value))
 		{
-			$sub_stack = [];
-
 			foreach ($value as $sub_key => $sub_value)
 			{
 				if (is_array($sub_value))
 				{
-					$current_stack = $stack[ $index ][ $key ];
+					if ($index !== false && isset($stack[ $index ][ $key ]))
+					{
+						$current_stack = $stack[ $index ][ $key ];
 
-					$this->dataMap(false, $sub_key, $sub_value, $data, $current_stack);
+						$this->dataMap($sub_key, false, $sub_value, $data, $column_map, $current_stack);
+						$stack[ $index ][ $sub_key ] = $current_stack[ 0 ][ $sub_key ];
+					}
+					else
+					{
+						if ($index === false)
+						{
+							$current_stack = isset($stack[ 0 ]) ? $stack[ 0 ][ $key ] : $stack[ $key ];
 
-					$stack[ $index ][ $key ][ $sub_key ] = $current_stack[ 0 ][ $sub_key ];
+							$this->dataMap($sub_key, false, $sub_value, $data, $column_map, $current_stack);
+
+							$stack[ 0 ][ $key ] = $current_stack;
+						}
+						else
+						{
+							$stack[ $index ][ $key ] = [];
+							$current_stack = [];
+
+							$this->dataMap($sub_key, false, $sub_value, $data, $column_map, $current_stack);
+						
+							$stack[ $index ][ $key ] = $current_stack[ 0 ];
+						}
+					}
 				}
 				else
 				{
-					$this->dataMap(false, preg_replace('/^[\w]*\./i', '', $sub_value), $sub_key, $data, $sub_stack);
+					if (isset($stack[ $index ][ $key ]))
+					{
+						$sub_stack = $stack[ $index ][ $key ];
 
-					$stack[ $index ][ $key ] = $sub_stack;
+						$this->dataMap($sub_value, false, $sub_key, $data, $column_map, $sub_stack);
+
+						$stack[ $index ][ $key ] = $sub_stack;
+					}
+					else
+					{
+						$sub_stack = isset($stack[ $key ]) ? $stack[ $key ] : [];
+
+						if ($index === false)
+						{
+							$this->dataMap($sub_value, false, $sub_key, $data, $column_map, $sub_stack);
+							$stack[ $key ] = $sub_stack;
+						}
+						else
+						{
+							$this->dataMap($sub_value, $index, $sub_key, $data, $column_map, $sub_stack);
+							$stack[ $index ][ $key ] = $sub_stack;
+						}
+					}
 				}
 			}
 		}
 		else
 		{
-			if ($index !== false)
+			if ($index !== false && $value)
 			{
 				$stack[ $index ][ $value ] = $data[ $value ];
 			}
 			else
 			{
-				if (preg_match('/[a-zA-Z0-9_\-\.]*\s*\(([a-zA-Z0-9_\-]*)\)/i', $key, $key_match))
-				{
-					$key = $key_match[ 1 ];
-				}
+				$map = $column_map[ $key ];
+				$key = $map[ 0 ];
 
-				$stack[ $key ] = $data[ $key ];
+				if (isset($map[ 1 ]))
+				{
+					switch ($map[ 1 ])
+					{
+						case 'Number':
+						case 'Int':
+							$stack[ $key ] = (int) $data[ $key ];
+							break;
+
+						case 'Bool':
+							$stack[ $key ] = (bool) $data[ $key ];
+							break;
+						
+						case 'String':
+							$stack[ $key ] = $data[ $key ];
+							break;
+					}
+				}
+				else
+				{
+					$stack[ $key ] = $data[ $key ];
+				}
 			}
 		}
 	}
@@ -962,6 +1042,8 @@ class Medoo
 		$stack = [];
 
 		$index = 0;
+
+		$column_map = [];
 
 		if (!$query)
 		{
@@ -987,7 +1069,7 @@ class Medoo
 					$value = preg_replace('/^[\w]*\./i', '', $value);
 				}
 
-				$this->dataMap($index, $key, $value, $row, $stack);
+				$this->dataMap($key, $index, $value, $row, $column_map, $stack);
 			}
 
 			$index++;
@@ -1198,6 +1280,8 @@ class Medoo
 
 		$map = [];
 
+		$column_map = [];
+
 		$query = $this->exec($this->selectContext($table, $map, $join, $columns, $where) . ' LIMIT 1', $map);
 
 		if ($query)
@@ -1225,7 +1309,7 @@ class Medoo
 						$value = preg_replace('/^[\w]*\./i', '', $value);
 					}
 
-					$this->dataMap(0, $key, $value, $data[ 0 ], $stack);
+					$this->dataMap($key, 0, $value, $data[ 0 ], $column_map, $stack);
 				}
 
 				return $stack[ 0 ];
