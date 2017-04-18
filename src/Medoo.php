@@ -380,7 +380,7 @@ class Medoo
 			}
 			else
 			{
-				preg_match('/(?<column>[\w\-\.]*)(?:\s*\((?<alias>[\w\-]+)\)|\s*\[(?<type>(String|Bool|Int|Number))\])?/i', $value, $match);
+				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number))\])?/i', $value, $match);
 
 				if (!empty($match[ 'alias' ]))
 				{
@@ -454,21 +454,19 @@ class Medoo
 			{
 				if (
 					is_int($key) &&
-					preg_match('/([\w\.\-]+)\[(\>|\>\=|\<|\<\=|\!|\=)\]([\w\.\-]+)/i', $value, $match)
+					preg_match('/([a-zA-Z0-9_\.]+)\[(?<operator>\>|\>\=|\<|\<\=|\!|\=)\]([a-zA-Z0-9_\.]+)/i', $value, $match)
 				)
-				{
-					$operator = $match[ 2 ];
-					
-					$wheres[] = $this->columnQuote($match[ 1 ]) . ' ' . $operator . ' ' . $this->columnQuote($match[ 3 ]);
+				{					
+					$wheres[] = $this->columnQuote($match[ 1 ]) . ' ' . $match[ 'operator' ] . ' ' . $this->columnQuote($match[ 3 ]);
 				}
 				else
 				{
-					preg_match('/(#?)([\w\.\-]+)(\[(\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
+					preg_match('/(#?)([a-zA-Z0-9_\.]+)(\[(?<operator>\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
 					$column = $this->columnQuote($match[ 2 ]);
 
-					if (isset($match[ 4 ]))
+					if (isset($match[ 'operator' ]))
 					{
-						$operator = $match[ 4 ];
+						$operator = $match[ 'operator' ];
 
 						if ($operator === '!')
 						{
@@ -522,18 +520,18 @@ class Medoo
 						{
 							if ($type !== 'array')
 							{
-								$value = [$value];
+								$value = [ $value ];
 							}
 
 							$connector = ' OR ';
 							$stack = array_values($value);
 
-							if (is_array($stack[0]))
+							if (is_array($stack[ 0 ]))
 							{
 								if (isset($value[ 'AND' ]) || isset($value[ 'OR' ]))
 								{
-									$connector = ' ' . array_keys($value)[0] . ' ';
-									$value = $stack[0];
+									$connector = ' ' . array_keys($value)[ 0 ] . ' ';
+									$value = $stack[ 0 ];
 								}
 							}
 
@@ -760,13 +758,13 @@ class Medoo
 
 	protected function selectContext($table, &$map, $join, &$columns = null, $where = null, $column_fn = null)
 	{
-		preg_match('/([a-zA-Z0-9_\-]*)\s*\(([a-zA-Z0-9_\-]*)\)/i', $table, $table_match);
+		preg_match('/(?<table>[a-zA-Z0-9_]+)\s*\((?<alias>[a-zA-Z0-9_]+)\)/i', $table, $table_match);
 
-		if (isset($table_match[ 1 ], $table_match[ 2 ]))
+		if (isset($table_match[ 'table' ], $table_match[ 'alias' ]))
 		{
-			$table = $this->tableQuote($table_match[ 1 ]);
+			$table = $this->tableQuote($table_match[ 'table' ]);
 
-			$table_query = $table . ' AS ' . $this->tableQuote($table_match[ 2 ]);
+			$table_query = $table . ' AS ' . $this->tableQuote($table_match[ 'alias' ]);
 		}
 		else
 		{
@@ -793,9 +791,9 @@ class Medoo
 
 			foreach($join as $sub_table => $relation)
 			{
-				preg_match('/(\[(\<|\>|\>\<|\<\>)\])?([a-zA-Z0-9_\-]*)\s?(\(([a-zA-Z0-9_\-]*)\))?/', $sub_table, $match);
+				preg_match('/(\[(?<join>\<|\>|\>\<|\<\>)\])?(?<table>[a-zA-Z0-9_]+)\s?(\((?<alias>[a-zA-Z0-9_]+)\))?/', $sub_table, $match);
 
-				if ($match[ 2 ] !== '' && $match[ 3 ] !== '')
+				if ($match[ 'join' ] !== '' && $match[ 'table' ] !== '')
 				{
 					if (is_string($relation))
 					{
@@ -824,21 +822,21 @@ class Medoo
 										$table . '."' . $key . '"'
 								) .
 								' = ' .
-								$this->tableQuote(isset($match[ 5 ]) ? $match[ 5 ] : $match[ 3 ]) . '."' . $value . '"';
+								$this->tableQuote(isset($match[ 'alias' ]) ? $match[ 'alias' ] : $match[ 'table' ]) . '."' . $value . '"';
 							}
 
 							$relation = 'ON ' . implode($joins, ' AND ');
 						}
 					}
 
-					$table_name = $this->tableQuote($match[ 3 ]) . ' ';
+					$table_name = $this->tableQuote($match[ 'table' ]) . ' ';
 
-					if (isset($match[ 5 ]))
+					if (isset($match[ 'alias' ]))
 					{
-						$table_name .= 'AS ' . $this->tableQuote($match[ 5 ]) . ' ';
+						$table_name .= 'AS ' . $this->tableQuote($match[ 'alias' ]) . ' ';
 					}
 
-					$table_join[] = $join_array[ $match[ 2 ] ] . ' JOIN ' . $table_name . $relation;
+					$table_join[] = $join_array[ $match[ 'join' ] ] . ' JOIN ' . $table_name . $relation;
 				}
 			}
 
@@ -1066,7 +1064,7 @@ class Medoo
 			{
 				if (!is_array($value))
 				{
-					$value = preg_replace('/^[\w]*\./i', '', $value);
+					$value = preg_replace('/^[a-zA-Z0-9_]+\./i', '', $value);
 				}
 
 				$this->dataMap($key, $index, $value, $row, $column_map, $stack);
@@ -1174,13 +1172,13 @@ class Medoo
 		{
 			$map_key = $this->mapKey();
 
-			preg_match('/([\w]+)(\[(\+|\-|\*|\/)\])?/i', $key, $match);
+			preg_match('/(?<column>[a-zA-Z0-9_]+)(\[(?<operator>\+|\-|\*|\/)\])?/i', $key, $match);
 
-			if (isset($match[ 3 ]))
+			if (isset($match[ 'operator' ]))
 			{
 				if (is_numeric($value))
 				{
-					$fields[] = $this->columnQuote($match[ 1 ]) . ' = ' . $this->columnQuote($match[ 1 ]) . ' ' . $match[ 3 ] . ' ' . $value;
+					$fields[] = $this->columnQuote($match[ 'column' ]) . ' = ' . $this->columnQuote($match[ 'column' ]) . ' ' . $match[ 'operator' ] . ' ' . $value;
 				}
 			}
 			else
@@ -1292,7 +1290,7 @@ class Medoo
 			{
 				if ($is_single_column)
 				{
-					return $data[ 0 ][ preg_replace('/^[\w]*\./i', '', $column) ];
+					return $data[ 0 ][ preg_replace('/^[a-zA-Z0-9_]+\./i', '', $column) ];
 				}
 				
 				if ($column === '*')
@@ -1306,7 +1304,7 @@ class Medoo
 				{
 					if (!is_array($value))
 					{
-						$value = preg_replace('/^[\w]*\./i', '', $value);
+						$value = preg_replace('/^[a-zA-Z0-9_]+\./i', '', $value);
 					}
 
 					$this->dataMap($key, 0, $value, $data[ 0 ], $column_map, $stack);
