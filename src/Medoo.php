@@ -1241,11 +1241,6 @@ class Medoo
 
 			if (isset($data[ 0 ]))
 			{
-				if ($is_single_column)
-				{
-					return $data[ 0 ][ preg_replace('/^[a-zA-Z0-9_]+\./i', '', $column) ];
-				}
-				
 				if ($column === '*')
 				{
 					return $data[ 0 ];
@@ -1254,6 +1249,11 @@ class Medoo
 				$this->columnMap($columns, $column_map);
 
 				$this->dataMap($data[ 0 ], $columns, $column_map, $stack);
+
+				if ($is_single_column)
+				{
+					return $stack[ $column_map[ $column ][ 0 ] ];
+				}
 
 				return $stack;
 			}
