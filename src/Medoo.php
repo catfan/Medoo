@@ -907,11 +907,6 @@ class Medoo
 
 	protected function columnMap($columns, &$stack)
 	{
-		if (empty($stack))
-		{
-			$stack = [];
-		}
-
 		foreach ($columns as $key => $value)
 		{
 			if (is_int($key))
