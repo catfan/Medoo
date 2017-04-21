@@ -388,7 +388,7 @@ class Medoo
 				)
 				{
 					$operator = $match[ 2 ];
-					
+
 					$wheres[] = $this->columnQuote($match[ 1 ]) . ' ' . $operator . ' ' . $this->columnQuote($match[ 3 ]);
 				}
 				else
@@ -418,7 +418,12 @@ class Medoo
 									break;
 
 								case 'boolean':
-									$wheres[] = $column . ' != ' . ($value ? '1' : '0');
+									if ($this->database_type === 'pgsql') {
+										$value = $value ? 'true' : 'false';
+									} else {
+										$value = $value ? '1' : '0';
+									}
+									$wheres[] = $column . ' != ' . $value;
 									break;
 
 								case 'string':
@@ -521,7 +526,12 @@ class Medoo
 								break;
 
 							case 'boolean':
-								$wheres[] = $column . ' = ' . ($value ? '1' : '0');
+								if ($this->database_type === 'pgsql') {
+									$value = $value ? 'true' : 'false';
+								} else {
+									$value = $value ? '1' : '0';
+								}
+								$wheres[] = $column . ' = ' . $value;
 								break;
 
 							case 'string':
@@ -860,7 +870,7 @@ class Medoo
 		$column = $where == null ? $join : $columns;
 
 		$is_single_column = (is_string($column) && $column !== '*');
-		
+
 		$query = $this->query($this->selectContext($table, $join, $columns, $where));
 
 		$stack = [];
@@ -951,7 +961,12 @@ class Medoo
 							break;
 
 						case 'boolean':
-							$values[] = ($value ? '1' : '0');
+							if ($this->database_type === 'pgsql') {
+								$value = $value ? 'true' : 'false';
+							} else {
+								$value = $value ? '1' : '0';
+							}
+							$values[] = $value;
 							break;
 
 						case 'integer':
@@ -1008,7 +1023,12 @@ class Medoo
 						break;
 
 					case 'boolean':
-						$fields[] = $column . ' = ' . ($value ? '1' : '0');
+						if ($this->database_type === 'pgsql') {
+							$value = $value ? 'true' : 'false';
+						} else {
+							$value = $value ? '1' : '0';
+						}
+						$fields[] = $column . ' = ' . $value;
 						break;
 
 					case 'integer':
@@ -1086,7 +1106,7 @@ class Medoo
 				{
 					return $data[ 0 ][ preg_replace('/^[\w]*\./i', "", $column) ];
 				}
-				
+
 				if ($column === '*')
 				{
 					return $data[ 0 ];
