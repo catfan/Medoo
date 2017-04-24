@@ -419,9 +419,9 @@ class Medoo
 
 								case 'boolean':
 									if ($this->database_type === 'pgsql') {
-										$wheres[] = $column . ' IS NOT ' . $value ? 'true' : 'false';
+										$wheres[] = $column . ' IS NOT ' . ($value ? 'true' : 'false');
 									} else {
-										$wheres[] = $column . ' != ' . $value ? '1' : '0';
+										$wheres[] = $column . ' != ' . ($value ? '1' : '0');
 									}
 									break;
 
@@ -526,9 +526,9 @@ class Medoo
 
 							case 'boolean':
 								if ($this->database_type === 'pgsql') {
-									$wheres[] = $column . ' IS ' . $value ? 'true' : 'false';
+									$wheres[] = $column . ' IS ' . ($value ? 'true' : 'false');
 								} else {
-									$wheres[] = $column . ' = ' . $value ? '1' : '0';
+									$wheres[] = $column . ' = ' . ($value ? '1' : '0');
 								}
 								break;
 
@@ -959,12 +959,11 @@ class Medoo
 							break;
 
 						case 'boolean':
-							if ($this->database_type === 'pgsql') {
-								$value = $value ? 'true' : 'false';
+						    if ($this->database_type === 'pgsql') {
+						        $values[] = ($value ? 'true' : 'false');
 							} else {
-								$value = $value ? '1' : '0';
+							    $values[] = ($value ? '1' : '0');
 							}
-							$values[] = $value;
 							break;
 
 						case 'integer':
@@ -1009,11 +1008,7 @@ class Medoo
 				switch (gettype($value))
 				{
 					case 'NULL':
-						if ($this->database_type === 'pgsql') {
-							$fields[] = $column . ' IS NULL';
-						} else {
-							$fields[] = $column . ' = NULL';
-						}
+						$fields[] = $column . ' = NULL';
 						break;
 
 					case 'array':
@@ -1026,9 +1021,9 @@ class Medoo
 
 					case 'boolean':
 						if ($this->database_type === 'pgsql') {
-							$fields[] = $column . ' IS ' . $value ? 'true' : 'false';
+							$fields[] = $column . ' = ' . ($value ? 'true' : 'false');
 						} else {
-							$fields[] = $column . ' = ' . $value ? '1' : '0';
+							$fields[] = $column . ' = ' . ($value ? '1' : '0');
 						}
 						break;
 
