@@ -166,22 +166,17 @@ class Medoo
 						{
 							$attr = [
 								'driver' => 'sqlsrv',
-								'server' => $options[ 'server' ],
-								'database' => $options[ 'database_name' ]
+								'Server' => $options[ 'server' ] . ($is_port ? ',' . $port : ''),
+								'Database' => $options[ 'database_name' ]
 							];
 						}
 						else
 						{
 							$attr = [
 								'driver' => 'dblib',
-								'host' => $options[ 'server' ],
+								'host' => $options[ 'server' ] . ($is_port ? ':' . $port : ''),
 								'dbname' => $options[ 'database_name' ]
 							];
-						}
-
-						if ($is_port)
-						{
-							$attr[ 'port' ] = $port;
 						}
 
 						// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
