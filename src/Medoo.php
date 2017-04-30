@@ -674,7 +674,23 @@ class Medoo
 
 			if (isset($where[ 'GROUP' ]))
 			{
-				$where_clause .= ' GROUP BY ' . $this->columnQuote($where[ 'GROUP' ]);
+				$GROUP = $where[ 'GROUP' ];
+
+				if (is_array($GROUP))
+				{
+					$stack = [];
+
+					foreach ($GROUP as $column => $value)
+					{
+						$stack[] = $this->columnQuote($value);
+					}
+
+					$where_clause .= ' GROUP BY ' . implode($stack, ',');
+				}
+				else
+				{
+					$where_clause .= ' GROUP BY ' . $this->columnQuote($where[ 'GROUP' ]);
+				}
 
 				if (isset($where[ 'HAVING' ]))
 				{
