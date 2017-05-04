@@ -375,7 +375,7 @@ class Medoo
 			}
 			else
 			{
-				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number))\])?/i', $value, $match);
+				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number|Object))\])?/i', $value, $match);
 
 				if (!empty($match[ 'alias' ]))
 				{
@@ -451,7 +451,7 @@ class Medoo
 					is_int($key) &&
 					preg_match('/([a-zA-Z0-9_\.]+)\[(?<operator>\>|\>\=|\<|\<\=|\!|\=)\]([a-zA-Z0-9_\.]+)/i', $value, $match)
 				)
-				{					
+				{
 					$wheres[] = $this->columnQuote($match[ 1 ]) . ' ' . $match[ 'operator' ] . ' ' . $this->columnQuote($match[ 3 ]);
 				}
 				else
@@ -922,7 +922,7 @@ class Medoo
 		{
 			if (is_int($key))
 			{
-				preg_match('/(?<column>[a-zA-Z0-9_\.]*)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number))\])?/i', $value, $key_match);
+				preg_match('/(?<column>[a-zA-Z0-9_\.]*)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number|Object))\])?/i', $value, $key_match);
 
 				$column_key = !empty($key_match[ 'alias' ]) ?
 					$key_match[ 'alias' ] :
@@ -967,7 +967,11 @@ class Medoo
 						case 'Bool':
 							$stack[ $column_key ] = (bool) $data[ $column_key ];
 							break;
-						
+
+						case 'Object':
+							$stack[ $column_key ] = unserialize($data[ $column_key ]);
+							break;
+
 						case 'String':
 							$stack[ $column_key ] = $data[ $column_key ];
 							break;
@@ -1069,13 +1073,13 @@ class Medoo
 
 				$values[] = $map_key;
 
-				if (!isset($data[$key]))
+				if (!isset($data[ $key ]))
 				{
 					$map[ $map_key ] = [null, PDO::PARAM_NULL];
 				}
 				else
 				{
-					$value = $data[$key];
+					$value = $data[ $key ];
 
 					switch (gettype($value))
 					{
@@ -1090,6 +1094,10 @@ class Medoo
 									serialize($value),
 								PDO::PARAM_STR
 							];
+							break;
+
+						case 'object':
+							$map[ $map_key ] = [serialize($value), PDO::PARAM_STR];
 							break;
 
 						case 'resource':
@@ -1159,6 +1167,10 @@ class Medoo
 								serialize($value),
 							PDO::PARAM_STR
 						];
+						break;
+
+					case 'object':
+						$map[ $map_key ] = [serialize($value), PDO::PARAM_STR];
 						break;
 
 					case 'resource':
