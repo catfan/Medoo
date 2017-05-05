@@ -343,7 +343,7 @@ class Medoo
 
 	protected function columnQuote($string)
 	{
-		preg_match('/(\(JSON\)\s*|^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)/', $string, $column_match);
+		preg_match('/(^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)(\s*\[JSON\]$)?/', $string, $column_match);
 
 		if (isset($column_match[ 2 ], $column_match[ 3 ]))
 		{
@@ -375,7 +375,7 @@ class Medoo
 			}
 			else
 			{
-				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number|Object))\])?/i', $value, $match);
+				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number|Object|JSON))\])?/i', $value, $match);
 
 				if (!empty($match[ 'alias' ]))
 				{
@@ -922,7 +922,7 @@ class Medoo
 		{
 			if (is_int($key))
 			{
-				preg_match('/(?<column>[a-zA-Z0-9_\.]*)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number|Object))\])?/i', $value, $key_match);
+				preg_match('/(?<column>[a-zA-Z0-9_\.]*)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number|Object|JSON))\])?/i', $value, $key_match);
 
 				$column_key = !empty($key_match[ 'alias' ]) ?
 					$key_match[ 'alias' ] :
@@ -970,6 +970,10 @@ class Medoo
 
 						case 'Object':
 							$stack[ $column_key ] = unserialize($data[ $column_key ]);
+							break;
+
+						case 'JSON':
+							$stack[ $column_key ] = json_decode($data[ $column_key ], true);
 							break;
 
 						case 'String':
@@ -1089,7 +1093,7 @@ class Medoo
 
 						case 'array':
 							$map[ $map_key ] = [
-								strpos($key, '(JSON)') === 0 ?
+								strpos($key, '[JSON]') === strlen($key) - 6 ?
 									json_encode($value) :
 									serialize($value),
 								PDO::PARAM_STR
@@ -1125,7 +1129,7 @@ class Medoo
 
 		foreach ($columns as $key)
 		{
-			$fields[] = $this->columnQuote(preg_replace("/^(\(JSON\)\s*|#)/i", '', $key));
+			$fields[] = $this->columnQuote(preg_replace("/(^#|\s*\[JSON\]$)/i", '', $key));
 		}
 
 		return $this->exec('INSERT INTO ' . $this->tableQuote($table) . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $stack), $map);
@@ -1151,7 +1155,7 @@ class Medoo
 			}
 			else
 			{
-				$column = $this->columnQuote(preg_replace("/^(\(JSON\)\s*|#)/i", '', $key));
+				$column = $this->columnQuote(preg_replace("/(^#|\s*\[JSON\]$)/i", '', $key));
 				$fields[] = $column . ' = ' . $map_key;
 
 				switch (gettype($value))
@@ -1162,7 +1166,7 @@ class Medoo
 
 					case 'array':
 						$map[ $map_key ] = [
-							strpos($key, '(JSON)') === 0 ?
+							strpos($key, '[JSON]') === strlen($key) - 6 ?
 								json_encode($value) :
 								serialize($value),
 							PDO::PARAM_STR
