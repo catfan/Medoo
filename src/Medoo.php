@@ -215,7 +215,7 @@ class Medoo
 
 			if (
 				in_array($this->database_type, ['mariadb', 'mysql', 'pgsql', 'sybase', 'mssql']) &&
-				$options[ 'charset' ]
+				isset($options[ 'charset' ])
 			)
 			{
 				$commands[] = "SET NAMES '" . $options[ 'charset' ] . "'";
