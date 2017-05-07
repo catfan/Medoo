@@ -10,15 +10,15 @@
 
 ## Main Features
 
-* **Lightweight** - 26KB around with only one file.
+* **Lightweight** - 32KB around with only one file.
 
 * **Easy** - Extremely easy to learn and use, friendly construction.
 
-* **Powerful** - Support various common and complex SQL queries, data mapping, and prevent SQL injection.
+* **Powerful** - Supports various common and complex SQL queries, data mapping, and prevent SQL injection.
 
-* **Compatible** - Support all SQL databases, including MySQL, MSSQL, SQLite, MariaDB, Sybase, Oracle, PostgreSQL and more.
+* **Compatible** - Supports all SQL databases, including MySQL, MSSQL, SQLite, MariaDB, Sybase, Oracle, PostgreSQL and more.
 
-* **Friendly** - Work well with every PHP frameworks, like Laravel, Codeigniter, Yii, Slim, and framework which supports singleton extension.
+* **Friendly** - Works well with every PHP frameworks, like Laravel, Codeigniter, Yii, Slim, and framework which supports singleton extension.
 
 * **Free** - Under MIT license, you can use it anywhere if you want.
 
@@ -53,17 +53,30 @@ $database = new Medoo([
     'database_name' => 'name',
     'server' => 'localhost',
     'username' => 'your_username',
-    'password' => 'your_password',
-    'charset' => 'utf8'
+    'password' => 'your_password'
 ]);
 
 // Enjoy
 $database->insert('account', [
     'user_name' => 'foo',
-    'email' => 'foo@bar.com',
-    'age' => 25,
-    'lang' => ['en', 'fr', 'jp', 'cn']
+    'email' => 'foo@bar.com'
 ]);
+
+$data = $database->select('account', [
+    'user_name',
+    'email'
+], [
+    'user_id' => 50
+]);
+
+echo json_encode($data);
+
+// [
+//     {
+//         "user_name" : "foo",
+//         "email" : "foo@bar.com",
+//     }
+// ]
 ```
 
 ## Contribution Guides
@@ -80,6 +93,6 @@ Medoo is under the MIT license.
 
 ## Links
 
-* Official website: [http://medoo.in](http://medoo.in)
+* Official website: [https://medoo.in](https://medoo.in)
 
-* Documentation: [http://medoo.in/doc](http://medoo.in/doc)
+* Documentation: [https://medoo.in/doc](https://medoo.in/doc)
