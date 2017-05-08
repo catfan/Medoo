@@ -11,6 +11,8 @@ namespace Medoo;
  */
 
 use PDO;
+use Exception;
+use PDOException;
 
 class Medoo
 {
@@ -234,6 +236,7 @@ class Medoo
 			}
 		}
 		catch (PDOException $e) {
+			var_dump($e);
 			throw new Exception($e->getMessage());
 		}
 	}
@@ -735,7 +738,7 @@ class Medoo
 				)
 				{
 					$LIMIT = $where[ 'LIMIT' ];
-					
+
 					if (is_numeric($LIMIT))
 					{
 						$where_clause .= ' FETCH FIRST ' . $LIMIT . ' ROWS ONLY';
