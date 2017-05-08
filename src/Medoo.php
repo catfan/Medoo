@@ -191,7 +191,7 @@ class Medoo
 					case 'sqlite':
 						$this->pdo = new PDO('sqlite:' . $options[ 'database_file' ], null, null, $this->option);
 
-						return $this;
+						return;
 				}
 			}
 
@@ -236,7 +236,6 @@ class Medoo
 			}
 		}
 		catch (PDOException $e) {
-			var_dump($e);
 			throw new Exception($e->getMessage());
 		}
 	}
@@ -363,12 +362,12 @@ class Medoo
 			return $columns;
 		}
 
+		$stack = [];
+
 		if (is_string($columns))
 		{
 			$columns = [$columns];
 		}
-
-		$stack = [];
 
 		foreach ($columns as $key => $value)
 		{
@@ -398,26 +397,26 @@ class Medoo
 
 	protected function arrayQuote($array)
 	{
-		$temp = [];
+		$stack = [];
 
 		foreach ($array as $value)
 		{
-			$temp[] = is_int($value) ? $value : $this->pdo->quote($value);
+			$stack[] = is_int($value) ? $value : $this->pdo->quote($value);
 		}
 
-		return implode($temp, ',');
+		return implode($stack, ',');
 	}
 
 	protected function innerConjunct($data, $map, $conjunctor, $outer_conjunctor)
 	{
-		$haystack = [];
+		$stack = [];
 
 		foreach ($data as $value)
 		{
-			$haystack[] = '(' . $this->dataImplode($value, $map, $conjunctor) . ')';
+			$stack[] = '(' . $this->dataImplode($value, $map, $conjunctor) . ')';
 		}
 
-		return implode($outer_conjunctor . ' ', $haystack);
+		return implode($outer_conjunctor . ' ', $stack);
 	}
 
 	protected function fnQuote($column, $string)
@@ -625,7 +624,7 @@ class Medoo
 				['AND', 'OR', 'GROUP', 'ORDER', 'HAVING', 'LIMIT', 'LIKE', 'MATCH']
 			));
 
-			if ($single_condition !== [])
+			if (!empty($single_condition))
 			{
 				$condition = $this->dataImplode($single_condition, $map, ' AND');
 
@@ -1018,12 +1017,10 @@ class Medoo
 	public function select($table, $join, $columns = null, $where = null)
 	{
 		$map = [];
-
 		$stack = [];
+		$column_map = [];
 
 		$index = 0;
-
-		$column_map = [];
 
 		$column = $where === null ? $join : $columns;
 
@@ -1267,11 +1264,7 @@ class Medoo
 	public function get($table, $join = null, $columns = null, $where = null)
 	{
 		$map = [];
-
-		$column_map = [];
-
 		$stack = [];
-
 		$column_map = [];
 
 		$column = $where === null ? $join : $columns;
@@ -1315,9 +1308,8 @@ class Medoo
 
 	public function has($table, $join, $where = null)
 	{
-		$column = null;
-
 		$map = [];
+		$column = null;
 
 		$query = $this->exec('SELECT EXISTS(' . $this->selectContext($table, $map, $join, $column, $where, 1) . ')', $map);
 
@@ -1449,7 +1441,7 @@ class Medoo
 
 	public function last()
 	{
-		$log = $this->logs[ count($this->logs) - 1 ];
+		$log = end($this->logs);
 
 		return $this->generate($log[ 0 ], $log[ 1 ]);
 	}
@@ -1458,9 +1450,9 @@ class Medoo
 	{
 		$stack = [];
 
-		for ($index = 0, $length = count($this->logs); $index < $length; $index++)
+		foreach ($this->logs as $index => $data)
 		{
-			$log = $this->logs[ count($this->logs) - 1 ];
+			$log = $this->logs[ $index ];
 
 			$stack[] = $this->generate($log[ 0 ], $log[ 1 ]);
 		}
