@@ -1,14 +1,14 @@
 <?php
-namespace Medoo;
-
 /*!
  * Medoo database framework
- * http://medoo.in
+ * https://medoo.in
  * Version 1.2.1
  *
  * Copyright 2017, Angel Lai
  * Released under the MIT license
  */
+
+namespace Medoo;
 
 use PDO;
 use Exception;
@@ -16,15 +16,12 @@ use PDOException;
 
 class Medoo
 {
-	// General
 	protected $database_type;
 
-	// Optional
 	protected $prefix;
 
 	protected $option = [];
 
-	// Variable
 	protected $logs = [];
 
 	protected $logging = false;
@@ -1066,7 +1063,6 @@ class Medoo
 		$fields = [];
 		$map = [];
 
-		// Check indexed or associative array
 		if (!isset($datas[ 0 ]))
 		{
 			$datas = [$datas];
@@ -1411,15 +1407,17 @@ class Medoo
 
 	public function id()
 	{
-		if ($this->database_type === 'oracle')
+		$type = $this->database_type;
+
+		if ($type === 'oracle')
 		{
 			return 0;
 		}
-		elseif ($this->database_type === 'mssql')
+		elseif ($type === 'mssql')
 		{
 			return $this->pdo->query('SELECT SCOPE_IDENTITY()')->fetchColumn();
 		}
-		elseif ($this->database_type === 'pgsql')
+		elseif ($type === 'pgsql')
 		{
 			return $this->pdo->query('SELECT LASTVAL()')->fetchColumn();
 		}
@@ -1448,16 +1446,12 @@ class Medoo
 
 	public function log()
 	{
-		$stack = [];
-
-		foreach ($this->logs as $index => $data)
-		{
-			$log = $this->logs[ $index ];
-
-			$stack[] = $this->generate($log[ 0 ], $log[ 1 ]);
-		}
-
-		return $stack;
+		return array_map(function ($log)
+			{
+				return $this->generate($log[ 0 ], $log[ 1 ]);
+			},
+			$this->logs
+		);
 	}
 
 	public function info()
