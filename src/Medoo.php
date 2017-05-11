@@ -272,7 +272,7 @@ class Medoo
 		return $this->exec($query, $map);
 	}
 
-	public function exec($query, $map)
+	public function exec($query, $map = [])
 	{
 		if ($this->debug_mode)
 		{
