@@ -28,6 +28,8 @@ class Medoo
 
 	protected $debug_mode = false;
 
+	protected $guid = 0;
+
 	public function __construct($options = null)
 	{
 		try {
@@ -337,7 +339,7 @@ class Medoo
 
 	protected function mapKey()
 	{
-		return ':MeDoO_' . uniqid();
+		return ':MeDoO_' . $this->guid++;
 	}
 
 	protected function columnQuote($string)
