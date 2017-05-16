@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * https://medoo.in
- * Version 1.4.1
+ * Version 1.4.2
  *
  * Copyright 2017, Angel Lai
  * Released under the MIT license
@@ -27,6 +27,8 @@ class Medoo
 	protected $logging = false;
 
 	protected $debug_mode = false;
+
+	protected $guid = 0;
 
 	public function __construct($options = null)
 	{
@@ -337,7 +339,7 @@ class Medoo
 
 	protected function mapKey()
 	{
-		return ':MeDoO_' . uniqid();
+		return ':MeDoOmEdOo_' . $this->guid++;
 	}
 
 	protected function columnQuote($string)
