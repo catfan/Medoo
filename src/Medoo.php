@@ -339,7 +339,7 @@ class Medoo
 
 	protected function mapKey()
 	{
-		return ':MeDoO_' . $this->guid++;
+		return ':MeDoOmEdOo_' . $this->guid++;
 	}
 
 	protected function columnQuote($string)
