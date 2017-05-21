@@ -20,6 +20,8 @@ class Medoo
 
 	protected $prefix;
 
+	protected $statement;
+
 	protected $option = [];
 
 	protected $logs = [];
@@ -302,6 +304,8 @@ class Medoo
 		}
 
 		$statement->execute();
+
+		$this->statement = $statement;
 
 		return $statement;
 	}
@@ -1441,7 +1445,7 @@ class Medoo
 
 	public function error()
 	{
-		return $this->pdo->errorInfo();
+		return $this->statement->errorInfo();
 	}
 
 	public function last()
