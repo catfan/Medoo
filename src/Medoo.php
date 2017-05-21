@@ -1095,6 +1095,12 @@ class Medoo
 
 			foreach ($columns as $key)
 			{
+				if (strpos($key, '#') === 0)
+				{
+					$values[] = $this->fnQuote($key, $data[ $key ]);	
+					continue;
+				}
+
 				$map_key =$this->mapKey();
 
 				$values[] = $map_key;
@@ -1164,6 +1170,13 @@ class Medoo
 
 		foreach ($data as $key => $value)
 		{
+			if (strpos($key, '#') === 0)
+			{
+				$column = $this->columnQuote(preg_replace("/(^#|\s*\[JSON\]$)/i", '', $key));	
+				$fields[] = $column . ' = ' . $value;
+				continue;
+			}
+
 			$map_key = $this->mapKey();
 
 			preg_match('/(?<column>[a-zA-Z0-9_]+)(\[(?<operator>\+|\-|\*|\/)\])?/i', $key, $match);
