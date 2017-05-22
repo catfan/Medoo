@@ -1170,9 +1170,10 @@ class Medoo
 
 		foreach ($data as $key => $value)
 		{
+			$column = $this->columnQuote(preg_replace("/(^#|\s*\[(JSON|\+|\-|\*|\/)\]$)/i", '', $key));
+
 			if (strpos($key, '#') === 0)
 			{
-				$column = $this->columnQuote(preg_replace("/(^#|\s*\[JSON\]$)/i", '', $key));	
 				$fields[] = $column . ' = ' . $value;
 				continue;
 			}
@@ -1185,12 +1186,11 @@ class Medoo
 			{
 				if (is_numeric($value))
 				{
-					$fields[] = $this->columnQuote($match[ 'column' ]) . ' = ' . $this->columnQuote($match[ 'column' ]) . ' ' . $match[ 'operator' ] . ' ' . $value;
+					$fields[] = $column . ' = ' . $column . ' ' . $match[ 'operator' ] . ' ' . $value;
 				}
 			}
 			else
 			{
-				$column = $this->columnQuote(preg_replace("/(^#|\s*\[JSON\]$)/i", '', $key));
 				$fields[] = $column . ' = ' . $map_key;
 
 				switch (gettype($value))
