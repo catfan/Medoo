@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * https://medoo.in
- * Version 1.4.2
+ * Version 1.4.3
  *
  * Copyright 2017, Angel Lai
  * Released under the MIT license
@@ -19,6 +19,8 @@ class Medoo
 	protected $database_type;
 
 	protected $prefix;
+
+	protected $statement;
 
 	protected $option = [];
 
@@ -302,6 +304,8 @@ class Medoo
 		}
 
 		$statement->execute();
+
+		$this->statement = $statement;
 
 		return $statement;
 	}
@@ -1091,6 +1095,12 @@ class Medoo
 
 			foreach ($columns as $key)
 			{
+				if (strpos($key, '#') === 0)
+				{
+					$values[] = $this->fnQuote($key, $data[ $key ]);	
+					continue;
+				}
+
 				$map_key =$this->mapKey();
 
 				$values[] = $map_key;
@@ -1160,6 +1170,14 @@ class Medoo
 
 		foreach ($data as $key => $value)
 		{
+			$column = $this->columnQuote(preg_replace("/(^#|\s*\[(JSON|\+|\-|\*|\/)\]$)/i", '', $key));
+
+			if (strpos($key, '#') === 0)
+			{
+				$fields[] = $column . ' = ' . $value;
+				continue;
+			}
+
 			$map_key = $this->mapKey();
 
 			preg_match('/(?<column>[a-zA-Z0-9_]+)(\[(?<operator>\+|\-|\*|\/)\])?/i', $key, $match);
@@ -1168,12 +1186,11 @@ class Medoo
 			{
 				if (is_numeric($value))
 				{
-					$fields[] = $this->columnQuote($match[ 'column' ]) . ' = ' . $this->columnQuote($match[ 'column' ]) . ' ' . $match[ 'operator' ] . ' ' . $value;
+					$fields[] = $column . ' = ' . $column . ' ' . $match[ 'operator' ] . ' ' . $value;
 				}
 			}
 			else
 			{
-				$column = $this->columnQuote(preg_replace("/(^#|\s*\[JSON\]$)/i", '', $key));
 				$fields[] = $column . ' = ' . $map_key;
 
 				switch (gettype($value))
@@ -1441,7 +1458,7 @@ class Medoo
 
 	public function error()
 	{
-		return $this->pdo->errorInfo();
+		return $this->statement->errorInfo();
 	}
 
 	public function last()
