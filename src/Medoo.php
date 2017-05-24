@@ -1422,6 +1422,8 @@ class Medoo
 			{
 				$this->pdo->commit();
 			}
+			
+			return $result;
 		}
 		else
 		{
