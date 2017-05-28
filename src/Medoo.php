@@ -1458,7 +1458,7 @@ class Medoo
 
 	public function error()
 	{
-		return $this->statement->errorInfo();
+		return $this->statement ? $this->statement->errorInfo() : null;
 	}
 
 	public function last()
