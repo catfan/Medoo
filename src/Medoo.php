@@ -428,12 +428,10 @@ class Medoo
 
 	protected function dataImplode($data, &$map, $conjunctor)
 	{
-		$wheres = [];
+		$stack = [];
 
 		foreach ($data as $key => $value)
 		{
-			$map_key = $this->mapKey();
-
 			$type = gettype($value);
 
 			if (
@@ -441,18 +439,20 @@ class Medoo
 				$type === 'array'
 			)
 			{
-				$wheres[] = 0 !== count(array_diff_key($value, array_keys(array_keys($value)))) ?
+				$stack[] = 0 !== count(array_diff_key($value, array_keys(array_keys($value)))) ?
 					'(' . $this->dataImplode($value, $map, ' ' . $relation_match[ 1 ]) . ')' :
 					'(' . $this->innerConjunct($value, $map, ' ' . $relation_match[ 1 ], $conjunctor) . ')';
 			}
 			else
 			{
+				$map_key = $this->mapKey();
+
 				if (
 					is_int($key) &&
 					preg_match('/([a-zA-Z0-9_\.]+)\[(?<operator>\>|\>\=|\<|\<\=|\!|\=)\]([a-zA-Z0-9_\.]+)/i', $value, $match)
 				)
 				{
-					$wheres[] = $this->columnQuote($match[ 1 ]) . ' ' . $match[ 'operator' ] . ' ' . $this->columnQuote($match[ 3 ]);
+					$stack[] = $this->columnQuote($match[ 1 ]) . ' ' . $match[ 'operator' ] . ' ' . $this->columnQuote($match[ 3 ]);
 				}
 				else
 				{
@@ -462,100 +462,6 @@ class Medoo
 					if (isset($match[ 'operator' ]))
 					{
 						$operator = $match[ 'operator' ];
-
-						if ($operator === '!')
-						{
-							switch ($type)
-							{
-								case 'NULL':
-									$wheres[] = $column . ' IS NOT NULL';
-									break;
-
-								case 'array':
-									$wheres[] = $column . ' NOT IN (' . $this->arrayQuote($value) . ')';
-									break;
-
-								case 'integer':
-								case 'double':
-									$wheres[] = $column . ' != ' . $map_key;
-									$map[ $map_key ] = [$value, PDO::PARAM_INT];
-									break;
-
-								case 'boolean':
-									$wheres[] = $column . ' != ' . $map_key;
-									$map[ $map_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
-									break;
-
-								case 'object':
-									if ($this->isRaw($value))
-									{
-										$wheres[] = $column . ' != ' . $value->value;
-									}
-									break;
-
-								case 'string':
-									$wheres[] = $column . ' != ' . $map_key;
-									$map[ $map_key ] = [$value, PDO::PARAM_STR];
-									break;
-							}
-						}
-
-						if ($operator === '<>' || $operator === '><')
-						{
-							if ($type === 'array')
-							{
-								if ($operator === '><')
-								{
-									$column .= ' NOT';
-								}
-
-								$wheres[] = '(' . $column . ' BETWEEN ' . $map_key . 'a AND ' . $map_key . 'b)';
-
-								$data_type = (is_numeric($value[ 0 ]) && is_numeric($value[ 1 ])) ? PDO::PARAM_INT : PDO::PARAM_STR;
-
-								$map[ $map_key . 'a' ] = [$value[ 0 ], $data_type];
-								$map[ $map_key . 'b' ] = [$value[ 1 ], $data_type];
-							}
-						}
-
-						if ($operator === '~' || $operator === '!~')
-						{
-							if ($type !== 'array')
-							{
-								$value = [ $value ];
-							}
-
-							$connector = ' OR ';
-							$stack = array_values($value);
-
-							if (is_array($stack[ 0 ]))
-							{
-								if (isset($value[ 'AND' ]) || isset($value[ 'OR' ]))
-								{
-									$connector = ' ' . array_keys($value)[ 0 ] . ' ';
-									$value = $stack[ 0 ];
-								}
-							}
-
-							$like_clauses = [];
-
-							foreach ($value as $index => $item)
-							{
-								$map_key .= 'L' . $index;
-
-								$item = strval($item);
-
-								if (!preg_match('/(\[.+\]|_|%.+|.+%)/', $item))
-								{
-									$item = '%' . $item . '%';
-								}
-
-								$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $map_key;
-								$map[ $map_key ] = [$item, PDO::PARAM_STR];
-							}
-
-							$wheres[] = '(' . implode($connector, $like_clauses) . ')';
-						}
 
 						if (in_array($operator, ['>', '>=', '<', '<=']))
 						{
@@ -576,12 +482,102 @@ class Medoo
 								$map[ $map_key ] = [$value, PDO::PARAM_STR];
 							}
 
-							$wheres[] = $condition;
+							$stack[] = $condition;
 						}
-
-						if ($operator === 'REGEXP')
+						elseif ($operator === '!')
 						{
-							$wheres[] = $column . ' REGEXP ' . $map_key;
+							switch ($type)
+							{
+								case 'NULL':
+									$stack[] = $column . ' IS NOT NULL';
+									break;
+
+								case 'array':
+									$stack[] = $column . ' NOT IN (' . $this->arrayQuote($value) . ')';
+									break;
+
+								case 'integer':
+								case 'double':
+									$stack[] = $column . ' != ' . $map_key;
+									$map[ $map_key ] = [$value, PDO::PARAM_INT];
+									break;
+
+								case 'boolean':
+									$stack[] = $column . ' != ' . $map_key;
+									$map[ $map_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
+									break;
+
+								case 'object':
+									if ($this->isRaw($value))
+									{
+										$stack[] = $column . ' != ' . $value->value;
+									}
+									break;
+
+								case 'string':
+									$stack[] = $column . ' != ' . $map_key;
+									$map[ $map_key ] = [$value, PDO::PARAM_STR];
+									break;
+							}
+						}
+						elseif ($operator === '~' || $operator === '!~')
+						{
+							if ($type !== 'array')
+							{
+								$value = [ $value ];
+							}
+
+							$connector = ' OR ';
+							$data = array_values($value);
+
+							if (is_array($data[ 0 ]))
+							{
+								if (isset($value[ 'AND' ]) || isset($value[ 'OR' ]))
+								{
+									$connector = ' ' . array_keys($value)[ 0 ] . ' ';
+									$value = $data[ 0 ];
+								}
+							}
+
+							$like_clauses = [];
+
+							foreach ($value as $index => $item)
+							{
+								$map_key .= 'L' . $index;
+
+								$item = strval($item);
+
+								if (!preg_match('/(\[.+\]|_|%.+|.+%)/', $item))
+								{
+									$item = '%' . $item . '%';
+								}
+
+								$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $map_key;
+								$map[ $map_key ] = [$item, PDO::PARAM_STR];
+							}
+
+							$stack[] = '(' . implode($connector, $like_clauses) . ')';
+						}
+						elseif ($operator === '<>' || $operator === '><')
+						{
+							if ($type === 'array')
+							{
+								if ($operator === '><')
+								{
+									$column .= ' NOT';
+								}
+
+								$stack[] = '(' . $column . ' BETWEEN ' . $map_key . 'a AND ' . $map_key . 'b)';
+
+								$data_type = (is_numeric($value[ 0 ]) && is_numeric($value[ 1 ])) ? PDO::PARAM_INT : PDO::PARAM_STR;
+
+								$map[ $map_key . 'a' ] = [$value[ 0 ], $data_type];
+								$map[ $map_key . 'b' ] = [$value[ 1 ], $data_type];
+							}
+						}
+						elseif ($operator === 'REGEXP')
+						{
+							$stack[] = $column . ' REGEXP ' . $map_key;
 							$map[ $map_key ] = [$value, PDO::PARAM_STR];
 						}
 					}
@@ -590,33 +586,33 @@ class Medoo
 						switch ($type)
 						{
 							case 'NULL':
-								$wheres[] = $column . ' IS NULL';
+								$stack[] = $column . ' IS NULL';
 								break;
 
 							case 'array':
-								$wheres[] = $column . ' IN (' . $this->arrayQuote($value) . ')';
+								$stack[] = $column . ' IN (' . $this->arrayQuote($value) . ')';
 								break;
 
 							case 'integer':
 							case 'double':
-								$wheres[] = $column . ' = ' . $map_key;
+								$stack[] = $column . ' = ' . $map_key;
 								$map[ $map_key ] = [$value, PDO::PARAM_INT];
 								break;
 
 							case 'boolean':
-								$wheres[] = $column . ' = ' . $map_key;
+								$stack[] = $column . ' = ' . $map_key;
 								$map[ $map_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
 								break;
 
 							case 'object':
 								if ($this->isRaw($value))
 								{
-									$wheres[] = $column . ' = ' . $value->value;
+									$stack[] = $column . ' = ' . $value->value;
 								}
 								break;
 
 							case 'string':
-								$wheres[] = $column . ' = ' . $map_key;
+								$stack[] = $column . ' = ' . $map_key;
 								$map[ $map_key ] = [$value, PDO::PARAM_STR];
 								break;
 						}
@@ -625,7 +621,7 @@ class Medoo
 			}
 		}
 
-		return implode($conjunctor . ' ', $wheres);
+		return implode($conjunctor . ' ', $stack);
 	}
 
 	protected function whereClause($where, &$map)
