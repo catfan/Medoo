@@ -14,6 +14,10 @@ use PDO;
 use Exception;
 use PDOException;
 
+class Raw {
+	public $value;
+}
+
 class Medoo
 {
 	protected $database_type;
@@ -348,11 +352,11 @@ class Medoo
 
 	protected function columnQuote($string)
 	{
-		preg_match('/(^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)(\s*\[JSON\]$)?/', $string, $column_match);
+		preg_match('/([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)(\s*\[JSON\]$)?/', $string, $column_match);
 
-		if (isset($column_match[ 2 ], $column_match[ 3 ]))
+		if (isset($column_match[ 1 ], $column_match[ 2 ]))
 		{
-			return '"' . $this->prefix . $column_match[ 2 ] . '"."' . $column_match[ 3 ] . '"';
+			return '"' . $this->prefix . $column_match[ 1 ] . '"."' . $column_match[ 2 ] . '"';
 		}
 
 		return '"' . $string . '"';
@@ -422,15 +426,6 @@ class Medoo
 		return implode($outer_conjunctor . ' ', $stack);
 	}
 
-	protected function fnQuote($column, $string)
-	{
-		return (strpos($column, '#') === 0 && preg_match('/^[A-Z0-9\_]*\([^)]*\)$/', $string)) ?
-
-			$string :
-
-			$this->quote($string);
-	}
-
 	protected function dataImplode($data, &$map, $conjunctor)
 	{
 		$wheres = [];
@@ -461,8 +456,8 @@ class Medoo
 				}
 				else
 				{
-					preg_match('/(#?)([a-zA-Z0-9_\.]+)(\[(?<operator>\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
-					$column = $this->columnQuote($match[ 2 ]);
+					preg_match('/([a-zA-Z0-9_\.]+)(\[(?<operator>\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
+					$column = $this->columnQuote($match[ 1 ]);
 
 					if (isset($match[ 'operator' ]))
 					{
@@ -489,6 +484,13 @@ class Medoo
 								case 'boolean':
 									$wheres[] = $column . ' != ' . $map_key;
 									$map[ $map_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
+									break;
+
+								case 'object':
+									if ($this->isRaw($value))
+									{
+										$wheres[] = $column . ' != ' . $value->value;
+									}
 									break;
 
 								case 'string':
@@ -564,9 +566,9 @@ class Medoo
 								$condition .= $map_key;
 								$map[ $map_key ] = [$value, PDO::PARAM_INT];
 							}
-							elseif (strpos($key, '#') === 0)
+							elseif ($this->isRaw($value))
 							{
-								$condition .= $this->fnQuote($key, $value);
+								$condition .= $value->value;
 							}
 							else
 							{
@@ -598,6 +600,13 @@ class Medoo
 							case 'boolean':
 								$wheres[] = $column . ' = ' . $map_key;
 								$map[ $map_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
+								break;
+
+							case 'object':
+								if ($this->isRaw($value))
+								{
+									$wheres[] = $column . ' = ' . $value->value;
+								}
 								break;
 
 							case 'string':
@@ -692,14 +701,25 @@ class Medoo
 
 					$where_clause .= ' GROUP BY ' . implode($stack, ',');
 				}
+				elseif ($this->isRaw($GROUP))
+				{
+					$where_clause .= ' GROUP BY ' . $GROUP->value;
+				}
 				else
 				{
-					$where_clause .= ' GROUP BY ' . $this->columnQuote($where[ 'GROUP' ]);
+					$where_clause .= ' GROUP BY ' . $this->columnQuote($GROUP);
 				}
 
 				if (isset($where[ 'HAVING' ]))
 				{
-					$where_clause .= ' HAVING ' . $this->dataImplode($where[ 'HAVING' ], $map, ' AND');
+					if ($this->isRaw($where[ 'HAVING' ]))
+					{
+						$where_clause .= ' HAVING ' . $where[ 'HAVING' ]->value;
+					}
+					else
+					{
+						$where_clause .= ' HAVING ' . $this->dataImplode($where[ 'HAVING' ], $map, ' AND');
+					}
 				}
 			}
 
@@ -729,6 +749,10 @@ class Medoo
 
 					$where_clause .= ' ORDER BY ' . implode($stack, ',');
 				}
+				elseif ($this->isRaw($ORDER))
+				{
+					$where_clause .= ' ORDER BY ' . $ORDER->value;	
+				}
 				else
 				{
 					$where_clause .= ' ORDER BY ' . $this->columnQuote($ORDER);
@@ -745,8 +769,7 @@ class Medoo
 					{
 						$where_clause .= ' FETCH FIRST ' . $LIMIT . ' ROWS ONLY';
 					}
-
-					if (
+					elseif (
 						is_array($LIMIT) &&
 						is_numeric($LIMIT[ 0 ]) &&
 						is_numeric($LIMIT[ 1 ])
@@ -765,8 +788,7 @@ class Medoo
 				{
 					$where_clause .= ' LIMIT ' . $LIMIT;
 				}
-
-				if (
+				elseif (
 					is_array($LIMIT) &&
 					is_numeric($LIMIT[ 0 ]) &&
 					is_numeric($LIMIT[ 1 ])
@@ -1095,9 +1117,9 @@ class Medoo
 
 			foreach ($columns as $key)
 			{
-				if (strpos($key, '#') === 0)
+				if ($this->isRaw($data[ $key ]))
 				{
-					$values[] = $this->fnQuote($key, $data[ $key ]);	
+					$values[] = $data[ $key ]->value;
 					continue;
 				}
 
@@ -1157,7 +1179,7 @@ class Medoo
 
 		foreach ($columns as $key)
 		{
-			$fields[] = $this->columnQuote(preg_replace("/(^#|\s*\[JSON\]$)/i", '', $key));
+			$fields[] = $this->columnQuote(preg_replace("/(\s*\[JSON\]$)/i", '', $key));
 		}
 
 		return $this->exec('INSERT INTO ' . $this->tableQuote($table) . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $stack), $map);
@@ -1170,11 +1192,11 @@ class Medoo
 
 		foreach ($data as $key => $value)
 		{
-			$column = $this->columnQuote(preg_replace("/(^#|\s*\[(JSON|\+|\-|\*|\/)\]$)/i", '', $key));
+			$column = $this->columnQuote(preg_replace("/(\s*\[(JSON|\+|\-|\*|\/)\]$)/i", '', $key));
 
-			if (strpos($key, '#') === 0)
+			if ($this->isRaw($value))
 			{
-				$fields[] = $column . ' = ' . $value;
+				$fields[] = $column . ' = ' . $value->value;
 				continue;
 			}
 
@@ -1447,6 +1469,20 @@ class Medoo
 		}
 
 		return $this->pdo->lastInsertId();
+	}
+
+	public static function raw($string)
+	{
+		$raw = new Raw();
+
+		$raw->value = $string;
+
+		return $raw;
+	}
+
+	protected function isRaw($object)
+	{
+		return is_a($object, 'Medoo\Raw');
 	}
 
 	public function debug()
