@@ -456,7 +456,7 @@ class Medoo
 				}
 				else
 				{
-					preg_match('/([a-zA-Z0-9_\.]+)(\[(?<operator>\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
+					preg_match('/([a-zA-Z0-9_\.]+)(\[(?<operator>\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~|REGEXP)\])?/i', $key, $match);
 					$column = $this->columnQuote($match[ 1 ]);
 
 					if (isset($match[ 'operator' ]))
@@ -577,6 +577,12 @@ class Medoo
 							}
 
 							$wheres[] = $condition;
+						}
+
+						if ($operator === 'REGEXP')
+						{
+							$wheres[] = $column . ' REGEXP ' . $map_key;
+							$map[ $map_key ] = [$value, PDO::PARAM_STR];
 						}
 					}
 					else
