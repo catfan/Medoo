@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * https://medoo.in
- * Version 1.4.3
+ * Version 1.4.4
  *
  * Copyright 2017, Angel Lai
  * Released under the MIT license
@@ -464,6 +464,15 @@ class Medoo
 					preg_match('/(#?)([a-zA-Z0-9_\.]+)(\[(?<operator>\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $match);
 					$column = $this->columnQuote($match[ 2 ]);
 
+					if (!empty($match[ 1 ]))
+					{
+						$wheres[] = $column .
+							(isset($match[ 'operator' ]) ? ' ' . $match[ 'operator' ] . ' ' : ' = ') .
+							$this->fnQuote($key, $value);
+
+						continue;
+					}
+
 					if (isset($match[ 'operator' ]))
 					{
 						$operator = $match[ 'operator' ];
@@ -563,10 +572,6 @@ class Medoo
 							{
 								$condition .= $map_key;
 								$map[ $map_key ] = [$value, PDO::PARAM_INT];
-							}
-							elseif (strpos($key, '#') === 0)
-							{
-								$condition .= $this->fnQuote($key, $value);
 							}
 							else
 							{
@@ -1458,7 +1463,7 @@ class Medoo
 
 	public function error()
 	{
-		return $this->statement->errorInfo();
+		return $this->statement ? $this->statement->errorInfo() : null;
 	}
 
 	public function last()
