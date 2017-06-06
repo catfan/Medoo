@@ -1483,6 +1483,11 @@ class Medoo
 		);
 	}
 
+	public function clear_logs()
+	{
+		$this->logs = [];
+	}
+
 	public function info()
 	{
 		$output = [
