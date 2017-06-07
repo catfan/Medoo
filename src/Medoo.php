@@ -548,8 +548,6 @@ class Medoo
 
 							foreach ($value as $index => $item)
 							{
-								$map_key .= 'L' . $index;
-
 								$item = strval($item);
 
 								if (!preg_match('/(\[.+\]|_|%.+|.+%)/', $item))
@@ -557,8 +555,8 @@ class Medoo
 									$item = '%' . $item . '%';
 								}
 
-								$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $map_key;
-								$map[ $map_key ] = [$item, PDO::PARAM_STR];
+								$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $map_key . 'L' . $index;
+								$map[ $map_key . 'L' . $index ] = [$item, PDO::PARAM_STR];
 							}
 
 							$wheres[] = '(' . implode($connector, $like_clauses) . ')';
