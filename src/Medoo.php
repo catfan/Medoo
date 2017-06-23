@@ -298,16 +298,23 @@ class Medoo
 
 		$statement = $this->pdo->prepare($query);
 
-		foreach ($map as $key => $value)
+		if ($statement)
 		{
-			$statement->bindValue($key, $value[ 0 ], $value[ 1 ]);
+			foreach ($map as $key => $value)
+			{
+				$statement->bindValue($key, $value[ 0 ], $value[ 1 ]);
+			}
+
+			$statement->execute();
+
+			$this->statement = $statement;
+
+			return $statement;
 		}
-
-		$statement->execute();
-
-		$this->statement = $statement;
-
-		return $statement;
+		else
+		{
+			return false;
+		}
 	}
 
 	protected function generate($query, $map)
