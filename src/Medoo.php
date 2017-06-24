@@ -1416,6 +1416,20 @@ class Medoo
 		return $query ? 0 + $query->fetchColumn() : false;
 	}
 
+	public function isTable($name)
+	{
+
+		if (empty($name))
+		{
+		  return false;
+		}
+
+		$query = $this->pdo->query("SHOW TABLES LIKE '" . $name . "'");
+
+		return $query ? (bool)$query->rowCount() : false;
+
+	}
+
 	public function action($actions)
 	{
 		if (is_callable($actions))
