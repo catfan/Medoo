@@ -1327,7 +1327,7 @@ class Medoo
 			}
 			else
 			{
-				return false;
+				return [];
 			}
 		}
 		else
