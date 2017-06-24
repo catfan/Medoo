@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * https://medoo.in
- * Version 1.4.4
+ * Version 1.4.5
  *
  * Copyright 2017, Angel Lai
  * Released under the MIT license
@@ -298,16 +298,23 @@ class Medoo
 
 		$statement = $this->pdo->prepare($query);
 
-		foreach ($map as $key => $value)
+		if ($statement)
 		{
-			$statement->bindValue($key, $value[ 0 ], $value[ 1 ]);
+			foreach ($map as $key => $value)
+			{
+				$statement->bindValue($key, $value[ 0 ], $value[ 1 ]);
+			}
+
+			$statement->execute();
+
+			$this->statement = $statement;
+
+			return $statement;
 		}
-
-		$statement->execute();
-
-		$this->statement = $statement;
-
-		return $statement;
+		else
+		{
+			return false;
+		}
 	}
 
 	protected function generate($query, $map)
@@ -343,7 +350,7 @@ class Medoo
 
 	protected function mapKey()
 	{
-		return ':MeDoOmEdOo_' . $this->guid++;
+		return ':MeDoO_' . $this->guid++ . '_mEdOo';
 	}
 
 	protected function columnQuote($string)
@@ -548,8 +555,6 @@ class Medoo
 
 							foreach ($value as $index => $item)
 							{
-								$map_key .= 'L' . $index;
-
 								$item = strval($item);
 
 								if (!preg_match('/(\[.+\]|_|%.+|.+%)/', $item))
@@ -557,8 +562,8 @@ class Medoo
 									$item = '%' . $item . '%';
 								}
 
-								$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $map_key;
-								$map[ $map_key ] = [$item, PDO::PARAM_STR];
+								$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $map_key . 'L' . $index;
+								$map[ $map_key . 'L' . $index ] = [$item, PDO::PARAM_STR];
 							}
 
 							$wheres[] = '(' . implode($connector, $like_clauses) . ')';
