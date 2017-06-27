@@ -389,7 +389,13 @@ class Medoo
 			{
 				$stack[] = $this->columnPush($value);
 			}
-			else
+			elseif (!is_int($key) && $this->isRaw($value))
+			{
+				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(\s*\[(?<type>(String|Bool|Int|Number))\])?/i', $key, $match);
+
+				$stack[] = $value->value . ' AS ' . $this->columnQuote( $match[ 'column' ] );
+			}
+			elseif (is_int($key) && is_string($value))
 			{
 				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number|Object|JSON))\])?/i', $value, $match);
 
@@ -465,15 +471,6 @@ class Medoo
 				{
 					preg_match('/([a-zA-Z0-9_\.]+)(\[(?<operator>\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~|REGEXP)\])?/i', $key, $match);
 					$column = $this->columnQuote($match[ 1 ]);
-
-					if (!empty($match[ 1 ]))
-					{
-						$wheres[] = $column .
-							(isset($match[ 'operator' ]) ? ' ' . $match[ 'operator' ] . ' ' : ' = ') .
-							$this->fnQuote($key, $value);
-
-						continue;
-					}
 
 					if (isset($match[ 'operator' ]))
 					{
@@ -1000,7 +997,22 @@ class Medoo
 					$stack[ $value ] = [$column_key, 'String'];
 				}
 			}
-			else
+			elseif ($this->isRaw($value))
+			{
+				preg_match('/(?<column>[a-zA-Z0-9_\.]*)(\s*\[(?<type>(String|Bool|Int|Number))\])?/i', $key, $key_match);
+
+				$column_key = preg_replace('/^[\w]*\./i', '', $key_match[ 'column' ]);
+
+				if (isset($key_match[ 'type' ]))
+				{
+					$stack[ $key ] = [$column_key, $key_match[ 'type' ]];
+				}
+				else
+				{
+					$stack[ $key ] = [$column_key, 'String'];
+				}
+			}
+			elseif (!is_int($key) && is_array($value))
 			{
 				$this->columnMap($value, $stack);
 			}
@@ -1037,6 +1049,34 @@ class Medoo
 
 						case 'JSON':
 							$stack[ $column_key ] = json_decode($data[ $column_key ], true);
+							break;
+
+						case 'String':
+							$stack[ $column_key ] = $data[ $column_key ];
+							break;
+					}
+				}
+				else
+				{
+					$stack[ $column_key ] = $data[ $column_key ];
+				}
+			}
+			elseif ($this->isRaw($value))
+			{
+				$map = $column_map[ $key ];
+				$column_key = $map[ 0 ];
+
+				if (isset($map[ 1 ]))
+				{
+					switch ($map[ 1 ])
+					{
+						case 'Number':
+						case 'Int':
+							$stack[ $column_key ] = (int) $data[ $column_key ];
+							break;
+
+						case 'Bool':
+							$stack[ $column_key ] = (bool) $data[ $column_key ];
 							break;
 
 						case 'String':
