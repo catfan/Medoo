@@ -20,6 +20,7 @@ class Medoo implements DatabaseInterface
 
 	protected $prefix;
 
+	/** @var \PDOStatement */
 	protected $statement;
 
 	protected $option = [];
@@ -31,6 +32,9 @@ class Medoo implements DatabaseInterface
 	protected $debug_mode = false;
 
 	protected $guid = 0;
+
+	/** @var PDO */
+	protected $pdo;
 
 	public function __construct($options = null)
 	{
@@ -70,7 +74,7 @@ class Medoo implements DatabaseInterface
 			{
 				$commands = [];
 			}
-
+            $attr = null;
 			if (isset($options[ 'dsn' ]))
 			{
 				if (isset($options[ 'dsn' ][ 'driver' ]))
@@ -79,7 +83,7 @@ class Medoo implements DatabaseInterface
 				}
 				else
 				{
-					return false;
+				    throw new Exception('Dsn is defined but no driver');
 				}
 			}
 			else
@@ -93,7 +97,7 @@ class Medoo implements DatabaseInterface
 				}
 
 				$is_port = isset($port);
-
+                $port = false;
 				switch ($this->database_type)
 				{
 					case 'mariadb':
@@ -192,7 +196,7 @@ class Medoo implements DatabaseInterface
 					case 'sqlite':
 						$this->pdo = new PDO('sqlite:' . $options[ 'database_file' ], null, null, $this->option);
 
-						return;
+						return null;
 				}
 			}
 
@@ -239,6 +243,7 @@ class Medoo implements DatabaseInterface
 		catch (PDOException $e) {
 			throw new Exception($e->getMessage());
 		}
+		return null;
 	}
 
 	public function query($query, $map = [])
@@ -1255,7 +1260,7 @@ class Medoo implements DatabaseInterface
 	public function replace($table, $columns, $where = null)
 	{
 		$map = [];
-
+        $replace_query = '';
 		if (is_array($columns))
 		{
 			$replace_query = [];
@@ -1433,10 +1438,7 @@ class Medoo implements DatabaseInterface
 				$this->pdo->commit();
 			}
 		}
-		else
-		{
-			return false;
-		}
+        return false;
 	}
 
 	public function id()
@@ -1506,4 +1508,3 @@ class Medoo implements DatabaseInterface
 		return $output;
 	}
 }
-?>
