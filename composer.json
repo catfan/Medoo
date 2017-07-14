@@ -6,7 +6,8 @@
 	"homepage": "https://medoo.in",
 	"license": "MIT",
 	"authors": [
-		{"name": "Angel Lai", "email": "angel@catfan.me"}
+		{"name": "Angel Lai", "email": "angel@catfan.me"},
+		{"name": "Duamel Sevans", "email": "sevansd@gmail.com"}
 	],
 	"require": {
 		"php": ">=5.4",

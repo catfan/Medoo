@@ -14,7 +14,7 @@ use PDO;
 use Exception;
 use PDOException;
 
-class Medoo
+class Medoo implements DatabaseInterface
 {
 	protected $database_type;
 
