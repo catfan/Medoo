@@ -1296,7 +1296,7 @@ class Medoo
 
 			if ($this->isRaw($value))
 			{
-				$fields[] = $column . ' = ' . $this->buildRaw($value);
+				$fields[] = $column . ' = ' . $this->buildRaw($value, $map);
 				continue;
 			}
 
