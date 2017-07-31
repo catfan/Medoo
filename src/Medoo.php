@@ -246,6 +246,18 @@ class Medoo
 		}
 	}
 
+	public function __call($name, $arguments)
+	{
+		$aggregation = ['avg', 'count', 'max', 'min', 'sum'];
+
+		if (in_array($name, $aggregation))
+		{
+			array_unshift($arguments, $name);
+
+			return call_user_func_array([$this, 'aggregate'], $arguments);
+		}
+	}
+
 	public function query($query, $map = [])
 	{
 		$map = [];
@@ -1465,67 +1477,22 @@ class Medoo
 		}
 	}
 
-	public function count($table, $join = null, $column = null, $where = null)
+	public function aggregate($type, $table, $join = null, $column = null, $where = null)
 	{
 		$map = [];
 
-		$query = $this->exec($this->selectContext($table, $map, $join, $column, $where, 'COUNT'), $map);
-
-		return $query ? 0 + $query->fetchColumn() : false;
-	}
-
-	public function max($table, $join, $column = null, $where = null)
-	{
-		$map = [];
-
-		$query = $this->exec($this->selectContext($table, $map, $join, $column, $where, 'MAX'), $map);
+		$query = $this->exec($this->selectContext($table, $map, $join, $column, $where, strtoupper($type)), $map);
 
 		if ($query)
 		{
-			$max = $query->fetchColumn();
+			$number = $query->fetchColumn();
 
-			return is_numeric($max) ? $max + 0 : $max;
+			return is_numeric($number) ? $number + 0 : $number;
 		}
 		else
 		{
 			return false;
 		}
-	}
-
-	public function min($table, $join, $column = null, $where = null)
-	{
-		$map = [];
-
-		$query = $this->exec($this->selectContext($table, $map, $join, $column, $where, 'MIN'), $map);
-
-		if ($query)
-		{
-			$min = $query->fetchColumn();
-
-			return is_numeric($min) ? $min + 0 : $min;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	public function avg($table, $join, $column = null, $where = null)
-	{
-		$map = [];
-
-		$query = $this->exec($this->selectContext($table, $map, $join, $column, $where, 'AVG'), $map);
-
-		return $query ? 0 + $query->fetchColumn() : false;
-	}
-
-	public function sum($table, $join, $column = null, $where = null)
-	{
-		$map = [];
-
-		$query = $this->exec($this->selectContext($table, $map, $join, $column, $where, 'SUM'), $map);
-
-		return $query ? 0 + $query->fetchColumn() : false;
 	}
 
 	public function action($actions)
