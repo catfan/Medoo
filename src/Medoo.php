@@ -197,6 +197,11 @@ class Medoo
 					case 'sqlite':
 						$this->pdo = new PDO('sqlite:' . $options[ 'database_file' ], null, null, $this->option);
 
+						foreach ($commands as $value)
+						{
+							$this->pdo->exec($value);
+						}
+
 						return;
 				}
 			}
