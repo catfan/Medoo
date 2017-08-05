@@ -1482,7 +1482,7 @@ class Medoo
 		}
 	}
 
-	public function aggregate($type, $table, $join = null, $column = null, $where = null)
+	private function aggregate($type, $table, $join = null, $column = null, $where = null)
 	{
 		$map = [];
 
