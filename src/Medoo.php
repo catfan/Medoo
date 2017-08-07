@@ -1501,16 +1501,25 @@ class Medoo
 		{
 			$this->pdo->beginTransaction();
 
-			$result = $actions($this);
+			try {
+				$result = $actions($this);
 
-			if ($result === false)
-			{
+				if ($result === false)
+				{
+					$this->pdo->rollBack();
+				}
+				else
+				{
+					$this->pdo->commit();
+				}
+			}
+			catch (Exception $e) {
 				$this->pdo->rollBack();
+
+				throw $e;
 			}
-			else
-			{
-				$this->pdo->commit();
-			}
+
+			return $result;
 		}
 		else
 		{
