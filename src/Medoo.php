@@ -1383,41 +1383,36 @@ class Medoo
 
 	public function replace($table, $columns, $where = null)
 	{
-		$map = [];
-
-		if (is_array($columns))
+		if (!is_array($columns) || empty($columns))
 		{
-			$replace_query = [];
+			return false;
+		}
 
-			foreach ($columns as $column => $replacements)
+		$map = [];
+		$stack = [];
+
+		foreach ($columns as $column => $replacements)
+		{
+			if (is_array($replacements))
 			{
-				if (is_array($replacements[ 0 ]))
-				{
-					foreach ($replacements as $replacement)
-					{
-						$map_key = $this->mapKey();
-
-						$replace_query[] = $this->columnQuote($column) . ' = REPLACE(' . $this->columnQuote($column) . ', ' . $map_key . 'a, ' . $map_key . 'b)';
-
-						$map[ $map_key . 'a' ] = [$replacement[ 0 ], PDO::PARAM_STR];
-						$map[ $map_key . 'b' ] = [$replacement[ 1 ], PDO::PARAM_STR];
-					}
-				}
-				else
+				foreach ($replacements as $old => $new)
 				{
 					$map_key = $this->mapKey();
 
-					$replace_query[] = $this->columnQuote($column) . ' = REPLACE(' . $this->columnQuote($column) . ', ' . $map_key . 'a, ' . $map_key . 'b)';
+					$stack[] = $this->columnQuote($column) . ' = REPLACE(' . $this->columnQuote($column) . ', ' . $map_key . 'a, ' . $map_key . 'b)';
 
-					$map[ $map_key . 'a' ] = [$replacements[ 0 ], PDO::PARAM_STR];
-					$map[ $map_key . 'b' ] = [$replacements[ 1 ], PDO::PARAM_STR];
+					$map[ $map_key . 'a' ] = [$old, PDO::PARAM_STR];
+					$map[ $map_key . 'b' ] = [$new, PDO::PARAM_STR];
 				}
 			}
-
-			$replace_query = implode(', ', $replace_query);
 		}
 
-		return $this->exec('UPDATE ' . $this->tableQuote($table) . ' SET ' . $replace_query . $this->whereClause($where, $map), $map);
+		if (!empty($stack))
+		{
+			return $this->exec('UPDATE ' . $this->tableQuote($table) . ' SET ' . implode(', ', $stack) . $this->whereClause($where, $map), $map);
+		}
+
+		return false;
 	}
 
 	public function get($table, $join = null, $columns = null, $where = null)
