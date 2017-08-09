@@ -10,7 +10,8 @@
 	],
 	"require": {
 		"php": ">=5.4",
-		"ext-pdo": "*"
+		"ext-pdo": "*",
+		"ext-mbstring": "*"
 	},
 	"suggest": {
 		"ext-pdo_mysql": "For MySQL or MariaDB database",

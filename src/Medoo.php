@@ -387,7 +387,7 @@ class Medoo
 			}
 			else
 			{
-				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number|Object|JSON))\])?/i', $value, $match);
+				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/i', $value, $match);
 
 				if (!empty($match[ 'alias' ]))
 				{
@@ -399,6 +399,10 @@ class Medoo
 				{
 					$stack[] = $this->columnQuote( $match[ 'column' ] );
 				}
+
+				if (!empty($match['type'])) {
+				    $columns[ $key ] .= ' [' . $match['type'] . ']';
+                }
 			}
 		}
 
@@ -957,7 +961,7 @@ class Medoo
 		{
 			if (is_int($key))
 			{
-				preg_match('/(?<column>[a-zA-Z0-9_\.]*)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number|Object|JSON))\])?/i', $value, $key_match);
+				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/i', $value, $key_match);
 
 				$column_key = !empty($key_match[ 'alias' ]) ?
 					$key_match[ 'alias' ] :
@@ -992,26 +996,26 @@ class Medoo
 
 				if (isset($map[ 1 ]))
 				{
-					switch ($map[ 1 ])
+					switch (mb_strtolower($map[ 1 ]))
 					{
-						case 'Number':
-						case 'Int':
+						case 'number':
+						case 'int':
 							$stack[ $column_key ] = (int) $data[ $column_key ];
 							break;
 
-						case 'Bool':
+						case 'bool':
 							$stack[ $column_key ] = (bool) $data[ $column_key ];
 							break;
 
-						case 'Object':
+						case 'object':
 							$stack[ $column_key ] = unserialize($data[ $column_key ]);
 							break;
 
-						case 'JSON':
+						case 'json':
 							$stack[ $column_key ] = json_decode($data[ $column_key ], true);
 							break;
 
-						case 'String':
+						case 'string':
 							$stack[ $column_key ] = $data[ $column_key ];
 							break;
 					}
