@@ -311,10 +311,8 @@ class Medoo
 
 			return $statement;
 		}
-		else
-		{
-			return false;
-		}
+
+		return false;
 	}
 
 	protected function generate($query, $map)
@@ -1325,15 +1323,9 @@ class Medoo
 
 				return $stack;
 			}
-			else
-			{
-				return false;
-			}
 		}
-		else
-		{
-			return false;
-		}
+
+		return false;
 	}
 
 	public function has($table, $join, $where = null)
