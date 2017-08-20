@@ -387,22 +387,25 @@ class Medoo
 			}
 			else
 			{
-				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/i', $value, $match);
+				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[^\)]+)\))?(?:\s*\[(?<type>[^\]]+)\])?/i', $value, $match);
 
 				if (!empty($match[ 'alias' ]))
 				{
 					$stack[] = $this->columnQuote( $match[ 'column' ] ) . ' AS ' . $this->columnQuote( $match[ 'alias' ] );
 
 					$columns[ $key ] = $match[ 'alias' ];
+
+
+					if (!empty($match['type']))
+					{
+						$columns[ $key ] .= ' [' . $match['type'] . ']';
+					}
 				}
 				else
 				{
 					$stack[] = $this->columnQuote( $match[ 'column' ] );
 				}
 
-				if (!empty($match['type'])) {
-				    $columns[ $key ] .= ' [' . $match['type'] . ']';
-                }
 			}
 		}
 
@@ -961,11 +964,9 @@ class Medoo
 		{
 			if (is_int($key))
 			{
-				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/i', $value, $key_match);
+				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\[(?<type>[^\]]+)\])?/i', $value, $key_match);
 
-				$column_key = !empty($key_match[ 'alias' ]) ?
-					$key_match[ 'alias' ] :
-					preg_replace('/^[\w]*\./i', '', $key_match[ 'column' ]);
+				$column_key = preg_replace('/^[\w]*\./i', '', $key_match[ 'column' ]);
 
 				if (isset($key_match[ 'type' ]))
 				{
@@ -996,26 +997,26 @@ class Medoo
 
 				if (isset($map[ 1 ]))
 				{
-					switch (mb_strtolower($map[ 1 ]))
+					switch ($map[ 1 ])
 					{
-						case 'number':
-						case 'int':
+						case 'Number':
+						case 'Int':
 							$stack[ $column_key ] = (int) $data[ $column_key ];
 							break;
 
-						case 'bool':
+						case 'Bool':
 							$stack[ $column_key ] = (bool) $data[ $column_key ];
 							break;
 
-						case 'object':
+						case 'Object':
 							$stack[ $column_key ] = unserialize($data[ $column_key ]);
 							break;
 
-						case 'json':
+						case 'JSON':
 							$stack[ $column_key ] = json_decode($data[ $column_key ], true);
 							break;
 
-						case 'string':
+						case 'String':
 							$stack[ $column_key ] = $data[ $column_key ];
 							break;
 					}
