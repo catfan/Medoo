@@ -387,18 +387,25 @@ class Medoo
 			}
 			else
 			{
-				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number|Object|JSON))\])?/i', $value, $match);
+				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[^\)]+)\))?(?:\s*\[(?<type>[^\]]+)\])?/i', $value, $match);
 
 				if (!empty($match[ 'alias' ]))
 				{
 					$stack[] = $this->columnQuote( $match[ 'column' ] ) . ' AS ' . $this->columnQuote( $match[ 'alias' ] );
 
 					$columns[ $key ] = $match[ 'alias' ];
+
+
+					if (!empty($match['type']))
+					{
+						$columns[ $key ] .= ' [' . $match['type'] . ']';
+					}
 				}
 				else
 				{
 					$stack[] = $this->columnQuote( $match[ 'column' ] );
 				}
+
 			}
 		}
 
@@ -957,11 +964,9 @@ class Medoo
 		{
 			if (is_int($key))
 			{
-				preg_match('/(?<column>[a-zA-Z0-9_\.]*)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\)|\s*\[(?<type>(String|Bool|Int|Number|Object|JSON))\])?/i', $value, $key_match);
+				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\[(?<type>[^\]]+)\])?/i', $value, $key_match);
 
-				$column_key = !empty($key_match[ 'alias' ]) ?
-					$key_match[ 'alias' ] :
-					preg_replace('/^[\w]*\./i', '', $key_match[ 'column' ]);
+				$column_key = preg_replace('/^[\w]*\./i', '', $key_match[ 'column' ]);
 
 				if (isset($key_match[ 'type' ]))
 				{
