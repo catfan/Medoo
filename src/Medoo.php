@@ -354,7 +354,7 @@ class Medoo
 	protected function buildRaw($raw, &$map)
 	{
 		$query = preg_replace_callback(
-			'/((FROM|TABLE|INTO|UPDATE)\s*)?\<([a-zA-Z0-9_\.]*)\>/i',
+			'/((FROM|TABLE|INTO|UPDATE)\s*)?\<([a-zA-Z0-9_\.]+)\>/i',
 			function ($matches)
 			{
 				if (!empty($matches[ 2 ]))
@@ -532,14 +532,14 @@ class Medoo
 
 			if (
 				is_int($key) &&
-				preg_match('/([a-zA-Z0-9_\.]+)\[(?<operator>\>|\>\=|\<|\<\=|\!|\=)\]([a-zA-Z0-9_\.]+)/i', $value, $match)
+				preg_match('/([a-zA-Z0-9_\.]+)\[(?<operator>\>\=?|\<\=?|\!|\=)\]([a-zA-Z0-9_\.]+)/i', $value, $match)
 			)
 			{
 				$stack[] = $this->columnQuote($match[ 1 ]) . ' ' . $match[ 'operator' ] . ' ' . $this->columnQuote($match[ 3 ]);
 			}
 			else
 			{
-				preg_match('/([a-zA-Z0-9_\.]+)(\[(?<operator>\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~|REGEXP)\])?/i', $key, $match);
+				preg_match('/([a-zA-Z0-9_\.]+)(\[(?<operator>\>\=?|\<\=?|\!|\<\>|\>\<|\!?~|REGEXP)\])?/i', $key, $match);
 				$column = $this->columnQuote($match[ 1 ]);
 
 				if (isset($match[ 'operator' ]))
@@ -907,7 +907,7 @@ class Medoo
 
 			foreach($join as $sub_table => $relation)
 			{
-				preg_match('/(\[(?<join>\<|\>|\>\<|\<\>)\])?(?<table>[a-zA-Z0-9_]+)\s?(\((?<alias>[a-zA-Z0-9_]+)\))?/', $sub_table, $match);
+				preg_match('/(\[(?<join>\<\>?|\>\<?)\])?(?<table>[a-zA-Z0-9_]+)\s?(\((?<alias>[a-zA-Z0-9_]+)\))?/', $sub_table, $match);
 
 				if ($match[ 'join' ] !== '' && $match[ 'table' ] !== '')
 				{
