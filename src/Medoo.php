@@ -1073,13 +1073,21 @@ class Medoo
 	{
 		foreach ($columns as $key => $value)
 		{
-			if (is_int($key))
+			$isRaw = $this->isRaw($value);
+
+			if (is_int($key) || $isRaw)
 			{
-				$map = $column_map[ $value ];
+				$map = $column_map[ $isRaw ? $key : $value ];
+
 				$column_key = $map[ 0 ];
 
 				if (isset($map[ 1 ]))
 				{
+					if ($isRaw && in_array($map[ 1 ], ['Object', 'JSON']))
+					{
+						continue;
+					}
+
 					switch ($map[ 1 ])
 					{
 						case 'Number':
@@ -1100,37 +1108,6 @@ class Medoo
 
 						case 'JSON':
 							$stack[ $column_key ] = json_decode($data[ $column_key ], true);
-							break;
-
-						case 'String':
-							$stack[ $column_key ] = $data[ $column_key ];
-							break;
-					}
-				}
-				else
-				{
-					$stack[ $column_key ] = $data[ $column_key ];
-				}
-			}
-			elseif ($this->isRaw($value))
-			{
-				$map = $column_map[ $key ];
-				$column_key = $map[ 0 ];
-
-				if (isset($map[ 1 ]))
-				{
-					switch ($map[ 1 ])
-					{
-						case 'Number':
-							$stack[ $column_key ] = (double) $data[ $column_key ];
-							break;
-
-						case 'Int':
-							$stack[ $column_key ] = (int) $data[ $column_key ];
-							break;
-
-						case 'Bool':
-							$stack[ $column_key ] = (bool) $data[ $column_key ];
 							break;
 
 						case 'String':
