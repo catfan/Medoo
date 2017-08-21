@@ -1083,6 +1083,9 @@ class Medoo
 					switch ($map[ 1 ])
 					{
 						case 'Number':
+							$stack[ $column_key ] = (double) $data[ $column_key ];
+							break;
+
 						case 'Int':
 							$stack[ $column_key ] = (int) $data[ $column_key ];
 							break;
@@ -1119,6 +1122,9 @@ class Medoo
 					switch ($map[ 1 ])
 					{
 						case 'Number':
+							$stack[ $column_key ] = (double) $data[ $column_key ];
+							break;
+
 						case 'Int':
 							$stack[ $column_key ] = (int) $data[ $column_key ];
 							break;
