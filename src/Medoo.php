@@ -420,11 +420,9 @@ class Medoo
 
 	protected function columnQuote($string)
 	{
-		preg_match('/([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)(\s*\[JSON\]$)?/', $string, $column_match);
-
-		if (isset($column_match[ 1 ], $column_match[ 2 ]))
+		if (strpos($string, '.') !== false)
 		{
-			return '"' . $this->prefix . $column_match[ 1 ] . '"."' . $column_match[ 2 ] . '"';
+			return '"' . $this->prefix . str_replace('.', '"."', $string) . '"';
 		}
 
 		return '"' . $string . '"';
