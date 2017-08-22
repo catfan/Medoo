@@ -1391,7 +1391,16 @@ class Medoo
 		$stack = [];
 		$column_map = [];
 
-		$column = $where === null ? $join : $columns;
+		if ($where === null)
+		{
+			$column = $join;
+			unset($columns[ 'LIMIT' ]);
+		}
+		else
+		{
+			$column = $columns;
+			unset($where[ 'LIMIT' ]);
+		}
 
 		$is_single_column = (is_string($column) && $column !== '*');
 
