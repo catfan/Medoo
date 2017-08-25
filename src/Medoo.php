@@ -278,7 +278,7 @@ class Medoo
 
 	public function exec($query, $map = [])
 	{
-        $this->guid = 0;
+		$this->guid = 0;
         
 		if ($this->debug_mode)
 		{
@@ -321,8 +321,8 @@ class Medoo
 
 	protected function generate($query, $map)
 	{
-        
-        $len = count($map) + 1;
+		$len = count($map) + 1;
+		
 		for ($i = 1; $i < $len; $i++)
 		{
 			$pos = strpos($query, '?');
