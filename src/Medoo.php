@@ -325,20 +325,20 @@ class Medoo
         $len = count($map) + 1;
 		for ($i = 1; $i < $len; $i++)
 		{
-            $pos = strpos($query, '?');
-            $value = $map[$i];
+			$pos = strpos($query, '?');
+			$value = $map[$i];
             
 			if ($value[ 1 ] === PDO::PARAM_STR)
 			{
-                $query = substr_replace($query, $this->quote($value[ 0 ]), $pos, 1);
+				$query = substr_replace($query, $this->quote($value[ 0 ]), $pos, 1);
 			}
 			elseif ($value[ 1 ] === PDO::PARAM_NULL)
 			{
-                $query = substr_replace($query, 'NULL', $pos, 1);
+				$query = substr_replace($query, 'NULL', $pos, 1);
 			}
 			else
 			{
-                $query = substr_replace($query, $value[ 0 ], $pos, 1);
+				$query = substr_replace($query, $value[ 0 ], $pos, 1);
 			}
 		}
 
@@ -529,14 +529,14 @@ class Medoo
 								{
 									$column .= ' NOT';
 								}
-                                $next_key = $this->mapKey();
+								$next_key = $this->mapKey();
 
 								$wheres[] = '(' . $column . ' BETWEEN ? AND ?)';
 
 								$data_type = (is_numeric($value[ 0 ]) && is_numeric($value[ 1 ])) ? PDO::PARAM_INT : PDO::PARAM_STR;
 
-								$map[$map_key] = [$value[ 0 ], $data_type];
-								$map[$next_key] = [$value[ 1 ], $data_type];
+								$map[ $map_key ] = [$value[ 0 ], $data_type];
+								$map[ $next_key ] = [$value[ 1 ], $data_type];
 							}
 						}
 
@@ -1275,7 +1275,7 @@ class Medoo
 					foreach ($replacements as $replacement)
 					{
 						$map_key = $this->mapKey();
-                        $next_key = $this->mapKey();
+						$next_key = $this->mapKey();
 
 						$replace_query[] = $this->columnQuote($column) . ' = REPLACE(' . $this->columnQuote($column) . ', ?, ?)';
                         
@@ -1286,7 +1286,7 @@ class Medoo
 				else
 				{
 					$map_key = $this->mapKey();
-                    $next_key = $this->mapKey();
+					$next_key = $this->mapKey();
 
 					$replace_query[] = $this->columnQuote($column) . ' = REPLACE(' . $this->columnQuote($column) . ', ?, ?)';
 
