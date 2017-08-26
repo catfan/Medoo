@@ -278,7 +278,7 @@ class Medoo
 
 	public function exec($query, $map = [])
 	{
-        $this->guid = 0;
+		$this->guid = 0;
         
 		if ($this->debug_mode)
 		{
@@ -321,24 +321,24 @@ class Medoo
 
 	protected function generate($query, $map)
 	{
-        
-        $len = count($map) + 1;
+		$len = count($map) + 1;
+		
 		for ($i = 1; $i < $len; $i++)
 		{
-            $pos = strpos($query, '?');
-            $value = $map[$i];
+			$pos = strpos($query, '?');
+			$value = $map[$i];
             
 			if ($value[ 1 ] === PDO::PARAM_STR)
 			{
-                $query = substr_replace($query, $this->quote($value[ 0 ]), $pos, 1);
+				$query = substr_replace($query, $this->quote($value[ 0 ]), $pos, 1);
 			}
 			elseif ($value[ 1 ] === PDO::PARAM_NULL)
 			{
-                $query = substr_replace($query, 'NULL', $pos, 1);
+				$query = substr_replace($query, 'NULL', $pos, 1);
 			}
 			else
 			{
-                $query = substr_replace($query, $value[ 0 ], $pos, 1);
+				$query = substr_replace($query, $value[ 0 ], $pos, 1);
 			}
 		}
 
@@ -524,14 +524,16 @@ class Medoo
 								{
 									$column .= ' NOT';
 								}
-                                $next_key = ++$this->guid;
+
+								$next_key = ++$this->guid;
+
 
 								$wheres[] = '(' . $column . ' BETWEEN ? AND ?)';
 
 								$data_type = (is_numeric($value[ 0 ]) && is_numeric($value[ 1 ])) ? PDO::PARAM_INT : PDO::PARAM_STR;
 
-								$map[$map_key] = [$value[ 0 ], $data_type];
-								$map[$next_key] = [$value[ 1 ], $data_type];
+								$map[ $map_key ] = [$value[ 0 ], $data_type];
+								$map[ $next_key ] = [$value[ 1 ], $data_type];
 							}
 						}
 
@@ -1271,8 +1273,8 @@ class Medoo
 					foreach ($replacements as $replacement)
 					{
 						$map_key = ++$this->guid;
-                        $next_key = ++$this->guid;
-
+						$next_key = ++$this->guid;
+                        
 						$replace_query[] = $this->columnQuote($column) . ' = REPLACE(' . $this->columnQuote($column) . ', ?, ?)';
                         
 						$map[ $map_key ] = [$replacement[ 0 ], PDO::PARAM_STR];
@@ -1282,7 +1284,7 @@ class Medoo
 				else
 				{
 					$map_key = ++$this->guid;
-                    $next_key = ++$this->guid;
+					$next_key = ++$this->guid;
 
 					$replace_query[] = $this->columnQuote($column) . ' = REPLACE(' . $this->columnQuote($column) . ', ?, ?)';
 
