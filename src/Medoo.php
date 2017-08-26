@@ -557,10 +557,10 @@ class Medoo
 							}
 
 							$like_clauses = [];
-                            --$this->guid;
+							--$this->guid;
 							foreach ($value as $index => $item)
 							{
-                                $map_key = ++$this->guid;
+								$map_key = ++$this->guid;
 								$item = strval($item);
 
 								if (!preg_match('/(\[.+\]|_|%.+|.+%)/', $item))
