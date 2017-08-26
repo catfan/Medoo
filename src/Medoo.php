@@ -355,11 +355,6 @@ class Medoo
 		return '"' . $this->prefix . $table . '"';
 	}
 
-	protected function mapKey()
-	{
-		return ++$this->guid;
-	}
-
 	protected function columnQuote($string)
 	{
 		preg_match('/(^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)(\s*\[JSON\]$)?/', $string, $column_match);
@@ -451,7 +446,7 @@ class Medoo
 
 		foreach ($data as $key => $value)
 		{
-			$map_key = $this->mapKey();
+			$map_key = ++$this->guid;
 
 			$type = gettype($value);
 
@@ -529,7 +524,7 @@ class Medoo
 								{
 									$column .= ' NOT';
 								}
-                                $next_key = $this->mapKey();
+                                $next_key = ++$this->guid;
 
 								$wheres[] = '(' . $column . ' BETWEEN ? AND ?)';
 
@@ -560,9 +555,10 @@ class Medoo
 							}
 
 							$like_clauses = [];
-
+                            --$this->guid;
 							foreach ($value as $index => $item)
 							{
+                                $map_key = ++$this->guid;
 								$item = strval($item);
 
 								if (!preg_match('/(\[.+\]|_|%.+|.+%)/', $item))
@@ -688,7 +684,7 @@ class Medoo
 					}
 
 					$columns = implode(array_map([$this, 'columnQuote'], $MATCH[ 'columns' ]), ', ');
-					$map_key = $this->mapKey();
+					$map_key = ++$this->guid;
 					$map[ $map_key ] = [$MATCH[ 'keyword' ], PDO::PARAM_STR];
 
 					$where_clause .= ($where_clause !== '' ? ' AND ' : ' WHERE') . ' MATCH (' . $columns . ') AGAINST (?' . $mode . ')';
@@ -1119,7 +1115,7 @@ class Medoo
 					continue;
 				}
 
-				$map_key =$this->mapKey();
+				$map_key = ++$this->guid;
 
 				$values[] = $map_key;
 
@@ -1196,7 +1192,7 @@ class Medoo
 				continue;
 			}
 
-			$map_key = $this->mapKey();
+			$map_key = ++$this->guid;
 
 			preg_match('/(?<column>[a-zA-Z0-9_]+)(\[(?<operator>\+|\-|\*|\/)\])?/i', $key, $match);
 
@@ -1274,8 +1270,8 @@ class Medoo
 				{
 					foreach ($replacements as $replacement)
 					{
-						$map_key = $this->mapKey();
-                        $next_key = $this->mapKey();
+						$map_key = ++$this->guid;
+                        $next_key = ++$this->guid;
 
 						$replace_query[] = $this->columnQuote($column) . ' = REPLACE(' . $this->columnQuote($column) . ', ?, ?)';
                         
@@ -1285,8 +1281,8 @@ class Medoo
 				}
 				else
 				{
-					$map_key = $this->mapKey();
-                    $next_key = $this->mapKey();
+					$map_key = ++$this->guid;
+                    $next_key = ++$this->guid;
 
 					$replace_query[] = $this->columnQuote($column) . ' = REPLACE(' . $this->columnQuote($column) . ', ?, ?)';
 
