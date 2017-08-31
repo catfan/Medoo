@@ -32,15 +32,12 @@ class Medoo
 
 	protected $guid = 0;
 
-	public function __construct($options = null)
+	public function __construct(array $options = null)
 	{
 		try {
-			if (is_array($options))
+			if (isset($options[ 'database_type' ]))
 			{
-				if (isset($options[ 'database_type' ]))
-				{
-					$this->database_type = strtolower($options[ 'database_type' ]);
-				}
+				$this->database_type = strtolower($options[ 'database_type' ]);
 			}
 			else
 			{
@@ -241,7 +238,7 @@ class Medoo
 		}
 	}
 
-	public function query($query, $map = [])
+	public function query($query, array $map = [])
 	{
 		if (!empty($map))
 		{
@@ -276,7 +273,7 @@ class Medoo
 		return $this->exec($query, $map);
 	}
 
-	public function exec($query, $map = [])
+	public function exec($query, array $map = [])
 	{
 		if ($this->debug_mode)
 		{
@@ -317,7 +314,7 @@ class Medoo
 		}
 	}
 
-	protected function generate($query, $map)
+	protected function generate($query, array $map)
 	{
 		foreach ($map as $key => $value)
 		{
@@ -405,7 +402,7 @@ class Medoo
 		return implode($stack, ',');
 	}
 
-	protected function arrayQuote($array)
+	protected function arrayQuote(array $array)
 	{
 		$stack = [];
 
@@ -1077,7 +1074,7 @@ class Medoo
 		return $stack;
 	}
 
-	public function insert($table, $datas)
+	public function insert($table, array $datas)
 	{
 		$stack = [];
 		$columns = [];
@@ -1173,7 +1170,7 @@ class Medoo
 		return $this->exec('INSERT INTO ' . $this->tableQuote($table) . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $stack), $map);
 	}
 
-	public function update($table, $data, $where = null)
+	public function update($table, array $data, $where = null)
 	{
 		$fields = [];
 		$map = [];
@@ -1252,7 +1249,7 @@ class Medoo
 		return $this->exec('DELETE FROM ' . $this->tableQuote($table) . $this->whereClause($where, $map), $map);
 	}
 
-	public function replace($table, $columns, $where = null)
+	public function replace($table, array $columns, $where = null)
 	{
 		$map = [];
 
