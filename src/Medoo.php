@@ -321,16 +321,18 @@ class Medoo
 		{
 			if ($value[ 1 ] === PDO::PARAM_STR)
 			{
-				$query = str_replace($key, $this->quote($value[ 0 ]), $query);
+				$replace = $this->quote($value[ 0 ]);
 			}
 			elseif ($value[ 1 ] === PDO::PARAM_NULL)
 			{
-				$query = str_replace($key, 'NULL', $query);
+				$replace = 'NULL';
 			}
 			else
 			{
-				$query = str_replace($key, $value[ 0 ], $query);
+				$replace = $value[ 0 ];
 			}
+
+			$query = str_replace($key, $replace, $query);
 		}
 
 		return $query;
