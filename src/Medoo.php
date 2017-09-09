@@ -348,7 +348,7 @@ class Medoo
 
 	protected function isRaw($object)
 	{
-		return is_a($object, 'Medoo\Raw');
+		return $object instanceof \Medoo\Raw;
 	}
 
 	protected function buildRaw($raw, &$map)
