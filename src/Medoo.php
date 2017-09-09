@@ -40,16 +40,14 @@ class Medoo
 	public function __construct($options = null)
 	{
 		try {
-			if (is_array($options))
-			{
-				if (isset($options[ 'database_type' ]))
-				{
-					$this->database_type = strtolower($options[ 'database_type' ]);
-				}
-			}
-			else
+			if (!is_array($options))
 			{
 				return false;
+			}
+
+			if (isset($options[ 'database_type' ]))
+			{
+				$this->database_type = strtolower($options[ 'database_type' ]);
 			}
 
 			if (isset($options[ 'prefix' ]))
@@ -214,14 +212,7 @@ class Medoo
 
 			foreach ($attr as $key => $value)
 			{
-				if (is_int($key))
-				{
-					$stack[] = $value;
-				}
-				else
-				{
-					$stack[] = $key . '=' . $value;
-				}
+				$stack[] = is_int($key) ? $value : $key . '=' . $value;
 			}
 
 			$dsn = $driver . ':' . implode($stack, ';');
@@ -962,26 +953,18 @@ class Medoo
 		{
 			if (is_null($columns))
 			{
-				if (is_null($where))
-				{
-					if (
-						is_array($join) &&
-						isset($column_fn)
-					)
-					{
-						$where = $join;
-						$columns = null;
-					}
-					else
-					{
-						$where = null;
-						$columns = $join;
-					}
-				}
-				else
+				if (
+					!is_null($where) ||
+					(is_array($join) && isset($column_fn))
+				)
 				{
 					$where = $join;
 					$columns = null;
+				}
+				else
+				{
+					$where = null;
+					$columns = $join;
 				}
 			}
 			else
@@ -1143,7 +1126,7 @@ class Medoo
 
 		$column = $where === null ? $join : $columns;
 
-		$is_single_column = (is_string($column) && $column !== '*');
+		$is_single = (is_string($column) && $column !== '*');
 
 		$query = $this->exec($this->selectContext($table, $map, $join, $columns, $where), $map);
 
@@ -1159,7 +1142,7 @@ class Medoo
 			return $query->fetchAll(PDO::FETCH_ASSOC);
 		}
 
-		if ($is_single_column)
+		if ($is_single)
 		{
 			return $query->fetchAll(PDO::FETCH_COLUMN);
 		}
@@ -1404,7 +1387,7 @@ class Medoo
 			unset($where[ 'LIMIT' ]);
 		}
 
-		$is_single_column = (is_string($column) && $column !== '*');
+		$is_single = (is_string($column) && $column !== '*');
 
 		$query = $this->exec($this->selectContext($table, $map, $join, $columns, $where) . ' LIMIT 1', $map);
 
@@ -1423,7 +1406,7 @@ class Medoo
 
 				$this->dataMap($data[ 0 ], $columns, $column_map, $stack);
 
-				if ($is_single_column)
+				if ($is_single)
 				{
 					return $stack[ $column_map[ $column ][ 0 ] ];
 				}
