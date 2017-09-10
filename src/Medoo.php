@@ -1015,11 +1015,11 @@ class Medoo
 		{
 			if (is_int($key))
 			{
-				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/i', $value, $key_match);
+				preg_match('/([a-zA-Z0-9_]+\.)?(?<column>[a-zA-Z0-9_]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/i', $value, $key_match);
 
 				$column_key = !empty($key_match[ 'alias' ]) ?
 					$key_match[ 'alias' ] :
-					preg_replace('/^[\w]*\./i', '', $key_match[ 'column' ]);
+					$key_match[ 'column' ];
 
 				if (isset($key_match[ 'type' ]))
 				{
@@ -1032,9 +1032,9 @@ class Medoo
 			}
 			elseif ($this->isRaw($value))
 			{
-				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(\s*\[(?<type>(String|Bool|Int|Number))\])?/i', $key, $key_match);
+				preg_match('/([a-zA-Z0-9_]+\.)?(?<column>[a-zA-Z0-9_]+)(\s*\[(?<type>(String|Bool|Int|Number))\])?/i', $key, $key_match);
 
-				$column_key = preg_replace('/^[\w]*\./i', '', $key_match[ 'column' ]);
+				$column_key = $key_match[ 'column' ];
 
 				if (isset($key_match[ 'type' ]))
 				{
