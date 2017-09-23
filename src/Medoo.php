@@ -300,10 +300,8 @@ class Medoo
 
 			return $statement;
 		}
-		else
-		{
-			return false;
-		}
+
+		return false;
 	}
 
 	protected function generate($query, $map)
@@ -1413,15 +1411,11 @@ class Medoo
 
 				return $stack;
 			}
-			else
-			{
-				return false;
-			}
-		}
-		else
-		{
+
 			return false;
 		}
+
+		return false;
 	}
 
 	public function has($table, $join, $where = null)
@@ -1435,10 +1429,8 @@ class Medoo
 		{
 			return $query->fetchColumn() === '1';
 		}
-		else
-		{
-			return false;
-		}
+
+		return false;
 	}
 
 	private function aggregate($type, $table, $join = null, $column = null, $where = null)
@@ -1453,10 +1445,8 @@ class Medoo
 
 			return is_numeric($number) ? $number + 0 : $number;
 		}
-		else
-		{
-			return false;
-		}
+
+		return false;
 	}
 
 	public function action($actions)
@@ -1485,10 +1475,8 @@ class Medoo
 
 			return $result;
 		}
-		else
-		{
-			return false;
-		}
+
+		return false;
 	}
 
 	public function id()
