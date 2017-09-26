@@ -306,7 +306,7 @@ class Medoo
 			}
 
 			$statement->execute();
-
+                        
 			$this->statement = $statement;
 
 			return $statement;
@@ -355,16 +355,41 @@ class Medoo
 
 	protected function columnQuote($string)
 	{
-		preg_match('/(^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)(\s*\[JSON\]$)?/', $string, $column_match);
+                $countOfPeriods = substr_count($string, '.');
+                if(1 === $countOfPeriods)
+                {
+                        preg_match('/(^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)(\s*\[JSON\]$)?/', $string, $column_match);
 
-		if (isset($column_match[ 2 ], $column_match[ 3 ]))
-		{
-			return '"' . $this->prefix . $column_match[ 2 ] . '"."' . $column_match[ 3 ] . '"';
-		}
+                        if (isset($column_match[ 2 ], $column_match[ 3 ]))
+                        {
+                                return '"' . $this->prefix . $column_match[ 2 ] . '"."' . $column_match[ 3 ] . '"';
+                        }
+                }
+		elseif(2 === $countOfPeriods)
+                {
+                        preg_match('/(^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)(\s*\[JSON\]$)?/', $string, $column_match);
+
+                        if (isset($column_match[ 2 ], $column_match[ 3 ], $column_match[ 4 ]))
+                        {
+                                return '"' . $this->prefix . $column_match[ 2 ] . '"."' . $column_match[ 3 ] . '"."' . $column_match[ 4 ] .'"';
+                        }
+                }
 
 		return '"' . $string . '"';
 	}
 
+        protected function columnQuoteWithTable($string)
+	{
+		preg_match('/(^#)?([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)\.([a-zA-Z0-9_]*)(\s*\[JSON\]$)?/', $string, $column_match);
+
+		if (isset($column_match[ 2 ], $column_match[ 3 ]))
+		{
+			return '"' . $this->prefix . $column_match[ 2 ] . '"."' . $column_match[ 3 ] . '"."' . $column_match[ 4 ] .'"';
+		}
+
+		return '"' . $string . '"';
+	}
+        
 	protected function columnPush(&$columns)
 	{
 		if ($columns === '*')
@@ -799,17 +824,39 @@ class Medoo
 
 	protected function selectContext($table, &$map, $join, &$columns = null, $where = null, $column_fn = null)
 	{
-		preg_match('/(?<table>[a-zA-Z0-9_]+)\s*\((?<alias>[a-zA-Z0-9_]+)\)/i', $table, $table_match);
+                preg_match('/(?<table>[a-zA-Z0-9_]+)\s*\((?<alias>[a-zA-Z0-9_]+)\)/i', $table, $table_match);
 
 		if (isset($table_match[ 'table' ], $table_match[ 'alias' ]))
 		{
-			$table = $this->tableQuote($table_match[ 'table' ]);
-
+                        $countOfPeriods = substr_count($table_match[ 'table' ], '.');
+                        if(0 === $countOfPeriods)
+                        {
+                                $table = $this->tableQuote($table_match[ 'table' ]);
+                        }
+                        elseif(1 === $countOfPeriods)
+                        {
+                                $databaseaAndTable = explode('.', $table_match[ 'table' ]);
+                                $table = $this->tableQuote($databaseaAndTable[0]) .'.'.$this->tableQuote($databaseaAndTable[1]);
+                        }
+			
+                        if($table_match[ 'database' ])
+                        {
+                            $table = $this->tableQuote($table_match[ 'database' ]) .'.'. $table;
+                        }
 			$table_query = $table . ' AS ' . $this->tableQuote($table_match[ 'alias' ]);
 		}
 		else
 		{
-			$table = $this->tableQuote($table);
+                        $countOfPeriods = substr_count($table, '.');
+                        if(0 === $countOfPeriods)
+                        {
+                                $table = $this->tableQuote($table);
+                        }
+                        elseif(1 === $countOfPeriods)
+                        {
+                                $databaseaAndTable = explode('.', $table);
+                                $table = $this->tableQuote($databaseaAndTable[0]) .'.'.$this->tableQuote($databaseaAndTable[1]);
+                        }
 
 			$table_query = $table;
 		}
@@ -832,7 +879,15 @@ class Medoo
 
 			foreach($join as $sub_table => $relation)
 			{
-				preg_match('/(\[(?<join>\<|\>|\>\<|\<\>)\])?(?<table>[a-zA-Z0-9_]+)\s?(\((?<alias>[a-zA-Z0-9_]+)\))?/', $sub_table, $match);
+                                $countOfPeriods = substr_count($sub_table, '.');
+                                if(0 === $countOfPeriods)
+                                {
+                                        preg_match('/(\[(?<join>\<|\>|\>\<|\<\>)\])?(?<table>[a-zA-Z0-9_]+)\s?(\((?<alias>[a-zA-Z0-9_]+)\))?/', $sub_table, $match);
+                                }
+                                elseif(1 === $countOfPeriods)
+                                {
+                                        preg_match('/(\[(?<join>\<|\>|\>\<|\<\>)\])?(?<database>[a-zA-Z0-9_]+)\s?\.(?<table>[a-zA-Z0-9_]+)\s?(\((?<alias>[a-zA-Z0-9_]+)\))?/', $sub_table, $match);
+                                }
 
 				if ($match[ 'join' ] !== '' && $match[ 'table' ] !== '')
 				{
@@ -854,8 +909,10 @@ class Medoo
 
 							foreach ($relation as $key => $value)
 							{
-								$joins[] = (
-									strpos($key, '.') > 0 ?
+                                                            $countOfPeriods = substr_count($key, '.');
+                                                            if(1 >= $countOfPeriods){
+                                                                $joins[] = (
+									$countOfPeriods > 0 ?
 										// For ['tableB.column' => 'column']
 										$this->columnQuote($key) :
 
@@ -864,13 +921,29 @@ class Medoo
 								) .
 								' = ' .
 								$this->tableQuote(isset($match[ 'alias' ]) ? $match[ 'alias' ] : $match[ 'table' ]) . '."' . $value . '"';
+                                                            } 
+                                                            elseif(2 === $countOfPeriods)
+                                                            {
+                                                                $joins[] = $this->columnQuoteWithTable($key) .
+								' = ' .
+								$this->tableQuote(
+                                                                        isset($match[ 'alias' ]) ? $match[ 'alias' ] : 
+                                                                            (
+                                                                                isset($match[ 'database' ]) ?  $match[ 'database' ]. '"."'. $match[ 'table' ] :
+                                                                                $match[ 'table' ]
+                                                                            )
+                                                                        ) . '."' . $value . '"';
+                                                            }
 							}
 
 							$relation = 'ON ' . implode($joins, ' AND ');
 						}
 					}
 
-					$table_name = $this->tableQuote($match[ 'table' ]) . ' ';
+                                        $table_name = isset($match[ 'database' ]) ? 
+                                                $this->tableQuote($match[ 'database' ]) .'.'. $this->tableQuote($match[ 'table' ]):
+                                                $this->tableQuote($match[ 'table' ])
+                                                . ' ';
 
 					if (isset($match[ 'alias' ]))
 					{
@@ -989,7 +1062,15 @@ class Medoo
 			{
 				$map = $column_map[ $value ];
 				$column_key = $map[ 0 ];
-
+                                $countOfPeriods = substr_count($map[ 0 ], '.');
+                                if(0 === $countOfPeriods)
+                                {
+                                    $column_key = $map[ 0 ];
+                                }
+                                elseif(1 === $countOfPeriods)
+                                {
+                                    $column_key = explode('.', $map[ 0 ])[1];
+                                }
 				if (isset($map[ 1 ]))
 				{
 					switch ($map[ 1 ])
