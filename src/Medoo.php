@@ -21,6 +21,8 @@ class Raw {
 
 class Medoo
 {
+	public $pdo;
+
 	protected $type;
 
 	protected $prefix;
