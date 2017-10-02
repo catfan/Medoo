@@ -21,7 +21,7 @@ class Raw {
 
 class Medoo
 {
-	protected $database_type;
+	protected $type;
 
 	protected $prefix;
 
@@ -46,7 +46,7 @@ class Medoo
 
 		if (isset($options[ 'database_type' ]))
 		{
-			$this->database_type = strtolower($options[ 'database_type' ]);
+			$this->type = strtolower($options[ 'database_type' ]);
 		}
 
 		if (isset($options[ 'prefix' ]))
@@ -94,7 +94,7 @@ class Medoo
 
 			$is_port = isset($port);
 
-			switch ($this->database_type)
+			switch ($this->type)
 			{
 				case 'mariadb':
 				case 'mysql':
@@ -215,7 +215,7 @@ class Medoo
 		$dsn = $driver . ':' . implode($stack, ';');
 
 		if (
-			in_array($this->database_type, ['mariadb', 'mysql', 'pgsql', 'sybase', 'mssql']) &&
+			in_array($this->type, ['mariadb', 'mysql', 'pgsql', 'sybase', 'mssql']) &&
 			isset($options[ 'charset' ])
 		)
 		{
@@ -312,7 +312,7 @@ class Medoo
 
 		$query = preg_replace(
 			'/"([a-zA-Z0-9_]+)"/i',
-			isset($identifier[ $this->database_type ]) ?  $identifier[ $this->database_type ] : '"$1"',
+			isset($identifier[ $this->type ]) ?  $identifier[ $this->type ] : '"$1"',
 			$query
 		);
 
@@ -822,7 +822,7 @@ class Medoo
 
 				if (
 					isset($where[ 'LIMIT' ]) &&
-					in_array($this->database_type, ['oracle', 'mssql'])
+					in_array($this->type, ['oracle', 'mssql'])
 				)
 				{
 					$LIMIT = $where[ 'LIMIT' ];
@@ -842,7 +842,7 @@ class Medoo
 				}
 			}
 
-			if (isset($where[ 'LIMIT' ]) && !in_array($this->database_type, ['oracle', 'mssql']))
+			if (isset($where[ 'LIMIT' ]) && !in_array($this->type, ['oracle', 'mssql']))
 			{
 				$LIMIT = $where[ 'LIMIT' ];
 
@@ -1491,7 +1491,7 @@ class Medoo
 
 	public function id()
 	{
-		$type = $this->database_type;
+		$type = $this->type;
 
 		if ($type === 'oracle')
 		{
