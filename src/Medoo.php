@@ -192,14 +192,12 @@ class Medoo
 					break;
 
 				case 'sqlite':
-					$this->pdo = new PDO('sqlite:' . $options[ 'database_file' ], null, null, $this->option);
+					$attr = [
+						'driver' => 'sqlite',
+						$options[ 'database_file' ]
+					];
 
-					foreach ($commands as $value)
-					{
-						$this->pdo->exec($value);
-					}
-
-					return;
+					break;
 			}
 		}
 
@@ -227,8 +225,8 @@ class Medoo
 		try {
 			$this->pdo = new PDO(
 				$dsn,
-				$options[ 'username' ],
-				$options[ 'password' ],
+				isset($options[ 'username' ]) ? $options[ 'username' ] : null,
+				isset($options[ 'password' ]) ? $options[ 'password' ] : null,
 				$this->option
 			);
 
