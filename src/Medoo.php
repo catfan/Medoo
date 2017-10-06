@@ -835,7 +835,7 @@ class Medoo
 
 					if (is_numeric($LIMIT))
 					{
-						$where_clause .= ' FETCH FIRST ' . $LIMIT . ' ROWS ONLY';
+						$where_clause .= ' OFFSET 0 ROWS FETCH NEXT ' . $LIMIT . ' ROWS ONLY';
 					}
 					elseif (
 						is_array($LIMIT) &&
