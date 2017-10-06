@@ -822,7 +822,13 @@ class Medoo
 
 				if (
 					isset($where[ 'LIMIT' ]) &&
-					in_array($this->type, ['oracle', 'mssql'])
+					(
+						$this->type==='oracle' || 
+						(
+							$this->type==='mssql' && 
+							$this->info()['server']['SQLServerVersion']>="11" //for sqlserver 2012+
+						)
+				   	)
 				)
 				{
 					$LIMIT = $where[ 'LIMIT' ];
@@ -1008,7 +1014,15 @@ class Medoo
 		{
 			$column = $this->columnPush($columns, $map);
 		}
-
+		if (
+			'mssql' === $this->type && 
+			$this->info()['server']['SQLServerVersion']<"11" && //for SQLSERVER 2000-2008
+			isset($where['LIMIT'])
+		   )
+	     	{
+	       		$limit = is_numeric($where['LIMIT']) ? $where['LIMIT'] : $where['LIMIT'][0];
+	       		$column = 'TOP (' . $limit . ') ' . $column;
+	     	}
 		return 'SELECT ' . $column . ' FROM ' . $table_query . $this->whereClause($where, $map);
 	}
 
