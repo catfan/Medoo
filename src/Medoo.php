@@ -829,9 +829,10 @@ class Medoo
 
 					if (is_numeric($LIMIT))
 					{
-						$where_clause .= ' FETCH FIRST ' . $LIMIT . ' ROWS ONLY';
+						$LIMIT = [0, $LIMIT];
 					}
-					elseif (
+					
+					if (
 						is_array($LIMIT) &&
 						is_numeric($LIMIT[ 0 ]) &&
 						is_numeric($LIMIT[ 1 ])
