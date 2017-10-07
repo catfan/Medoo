@@ -575,7 +575,18 @@ class Medoo
 								break;
 
 							case 'array':
-								$stack[] = $column . ' NOT IN (' . $this->arrayQuote($value) . ')';
+								$placeholders = [];
+
+								foreach ($value as $index => $item)
+								{
+									$placeholders[] = $map_key . $index;
+									$map[ $map_key . $index ] = [
+										$item,
+										is_int($item) ? PDO::PARAM_INT : PDO::PARAM_STR
+									];
+								}
+
+								$stack[] = $column . ' NOT IN (' . implode(', ', $placeholders) . ')';
 								break;
 
 							case 'integer':
@@ -670,7 +681,18 @@ class Medoo
 							break;
 
 						case 'array':
-							$stack[] = $column . ' IN (' . $this->arrayQuote($value) . ')';
+							$placeholders = [];
+
+							foreach ($value as $index => $item)
+							{
+								$placeholders[] = $map_key . $index;
+								$map[ $map_key . $index ] = [
+									$item,
+									is_int($item) ? PDO::PARAM_INT : PDO::PARAM_STR
+								];
+							}
+
+							$stack[] = $column . ' IN (' . implode(', ', $placeholders) . ')';
 							break;
 
 						case 'integer':
