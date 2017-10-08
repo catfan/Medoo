@@ -326,6 +326,10 @@ class Medoo
 			{
 				$replace = 'NULL';
 			}
+			elseif ($value[ 1 ] === PDO::PARAM_LOB)
+			{
+				$replace = '{LOB_DATA}';
+			}
 			else
 			{
 				$replace = $value[ 0 ];
@@ -373,29 +377,7 @@ class Medoo
 		{
 			foreach ($rawMap as $key => $value)
 			{
-				switch (gettype($value))
-				{
-					case 'NULL':
-						$rawMap[ $key ] = [null, PDO::PARAM_NULL];
-						break;
-
-					case 'resource':
-						$rawMap[ $key ] = [$value, PDO::PARAM_LOB];
-						break;
-
-					case 'boolean':
-						$rawMap[ $key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
-						break;
-
-					case 'integer':
-					case 'double':
-						$rawMap[ $key ] = [$value, PDO::PARAM_INT];
-						break;
-
-					case 'string':
-						$rawMap[ $key ] = [$value, PDO::PARAM_STR];
-						break;
-				}
+				$rawMap[ $key ] = $this->typeMap($value, gettype($value));
 			}
 
 			$map = array_merge($rawMap, $map);
@@ -417,6 +399,30 @@ class Medoo
 	protected function mapKey()
 	{
 		return ':MeDoO_' . $this->guid++ . '_mEdOo';
+	}
+
+	protected function typeMap($value, $type)
+	{
+		$map = [
+			'NULL' => PDO::PARAM_NULL,
+			'integer' => PDO::PARAM_INT,
+			'double' => PDO::PARAM_INT,
+			'boolean' => PDO::PARAM_BOOL,
+			'string' => PDO::PARAM_STR,
+			'object' => PDO::PARAM_STR,
+			'resource' => PDO::PARAM_LOB
+		];
+
+		if ($type === 'boolean')
+		{
+			$value = ($value ? '1' : '0');
+		}
+		elseif ($type === 'NULL')
+		{
+			$value = null;
+		}
+
+		return [$value, $map[ $type ]];
 	}
 
 	protected function columnQuote($string)
@@ -582,22 +588,11 @@ class Medoo
 									$placeholders[] = $map_key . $index;
 									$map[ $map_key . $index ] = [
 										$item,
-										is_int($item) ? PDO::PARAM_INT : PDO::PARAM_STR
+										$this->typeMap($item, gettype($item))
 									];
 								}
 
 								$stack[] = $column . ' NOT IN (' . implode(', ', $placeholders) . ')';
-								break;
-
-							case 'integer':
-							case 'double':
-								$stack[] = $column . ' != ' . $map_key;
-								$map[ $map_key ] = [$value, PDO::PARAM_INT];
-								break;
-
-							case 'boolean':
-								$stack[] = $column . ' != ' . $map_key;
-								$map[ $map_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
 								break;
 
 							case 'object':
@@ -607,9 +602,12 @@ class Medoo
 								}
 								break;
 
+							case 'integer':
+							case 'double':
+							case 'boolean':
 							case 'string':
 								$stack[] = $column . ' != ' . $map_key;
-								$map[ $map_key ] = [$value, PDO::PARAM_STR];
+								$map[ $map_key ] = $this->typeMap($value, $type);
 								break;
 						}
 					}
@@ -688,22 +686,11 @@ class Medoo
 								$placeholders[] = $map_key . $index;
 								$map[ $map_key . $index ] = [
 									$item,
-									is_int($item) ? PDO::PARAM_INT : PDO::PARAM_STR
+									$this->typeMap($item, gettype($item))
 								];
 							}
 
 							$stack[] = $column . ' IN (' . implode(', ', $placeholders) . ')';
-							break;
-
-						case 'integer':
-						case 'double':
-							$stack[] = $column . ' = ' . $map_key;
-							$map[ $map_key ] = [$value, PDO::PARAM_INT];
-							break;
-
-						case 'boolean':
-							$stack[] = $column . ' = ' . $map_key;
-							$map[ $map_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
 							break;
 
 						case 'object':
@@ -713,9 +700,12 @@ class Medoo
 							}
 							break;
 
+						case 'integer':
+						case 'double':
+						case 'boolean':
 						case 'string':
 							$stack[] = $column . ' = ' . $map_key;
-							$map[ $map_key ] = [$value, PDO::PARAM_STR];
+							$map[ $map_key ] = $this->typeMap($value, $type);
 							break;
 					}
 				}
@@ -1238,12 +1228,10 @@ class Medoo
 				{
 					$value = $data[ $key ];
 
-					switch (gettype($value))
-					{
-						case 'NULL':
-							$map[ $map_key ] = [null, PDO::PARAM_NULL];
-							break;
+					$type = gettype($value);
 
+					switch ($type)
+					{
 						case 'array':
 							$map[ $map_key ] = [
 								strpos($key, '[JSON]') === strlen($key) - 6 ?
@@ -1254,24 +1242,15 @@ class Medoo
 							break;
 
 						case 'object':
-							$map[ $map_key ] = [serialize($value), PDO::PARAM_STR];
-							break;
+							$value = serialize($value);
 
+						case 'NULL':
 						case 'resource':
-							$map[ $map_key ] = [$value, PDO::PARAM_LOB];
-							break;
-
 						case 'boolean':
-							$map[ $map_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
-							break;
-
 						case 'integer':
 						case 'double':
-							$map[ $map_key ] = [$value, PDO::PARAM_INT];
-							break;
-
 						case 'string':
-							$map[ $map_key ] = [$value, PDO::PARAM_STR];
+							$map[ $map_key ] = $this->typeMap($value, $type);
 							break;
 					}
 				}
@@ -1318,12 +1297,10 @@ class Medoo
 			{
 				$fields[] = $column . ' = ' . $map_key;
 
-				switch (gettype($value))
-				{
-					case 'NULL':
-						$map[ $map_key ] = [null, PDO::PARAM_NULL];
-						break;
+				$type = gettype($value);
 
+				switch ($type)
+				{
 					case 'array':
 						$map[ $map_key ] = [
 							strpos($key, '[JSON]') === strlen($key) - 6 ?
@@ -1334,24 +1311,15 @@ class Medoo
 						break;
 
 					case 'object':
-						$map[ $map_key ] = [serialize($value), PDO::PARAM_STR];
-						break;
+						$value = serialize($value);
 
+					case 'NULL':
 					case 'resource':
-						$map[ $map_key ] = [$value, PDO::PARAM_LOB];
-						break;
-
 					case 'boolean':
-						$map[ $map_key ] = [($value ? '1' : '0'), PDO::PARAM_BOOL];
-						break;
-
 					case 'integer':
 					case 'double':
-						$map[ $map_key ] = [$value, PDO::PARAM_INT];
-						break;
-
 					case 'string':
-						$map[ $map_key ] = [$value, PDO::PARAM_STR];
+						$map[ $map_key ] = $this->typeMap($value, $type);
 						break;
 				}
 			}
