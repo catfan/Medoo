@@ -358,6 +358,11 @@ class Medoo
 
 	protected function buildRaw($raw, &$map)
 	{
+		if (!$this->isRaw($raw))
+		{
+			return false;
+		}
+
 		$query = preg_replace_callback(
 			'/((FROM|TABLE|INTO|UPDATE)\s*)?\<([a-zA-Z0-9_\.]+)\>/i',
 			function ($matches)
@@ -455,11 +460,11 @@ class Medoo
 			{
 				$stack[] = $this->columnPush($value, $map);
 			}
-			elseif (!is_int($key) && $this->isRaw($value))
+			elseif (!is_int($key) && $raw = $this->buildRaw($value, $map))
 			{
 				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(\s*\[(?<type>(String|Bool|Int|Number))\])?/i', $key, $match);
 
-				$stack[] = $this->buildRaw($value, $map) . ' AS ' . $this->columnQuote( $match[ 'column' ] );
+				$stack[] = $raw . ' AS ' . $this->columnQuote( $match[ 'column' ] );
 			}
 			elseif (is_int($key) && is_string($value))
 			{
@@ -560,9 +565,9 @@ class Medoo
 							$condition .= $map_key;
 							$map[ $map_key ] = [$value, PDO::PARAM_INT];
 						}
-						elseif ($this->isRaw($value))
+						elseif ($raw = $this->buildRaw($value, $map))
 						{
-							$condition .= $this->buildRaw($value, $map);
+							$condition .= $raw;
 						}
 						else
 						{
@@ -596,9 +601,9 @@ class Medoo
 								break;
 
 							case 'object':
-								if ($this->isRaw($value))
+								if ($raw = $this->buildRaw($value, $map))
 								{
-									$stack[] = $column . ' != ' . $this->buildRaw($value, $map);
+									$stack[] = $column . ' != ' . $raw;
 								}
 								break;
 
@@ -694,9 +699,9 @@ class Medoo
 							break;
 
 						case 'object':
-							if ($this->isRaw($value))
+							if ($raw = $this->buildRaw($value, $map))
 							{
-								$stack[] = $column . ' = ' . $this->buildRaw($value, $map);
+								$stack[] = $column . ' = ' . $raw;
 							}
 							break;
 
@@ -775,9 +780,9 @@ class Medoo
 
 					$where_clause .= ' GROUP BY ' . implode($stack, ',');
 				}
-				elseif ($this->isRaw($GROUP))
+				elseif ($raw = $this->buildRaw($GROUP, $map))
 				{
-					$where_clause .= ' GROUP BY ' . $this->buildRaw($GROUP, $map);
+					$where_clause .= ' GROUP BY ' . $raw;
 				}
 				else
 				{
@@ -786,9 +791,9 @@ class Medoo
 
 				if (isset($where[ 'HAVING' ]))
 				{
-					if ($this->isRaw($where[ 'HAVING' ]))
+					if ($raw = $this->buildRaw($where[ 'HAVING' ], $map))
 					{
-						$where_clause .= ' HAVING ' . $this->buildRaw($where[ 'HAVING' ], $map);
+						$where_clause .= ' HAVING ' . $raw;
 					}
 					else
 					{
@@ -823,9 +828,9 @@ class Medoo
 
 					$where_clause .= ' ORDER BY ' . implode($stack, ',');
 				}
-				elseif ($this->isRaw($ORDER))
+				elseif ($raw = $this->buildRaw($ORDER, $map))
 				{
-					$where_clause .= ' ORDER BY ' . $this->buildRaw($ORDER, $map);	
+					$where_clause .= ' ORDER BY ' . $raw;	
 				}
 				else
 				{
@@ -1210,9 +1215,9 @@ class Medoo
 
 			foreach ($columns as $key)
 			{
-				if ($this->isRaw($data[ $key ]))
+				if ($raw = $this->buildRaw($data[ $key ], $map))
 				{
-					$values[] = $this->buildRaw($data[ $key ], $map);
+					$values[] = $raw;
 					continue;
 				}
 
@@ -1276,9 +1281,9 @@ class Medoo
 		{
 			$column = $this->columnQuote(preg_replace("/(\s*\[(JSON|\+|\-|\*|\/)\]$)/i", '', $key));
 
-			if ($this->isRaw($value))
+			if ($raw = $this->buildRaw($value, $map))
 			{
-				$fields[] = $column . ' = ' . $this->buildRaw($value, $map);
+				$fields[] = $column . ' = ' . $raw;
 				continue;
 			}
 
