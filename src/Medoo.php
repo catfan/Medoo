@@ -1151,10 +1151,9 @@ class Medoo
 							break;
 
 						case 'integer':
-						case 'double':
 							$map[ $map_key ] = [$value, PDO::PARAM_INT];
 							break;
-
+						case 'double':
 						case 'string':
 							$map[ $map_key ] = [$value, PDO::PARAM_STR];
 							break;
