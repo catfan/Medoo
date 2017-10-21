@@ -369,7 +369,7 @@ class Medoo
 			{
 				if (!empty($matches[ 2 ]))
 				{
-					return $this->tableQuote($matches[ 3 ]);
+					return $matches[ 2 ] . ' ' . $this->tableQuote($matches[ 3 ]);
 				}
 
 				return $this->columnQuote($matches[ 3 ]);
