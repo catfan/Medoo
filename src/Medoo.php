@@ -1433,7 +1433,9 @@ class Medoo
 
 		if ($query)
 		{
-			return $query->fetchColumn() === '1';
+			$result = $query->fetchColumn();
+
+			return $result === '1' || $result === true;
 		}
 
 		return false;
