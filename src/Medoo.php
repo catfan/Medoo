@@ -1099,31 +1099,40 @@ class Medoo
 						continue;
 					}
 
-					switch ($map[ 1 ])
+					if (\strpos($map[ 1 ], 'Nullable') === 0 && $data[ $column_key ] === null)
 					{
-						case 'Number':
-							$stack[ $column_key ] = (double) $data[ $column_key ];
-							break;
+						$stack[ $column_key ] = $data[ $column_key ];
+					}
+					else
+					{
+						$map[ 1 ] = \str_replace('Nullable', '', $map[ 1 ]);
+						
+						switch ($map[ 1 ])
+						{
+							case 'Number':
+								$stack[ $column_key ] = (double) $data[ $column_key ];
+								break;
 
-						case 'Int':
-							$stack[ $column_key ] = (int) $data[ $column_key ];
-							break;
+							case 'Int':
+								$stack[ $column_key ] = (int) $data[ $column_key ];
+								break;
 
-						case 'Bool':
-							$stack[ $column_key ] = (bool) $data[ $column_key ];
-							break;
+							case 'Bool':
+								$stack[ $column_key ] = (bool) $data[ $column_key ];
+								break;
 
-						case 'Object':
-							$stack[ $column_key ] = unserialize($data[ $column_key ]);
-							break;
+							case 'Object':
+								$stack[ $column_key ] = unserialize($data[ $column_key ]);
+								break;
 
-						case 'JSON':
-							$stack[ $column_key ] = json_decode($data[ $column_key ], true);
-							break;
+							case 'JSON':
+								$stack[ $column_key ] = json_decode($data[ $column_key ], true);
+								break;
 
-						case 'String':
-							$stack[ $column_key ] = $data[ $column_key ];
-							break;
+							case 'String':
+								$stack[ $column_key ] = $data[ $column_key ];
+								break;
+						}
 					}
 				}
 				else
