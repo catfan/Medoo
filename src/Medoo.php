@@ -254,8 +254,6 @@ class Medoo
 
 	public function query($query, $map = [])
 	{
-		$map = [];
-
 		$raw = $this->raw($query, $map);
 
 		$query = $this->buildRaw($raw, $map);
@@ -385,7 +383,7 @@ class Medoo
 				$rawMap[ $key ] = $this->typeMap($value, gettype($value));
 			}
 
-			$map = array_merge($rawMap, $map);
+			$map = $rawMap;
 		}
 
 		return $query;
