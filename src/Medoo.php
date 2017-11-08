@@ -374,16 +374,16 @@ class Medoo
 			},
 			$raw->value);
 
-		$rawMap = $raw->map;
+		$raw_map = $raw->map;
 
-		if (!empty($rawMap))
+		if (!empty($raw_map))
 		{
-			foreach ($rawMap as $key => $value)
+			foreach ($raw_map as $key => $value)
 			{
-				$rawMap[ $key ] = $this->typeMap($value, gettype($value));
+				$raw_map[ $key ] = $this->typeMap($value, gettype($value));
 			}
 
-			$map = $rawMap;
+			$map = $raw_map;
 		}
 
 		return $query;
