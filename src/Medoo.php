@@ -734,6 +734,8 @@ class Medoo
 						else if (is_int($column))
 						{
 							$stack[] = $this->columnQuote($value);
+						}else if($value=="RAND()"){
+							$stack[] = $value;
 						}
 					}
 
@@ -741,7 +743,11 @@ class Medoo
 				}
 				else
 				{
-					$where_clause .= ' ORDER BY ' . $this->columnQuote($ORDER);
+					if($ORDER=="RAND()"){
+						$where_clause .= ' ORDER BY ' . $ORDER;
+					}else{
+						$where_clause .= ' ORDER BY ' . $this->columnQuote($ORDER);
+					}
 				}
 
 				if (
@@ -1107,7 +1113,7 @@ class Medoo
 			{
 				if (strpos($key, '#') === 0)
 				{
-					$values[] = $this->fnQuote($key, $data[ $key ]);	
+					$values[] = $this->fnQuote($key, $data[ $key ]);
 					continue;
 				}
 
