@@ -876,12 +876,9 @@ class Medoo
 				}
 			}
 		}
-		else
+		elseif ($raw = $this->buildRaw($where, $map))
 		{
-			if ($where !== null)
-			{
-				$where_clause .= ' ' . $where;
-			}
+			$where_clause .= ' ' . $raw;
 		}
 
 		return $where_clause;
