@@ -10,19 +10,19 @@
 
 > The Lightest PHP database framework to accelerate development
 
-## Main Features
+## Features
 
-* **Lightweight** - 32KB around with only one file.
+* **Lightweight** - Less than 100 KB, portable with only one file
 
-* **Easy** - Extremely easy to learn and use, friendly construction.
+* **Easy** - Extremely easy to learn and use, friendly construction
 
-* **Powerful** - Supports various common and complex SQL queries, data mapping, and prevent SQL injection.
+* **Powerful** - Supports various common and complex SQL queries, data mapping, and prevent SQL injection
 
-* **Compatible** - Supports all SQL databases, including MySQL, MSSQL, SQLite, MariaDB, Sybase, Oracle, PostgreSQL and more.
+* **Compatible** - Supports all SQL databases, including MySQL, MSSQL, SQLite, MariaDB, PostgreSQL, Sybase, Oracle and more
 
-* **Friendly** - Works well with every PHP frameworks, like Laravel, Codeigniter, Yii, Slim, and framework which supports singleton extension.
+* **Friendly** - Works well with every PHP frameworks, like Laravel, Codeigniter, Yii, Slim, and framework which supports singleton extension or composer
 
-* **Free** - Under MIT license, you can use it anywhere if you want.
+* **Free** - Under MIT license, you can use it anywhere whatever you want
 
 ## Requirement
 
