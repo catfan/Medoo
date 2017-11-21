@@ -589,10 +589,7 @@ class Medoo
 								foreach ($value as $index => $item)
 								{
 									$placeholders[] = $map_key . $index;
-									$map[ $map_key . $index ] = [
-										$item,
-										$this->typeMap($item, gettype($item))
-									];
+									$map[ $map_key . $index ] = $this->typeMap($item, gettype($item));
 								}
 
 								$stack[] = $column . ' NOT IN (' . implode(', ', $placeholders) . ')';
@@ -687,10 +684,7 @@ class Medoo
 							foreach ($value as $index => $item)
 							{
 								$placeholders[] = $map_key . $index;
-								$map[ $map_key . $index ] = [
-									$item,
-									$this->typeMap($item, gettype($item))
-								];
+								$map[ $map_key . $index ] = $this->typeMap($item, gettype($item));
 							}
 
 							$stack[] = $column . ' IN (' . implode(', ', $placeholders) . ')';
