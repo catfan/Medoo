@@ -120,7 +120,7 @@ class Medoo
 					}
 
 					// Make MySQL using standard quoted identifier
-					$commands[] = 'SET SQL_MODE=ANSI_QUOTES';
+					$this->option[PDO::MYSQL_ATTR_INIT_COMMAND] = 'SET SQL_MODE = CONCAT(@@sql_mode, ",", "ANSI_QUOTES")';
 					break;
 
 				case 'pgsql':
