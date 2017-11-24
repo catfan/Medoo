@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * https://medoo.in
- * Version 1.5
+ * Version 1.5.1
  *
  * Copyright 2017, Angel Lai
  * Released under the MIT license
