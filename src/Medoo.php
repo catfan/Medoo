@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * https://medoo.in
- * Version 1.5
+ * Version 1.5.1
  *
  * Copyright 2017, Angel Lai
  * Released under the MIT license
@@ -808,11 +808,11 @@ class Medoo
 						{
 							$stack[] = 'FIELD(' . $this->columnQuote($column) . ', ' . $this->arrayQuote($value) . ')';
 						}
-						else if ($value === 'ASC' || $value === 'DESC')
+						elseif ($value === 'ASC' || $value === 'DESC')
 						{
 							$stack[] = $this->columnQuote($column) . ' ' . $value;
 						}
-						else if (is_int($column))
+						elseif (is_int($column))
 						{
 							$stack[] = $this->columnQuote($value);
 						}
@@ -1032,7 +1032,7 @@ class Medoo
 			{
 				preg_match('/([a-zA-Z0-9_]+\.)?(?<column>[a-zA-Z0-9_]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/i', $value, $key_match);
 
-				$column_key = !empty($key_match[ 'alias' ]) ?
+				$column_key = isset($key_match[ 'alias' ]) ?
 					$key_match[ 'alias' ] :
 					$key_match[ 'column' ];
 
