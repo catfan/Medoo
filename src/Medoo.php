@@ -39,6 +39,8 @@ class Medoo
 
 	protected $guid = 0;
 
+	protected $like_escape_chr = null;
+
 	public function __construct($options = null)
 	{
 		if (!is_array($options))
@@ -237,6 +239,11 @@ class Medoo
 		}
 		catch (PDOException $e) {
 			throw new PDOException($e->getMessage());
+		}
+
+		if (isset($options[ 'like_escape_chr' ]) && strlen($options[ 'like_escape_chr' ]) === 1)
+		{
+			$this->like_escape_chr = $options[ 'like_escape_chr' ];
 		}
 	}
 
@@ -635,13 +642,21 @@ class Medoo
 						foreach ($value as $index => $item)
 						{
 							$item = strval($item);
+							$match_item = ($this->like_escape_chr === null) ? $item : 
+									str_replace([
+													$this->like_escape_chr.$this->like_escape_chr,
+													$this->like_escape_chr.'[',
+													$this->like_escape_chr.']',
+													$this->like_escape_chr.'_',
+													$this->like_escape_chr.'%'
+												], [], $item);
 
-							if (!preg_match('/(\[.+\]|_|%.+|.+%)/', $item))
+							if (!preg_match('/(\[.+\]|_|%.+|.+%)/', $match_item))
 							{
 								$item = '%' . $item . '%';
 							}
 
-							$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $map_key . 'L' . $index;
+							$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $map_key . 'L' . $index . ($this->like_escape_chr === null ? '' : " ESCAPE '" . $this->like_escape_chr ."' ");
 							$map[ $map_key . 'L' . $index ] = [$item, PDO::PARAM_STR];
 						}
 
