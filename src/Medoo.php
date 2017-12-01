@@ -1032,7 +1032,7 @@ class Medoo
 			{
 				preg_match('/([a-zA-Z0-9_]+\.)?(?<column>[a-zA-Z0-9_]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/i', $value, $key_match);
 
-				$column_key = isset($key_match[ 'alias' ]) ?
+				$column_key = !empty($key_match[ 'alias' ]) ?
 					$key_match[ 'alias' ] :
 					$key_match[ 'column' ];
 
