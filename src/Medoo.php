@@ -39,6 +39,8 @@ class Medoo
 
 	protected $guid = 0;
 
+    protected $transTimes = 0;
+
 	public function __construct($options = null)
 	{
 		if (!is_array($options))
@@ -1475,6 +1477,45 @@ class Medoo
 
 		return false;
 	}
+
+    public function beginTransaction()
+    {
+        if (!$this->pdo) {
+            return false;
+        }
+        ++$this->transTimes;
+        try {
+            if (1 == $this->transTimes) {
+                $this->pdo->beginTransaction();
+            } elseif ($this->transTimes > 1) {
+                $this->pdo->exec(
+                    'SAVEPOINT trans' . $this->transTimes
+                );
+            }
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function commit()
+    {
+        if (1 == $this->transTimes) {
+            $this->pdo->commit();
+        }
+        --$this->transTimes;
+    }
+
+    public function rollBack()
+    {
+        if (1 == $this->transTimes) {
+            $this->pdo->rollBack();
+        } elseif ($this->transTimes > 1) {
+            $this->pdo->exec(
+                'ROLLBACK TO SAVEPOINT trans' . $this->transTimes
+            );
+        }
+        $this->transTimes = max(0, $this->transTimes - 1);
+    }
 
 	public function id()
 	{
