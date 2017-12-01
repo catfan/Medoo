@@ -1452,22 +1452,22 @@ class Medoo
 	{
 		if (is_callable($actions))
 		{
-			$this->pdo->beginTransaction();
+			$this->beginTransaction();
 
 			try {
 				$result = $actions($this);
 
 				if ($result === false)
 				{
-					$this->pdo->rollBack();
+					$this->rollBack();
 				}
 				else
 				{
-					$this->pdo->commit();
+					$this->commit();
 				}
 			}
 			catch (Exception $e) {
-				$this->pdo->rollBack();
+				$this->rollBack();
 
 				throw $e;
 			}
