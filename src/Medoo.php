@@ -45,6 +45,11 @@ class Medoo
 		{
 			return false;
 		}
+		
+		if(isset($options[ 'socket' ]) && isset($options[ 'server' ]))
+		{
+		        return false;
+		}
 
 		if (isset($options[ 'database_type' ]))
 		{
