@@ -521,19 +521,17 @@ class Medoo
 		{
 			$type = gettype($value);
 
-			if ($type === 'array')
+			if (
+				$type === 'array' &&
+			)
 			{
-				$relationship = strpos($key, 'AND', 0) !== false ? 'AND' :
-				 				(strpos($key, 'OR', 0) !== false ? 'OR' : false);
+				$relationship = $relation_match[ 1 ];
 
-				 if ($relationship)
-				 {
-					$stack[] = !empty(array_diff_key($value, array_keys(array_keys($value)))) ?
-						'(' . $this->dataImplode($value, $map, ' ' . $relationship) . ')' :
-						'(' . $this->innerConjunct($value, $map, ' ' . $relationship, $conjunctor) . ')';
+				$stack[] = !empty(array_diff_key($value, array_keys(array_keys($value)))) ?
+					'(' . $this->dataImplode($value, $map, ' ' . $relationship) . ')' :
+					'(' . $this->innerConjunct($value, $map, ' ' . $relationship, $conjunctor) . ')';
 
-					continue;
-				}
+				continue;
 			}
 
 			$map_key = $this->mapKey();
