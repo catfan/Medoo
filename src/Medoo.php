@@ -523,6 +523,7 @@ class Medoo
 
 			if (
 				$type === 'array' &&
+				preg_match("/^(AND|OR)(\s+#.*)?$/", $key, $relation_match)
 			)
 			{
 				$relationship = $relation_match[ 1 ];
