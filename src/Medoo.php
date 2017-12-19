@@ -51,6 +51,12 @@ class Medoo
 			$this->type = strtolower($options[ 'database_type' ]);
 		}
 
+        // SQLite compatible
+        if ($this->type === 'sqlite')
+        {
+            return new Medoo_by_sqlite($options);
+        }
+
 		if (isset($options[ 'prefix' ]))
 		{
 			$this->prefix = $options[ 'prefix' ];
@@ -528,7 +534,7 @@ class Medoo
 
 				 if ($relationship)
 				 {
-					$stack[] = !empty(array_diff_key($value, array_keys(array_keys($value)))) ?
+					$stack[] = count(array_diff_key($value, array_keys(array_keys($value)))) ?
 						'(' . $this->dataImplode($value, $map, ' ' . $relationship) . ')' :
 						'(' . $this->innerConjunct($value, $map, ' ' . $relationship, $conjunctor) . ')';
 
@@ -822,7 +828,7 @@ class Medoo
 				}
 				elseif ($raw = $this->buildRaw($ORDER, $map))
 				{
-					$where_clause .= ' ORDER BY ' . $raw;	
+					$where_clause .= ' ORDER BY ' . $raw;
 				}
 				else
 				{
@@ -840,7 +846,7 @@ class Medoo
 					{
 						$LIMIT = [0, $LIMIT];
 					}
-					
+
 					if (
 						is_array($LIMIT) &&
 						is_numeric($LIMIT[ 0 ]) &&
@@ -1131,7 +1137,7 @@ class Medoo
 		}
 	}
 
-	public function select($table, $join, $columns = null, $where = null)
+	public function select($table, $join, $columns = null, $where = null, $key = null)
 	{
 		$map = [];
 		$stack = [];
@@ -1152,26 +1158,46 @@ class Medoo
 			return false;
 		}
 
-		if ($columns === '*')
+        // Support the caller to compile the results yourself
+        if ( is_callable($key) )
+        {
+            return call_user_func($key, $query, $this);
+        }
+
+        // Support the caller to customize the results of the key
+        if ( is_string($key) && !empty($key) )
+        {
+            while ($data = $query->fetch(PDO::FETCH_ASSOC)) {
+                $current_stack = [];
+
+                $this->dataMap($data, $columns, $column_map, $current_stack);
+
+                $stack[ $data[$key] ] = $current_stack;
+            }
+        }
+
+		else if ($columns === '*')
 		{
 			return $query->fetchAll(PDO::FETCH_ASSOC);
 		}
 
-		if ($is_single)
+		else if ($is_single)
 		{
 			return $query->fetchAll(PDO::FETCH_COLUMN);
 		}
 
-		while ($data = $query->fetch(PDO::FETCH_ASSOC))
-		{
-			$current_stack = [];
+        else {
+            while ($data = $query->fetch(PDO::FETCH_ASSOC))
+            {
+                $current_stack = [];
 
-			$this->dataMap($data, $columns, $column_map, $current_stack);
+                $this->dataMap($data, $columns, $column_map, $current_stack);
 
-			$stack[ $index ] = $current_stack;
+                $stack[ $index ] = $current_stack;
 
-			$index++;
-		}
+                $index++;
+            }
+        }
 
 		return $stack;
 	}
@@ -1542,5 +1568,40 @@ class Medoo
 
 		return $output;
 	}
+}
+
+/** SQLite compatible */
+class Medoo_by_sqlite
+{
+    protected $database_name;
+
+    function __construct(array $options)
+    {
+        if ( isset($options['database_name']) && is_string($options['database_name']) && !empty($options['database_name']) )    {
+            $this->database_name = $options['database_name'];
+        }
+
+        parent::__construct($options);
+    }
+
+    protected function tableQuote($table)
+    {
+        if ( strpos($table, '.') ) {
+            list($database_name, $table_name) = explode('.', $table);
+            return '"' . $database_name . '"."' . $this->prefix . $table_name . '"';
+        } else {
+            return '"' . (empty($this->database_name)?'main':$this->database_name) . '"."' . $this->prefix . $table . '"';
+        }
+    }
+
+    public function tables()
+    {
+        return $this->select('sqlite_master', '*', ['type'=>'table']);
+    }
+
+    public function table_has($name)
+    {
+        return !!$this->count('sqlite_master', '*', ['AND'=>['type'=>'table', 'name'=>$name]]);
+    }
 }
 ?>
