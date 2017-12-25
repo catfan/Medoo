@@ -528,7 +528,7 @@ class Medoo
 			{
 				$relationship = $relation_match[ 1 ];
 
-				$stack[] = !empty(array_diff_key($value, array_keys(array_keys($value)))) ?
+				$stack[] = $value !== array_keys(array_keys($value)) ?
 					'(' . $this->dataImplode($value, $map, ' ' . $relationship) . ')' :
 					'(' . $this->innerConjunct($value, $map, ' ' . $relationship, $conjunctor) . ')';
 
