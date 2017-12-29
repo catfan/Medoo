@@ -934,16 +934,24 @@ class Medoo
 
 							foreach ($relation as $key => $value)
 							{
+								preg_match('/(#?)([a-zA-Z0-9_\.]+)(\[(?<operator>\>|\>\=|\<|\<\=|\!|\<\>|\>\<|\!?~)\])?/i', $key, $key_match);
+
+								$value_as_string = (isset($key_match[ 'operator' ]) && $key_match[ 'operator' ] === '~');
+
+								$column_key = $this->columnQuote($key_match[ 2 ]);
+								
 								$joins[] = (
 									strpos($key, '.') > 0 ?
 										// For ['tableB.column' => 'column']
-										$this->columnQuote($key) :
+										$column_key :
 
 										// For ['column1' => 'column2']
-										$table . '."' . $key . '"'
+										$table . '.' . $column_key
 								) .
 								' = ' .
-								$this->tableQuote(isset($match[ 'alias' ]) ? $match[ 'alias' ] : $match[ 'table' ]) . '."' . $value . '"';
+								($value_as_string ? 
+								 $this->quote($value) : 
+								 $this->tableQuote(isset($match[ 'alias' ]) ? $match[ 'alias' ] : $match[ 'table' ]) . '."' . $value . '"');
 							}
 
 							$relation = 'ON ' . implode($joins, ' AND ');
