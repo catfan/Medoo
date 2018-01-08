@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * https://medoo.in
- * Version 1.5.3
+ * Version 1.5.4
  *
  * Copyright 2017, Angel Lai
  * Released under the MIT license
@@ -587,8 +587,8 @@ class Medoo
 
 								foreach ($value as $index => $item)
 								{
-									$placeholders[] = $map_key . $index;
-									$map[ $map_key . $index ] = $this->typeMap($item, gettype($item));
+									$placeholders[] = $map_key . $index . '_i';
+									$map[ $map_key . $index . '_i' ] = $this->typeMap($item, gettype($item));
 								}
 
 								$stack[] = $column . ' NOT IN (' . implode(', ', $placeholders) . ')';
@@ -682,8 +682,8 @@ class Medoo
 
 							foreach ($value as $index => $item)
 							{
-								$placeholders[] = $map_key . $index;
-								$map[ $map_key . $index ] = $this->typeMap($item, gettype($item));
+								$placeholders[] = $map_key . $index . '_i';
+								$map[ $map_key . $index . '_i' ] = $this->typeMap($item, gettype($item));
 							}
 
 							$stack[] = $column . ' IN (' . implode(', ', $placeholders) . ')';
