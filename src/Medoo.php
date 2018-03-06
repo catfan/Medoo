@@ -81,8 +81,10 @@ class Medoo
 			{
 				$attr = $options[ 'dsn' ];
 			}
-
-			return false;
+			else
+			{
+				return false;
+			}
 		}
 		else
 		{
