@@ -2,9 +2,9 @@
 /*!
  * Medoo database framework
  * https://medoo.in
- * Version 1.5.4
+ * Version 1.5.5
  *
- * Copyright 2017, Angel Lai
+ * Copyright 2018, Angel Lai
  * Released under the MIT license
  */
 
@@ -81,8 +81,10 @@ class Medoo
 			{
 				$attr = $options[ 'dsn' ];
 			}
-
-			return false;
+			else
+			{
+				return false;
+			}
 		}
 		else
 		{
