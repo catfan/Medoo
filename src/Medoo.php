@@ -541,7 +541,7 @@ class Medoo
 
 			if (
 				is_int($key) &&
-				preg_match('/([a-zA-Z0-9_\.]+)\[(?<operator>\>\=?|\<\=?|\!|\=)\]([a-zA-Z0-9_\.]+)/i', $value, $match)
+				preg_match('/([a-zA-Z0-9_\.]+)\[(?<operator>\>\=?|\<\=?|\!\=|\=)\]([a-zA-Z0-9_\.]+)/i', $value, $match)
 			)
 			{
 				$stack[] = $this->columnQuote($match[ 1 ]) . ' ' . $match[ 'operator' ] . ' ' . $this->columnQuote($match[ 3 ]);
