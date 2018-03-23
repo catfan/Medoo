@@ -1003,7 +1003,7 @@ class Medoo
 			}
 			else
 			{
-				if (empty($columns))
+				if (empty($columns) || $this->isRaw($columns))
 				{
 					$columns = '*';
 					$where = $join;
