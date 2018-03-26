@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * https://medoo.in
- * Version 1.5.5
+ * Version 1.5.6
  *
  * Copyright 2018, Angel Lai
  * Released under the MIT license
@@ -541,7 +541,7 @@ class Medoo
 
 			if (
 				is_int($key) &&
-				preg_match('/([a-zA-Z0-9_\.]+)\[(?<operator>\>\=?|\<\=?|\!|\=)\]([a-zA-Z0-9_\.]+)/i', $value, $match)
+				preg_match('/([a-zA-Z0-9_\.]+)\[(?<operator>\>\=?|\<\=?|\!?\=)\]([a-zA-Z0-9_\.]+)/i', $value, $match)
 			)
 			{
 				$stack[] = $this->columnQuote($match[ 1 ]) . ' ' . $match[ 'operator' ] . ' ' . $this->columnQuote($match[ 3 ]);
@@ -1003,7 +1003,7 @@ class Medoo
 			}
 			else
 			{
-				if (empty($columns))
+				if (empty($columns) || $this->isRaw($columns))
 				{
 					$columns = '*';
 					$where = $join;
@@ -1082,6 +1082,8 @@ class Medoo
 
 				$column_key = $map[ 0 ];
 
+				$result = $data[ $column_key ];
+
 				if (isset($map[ 1 ]))
 				{
 					if ($isRaw && in_array($map[ 1 ], ['Object', 'JSON']))
@@ -1089,36 +1091,42 @@ class Medoo
 						continue;
 					}
 
+					if (is_null($result))
+					{
+						$stack[ $column_key ] = null;
+						continue;
+					}
+
 					switch ($map[ 1 ])
 					{
 						case 'Number':
-							$stack[ $column_key ] = (double) $data[ $column_key ];
+							$stack[ $column_key ] = (double) $result;
 							break;
 
 						case 'Int':
-							$stack[ $column_key ] = (int) $data[ $column_key ];
+							$stack[ $column_key ] = (int) $result;
 							break;
 
 						case 'Bool':
-							$stack[ $column_key ] = (bool) $data[ $column_key ];
+							$stack[ $column_key ] = (bool) $result;
 							break;
 
 						case 'Object':
-							$stack[ $column_key ] = unserialize($data[ $column_key ]);
+							$stack[ $column_key ] = unserialize($result);
 							break;
 
 						case 'JSON':
-							$stack[ $column_key ] = json_decode($data[ $column_key ], true);
+							$stack[ $column_key ] = json_decode($result, true);
 							break;
 
 						case 'String':
-							$stack[ $column_key ] = $data[ $column_key ];
+							$stack[ $column_key ] = $result;
 							break;
 					}
 				}
 				else
 				{
-					$stack[ $column_key ] = $data[ $column_key ];
+					$stack[ $column_key ] = $result;
 				}
 			}
 			else
