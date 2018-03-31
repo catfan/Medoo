@@ -385,7 +385,7 @@ class Medoo
 				$raw_map[ $key ] = $this->typeMap($value, gettype($value));
 			}
 
-			$map = $raw_map;
+                        $map = array_merge($map, $raw_map);
 		}
 
 		return $query;
@@ -945,7 +945,7 @@ class Medoo
 										$table . '."' . $key . '"'
 								) .
 								' = ' .
-								$this->tableQuote(isset($match[ 'alias' ]) ? $match[ 'alias' ] : $match[ 'table' ]) . '."' . $value . '"';
+                                                                (($this->isRaw($value))? $this->buildRaw($value, $map) : ($this->tableQuote(isset($match[ 'alias' ]) ? $match[ 'alias' ] : $match[ 'table' ]) . '."' . $value . '"'));
 							}
 
 							$relation = 'ON ' . implode($joins, ' AND ');
