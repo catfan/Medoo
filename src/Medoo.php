@@ -13,6 +13,7 @@ namespace Medoo;
 use PDO;
 use Exception;
 use PDOException;
+use LogicException;
 
 class Raw {
 	public $map;
@@ -1016,8 +1017,10 @@ class Medoo
 		{
 			$column = $this->columnPush($columns, $map);
 		}
-
-		return 'SELECT ' . $column . ' FROM ' . $table_query . $this->whereClause($where, $map);
+                if(is_null($column_fn) && $this->type === 'mysql'){
+                    return 'SELECT SQL_CALC_FOUND_ROWS ' . $column . ' FROM ' . $table_query . $this->whereClause($where, $map);
+                }
+                return 'SELECT ' . $column . ' FROM ' . $table_query . $this->whereClause($where, $map);
 	}
 
 	protected function columnMap($columns, &$stack)
@@ -1550,6 +1553,23 @@ class Medoo
 		}
 
 		return $output;
+	}
+        /**
+         * Found rows
+         * 
+         * The found rows of the last query without applying the LIMIT clause,
+         * by now only available for MySQL
+         * 
+         * @return int
+         * @throws LogicException
+         */
+        public function foundRows()
+	{
+                if($this->type!='mysql'){
+                    throw new LogicException('This method is method is only available for MySQL');
+                }
+		$pdoSt = $this->query('SELECT FOUND_ROWS()');
+                return (int) $pdoSt->fetchColumn();
 	}
 }
 ?>
