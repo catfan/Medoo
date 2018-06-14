@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * https://medoo.in
- * Version 1.5.6
+ * Version 1.5.7
  *
  * Copyright 2018, Angel Lai
  * Released under the MIT license
@@ -382,10 +382,8 @@ class Medoo
 		{
 			foreach ($raw_map as $key => $value)
 			{
-				$raw_map[ $key ] = $this->typeMap($value, gettype($value));
+				$map[ $key ] = $this->typeMap($value, gettype($value));
 			}
-
-			$map = $raw_map;
 		}
 
 		return $query;
