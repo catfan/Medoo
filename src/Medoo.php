@@ -811,6 +811,10 @@ class Medoo
 						{
 							$stack[] = $this->columnQuote($column) . ' ' . $value;
 						}
+						else if($value === 'RAND()')
+						{
+							$stack[] = $value;
+						}
 						elseif (is_int($column))
 						{
 							$stack[] = $this->columnQuote($value);
