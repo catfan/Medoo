@@ -821,7 +821,7 @@ class Medoo
 				}
 				elseif ($raw = $this->buildRaw($ORDER, $map))
 				{
-					$where_clause .= ' ORDER BY ' . $raw;	
+					$where_clause .= ' ORDER BY ' . $raw;
 				}
 				else
 				{
@@ -839,7 +839,7 @@ class Medoo
 					{
 						$LIMIT = [0, $LIMIT];
 					}
-					
+
 					if (
 						is_array($LIMIT) &&
 						is_numeric($LIMIT[ 0 ]) &&
@@ -1183,7 +1183,7 @@ class Medoo
 		return $stack;
 	}
 
-	public function insert($table, $datas)
+	public function insert($table, $datas, $ignore = false, $replace = false)
 	{
 		$stack = [];
 		$columns = [];
@@ -1265,7 +1265,9 @@ class Medoo
 			$fields[] = $this->columnQuote(preg_replace("/(\s*\[JSON\]$)/i", '', $key));
 		}
 
-		return $this->exec('INSERT INTO ' . $this->tableQuote($table) . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $stack), $map);
+		$insertSt = $ignore ? 'INSERT IGNORE' : ($replace ? 'REPLACE' : 'INSERT');
+
+		return $this->exec($insertSt . ' INTO ' . $this->tableQuote($table) . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $stack), $map);
 	}
 
 	public function update($table, $data, $where = null)
