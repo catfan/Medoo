@@ -6,6 +6,8 @@
     <a href="https://packagist.org/packages/catfan/medoo"><img alt="Total Downloads" src="https://poser.pugx.org/catfan/medoo/downloads"></a>
     <a href="https://packagist.org/packages/catfan/medoo"><img alt="Latest Stable Version" src="https://poser.pugx.org/catfan/medoo/v/stable"></a>
     <a href="https://packagist.org/packages/catfan/medoo"><img alt="License" src="https://poser.pugx.org/catfan/medoo/license"></a>
+    <img alt="Backers on Open Collective" src="https://opencollective.com/Medoo/backers/badge.svg">
+	<img alt="Sponsors on Open Collective" src="https://opencollective.com/Medoo/sponsors/badge.svg"> 
 </p>
 
 > The Lightest PHP database framework to accelerate development
@@ -88,6 +90,36 @@ For most of time, Medoo is using develop branch for adding feature and fixing bu
 On develop branch, each commits are started with `[fix]`, `[feature]` or `[update]` tag to indicate the change.
 
 Keep it simple and keep it clear.
+
+## Contributors
+
+This project exists thanks to all the people who contribute. 
+<a href="graphs/contributors"><img src="https://opencollective.com/Medoo/contributors.svg?width=890&button=false" /></a>
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/Medoo#backer)]
+
+<a href="https://opencollective.com/Medoo#backers" target="_blank"><img src="https://opencollective.com/Medoo/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/Medoo#sponsor)]
+
+<a href="https://opencollective.com/Medoo/sponsor/0/website" target="_blank"><img src="https://opencollective.com/Medoo/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/Medoo/sponsor/1/website" target="_blank"><img src="https://opencollective.com/Medoo/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/Medoo/sponsor/2/website" target="_blank"><img src="https://opencollective.com/Medoo/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/Medoo/sponsor/3/website" target="_blank"><img src="https://opencollective.com/Medoo/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/Medoo/sponsor/4/website" target="_blank"><img src="https://opencollective.com/Medoo/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/Medoo/sponsor/5/website" target="_blank"><img src="https://opencollective.com/Medoo/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/Medoo/sponsor/6/website" target="_blank"><img src="https://opencollective.com/Medoo/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/Medoo/sponsor/7/website" target="_blank"><img src="https://opencollective.com/Medoo/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/Medoo/sponsor/8/website" target="_blank"><img src="https://opencollective.com/Medoo/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/Medoo/sponsor/9/website" target="_blank"><img src="https://opencollective.com/Medoo/sponsor/9/avatar.svg"></a>
+
+
 
 ## License
 
