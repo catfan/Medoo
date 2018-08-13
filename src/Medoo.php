@@ -224,21 +224,16 @@ class Medoo
 			$commands[] = "SET NAMES '" . $options[ 'charset' ] . "'";
 		}
 
-		try {
-			$this->pdo = new PDO(
-				$dsn,
-				isset($options[ 'username' ]) ? $options[ 'username' ] : null,
-				isset($options[ 'password' ]) ? $options[ 'password' ] : null,
-				$this->option
-			);
+		$this->pdo = new PDO(
+			$dsn,
+			isset($options[ 'username' ]) ? $options[ 'username' ] : null,
+			isset($options[ 'password' ]) ? $options[ 'password' ] : null,
+			$this->option
+		);
 
-			foreach ($commands as $value)
-			{
-				$this->pdo->exec($value);
-			}
-		}
-		catch (PDOException $e) {
-			throw new PDOException($e->getMessage());
+		foreach ($commands as $value)
+		{
+			$this->pdo->exec($value);
 		}
 	}
 
