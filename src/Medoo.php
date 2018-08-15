@@ -242,18 +242,6 @@ class Medoo
 		}
 	}
 
-	public function __call($name, $arguments)
-	{
-		$aggregation = ['avg', 'count', 'max', 'min', 'sum'];
-
-		if (in_array($name, $aggregation))
-		{
-			array_unshift($arguments, $name);
-
-			return call_user_func_array([$this, 'aggregate'], $arguments);
-		}
-	}
-
 	public function query($query, $map = [])
 	{
 		$raw = $this->raw($query, $map);
@@ -1451,6 +1439,31 @@ class Medoo
 		}
 
 		return false;
+	}
+
+	public function count($table, $join = null, $column = null, $where = null)
+	{
+		return $this->aggregate('count', $table, $join, $column, $where);
+	}
+
+	public function avg($table, $join, $column = null, $where = null)
+	{
+		return $this->aggregate('avg', $table, $join, $column, $where);
+	}
+
+	public function max($table, $join, $column = null, $where = null)
+	{
+		return $this->aggregate('max', $table, $join, $column, $where);
+	}
+
+	public function min($table, $join, $column = null, $where = null)
+	{
+		return $this->aggregate('min', $table, $join, $column, $where);
+	}
+
+	public function sum($table, $join, $column = null, $where = null)
+	{
+		return $this->aggregate('sum', $table, $join, $column, $where);
 	}
 
 	public function action($actions)
