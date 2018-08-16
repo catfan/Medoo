@@ -1401,11 +1401,7 @@ class Medoo
 
 				return $stack;
 			}
-
-			return false;
 		}
-
-		return false;
 	}
 
 	public function has($table, $join, $where = null)
