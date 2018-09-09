@@ -1421,6 +1421,49 @@ class Medoo
 		return false;
 	}
 
+	public function rand($table, $join = null, $columns = null, $where = null)
+	{
+		$type = $this->type;
+
+		$order = 'RANDOM()';
+
+		if ($type === 'mysql')
+		{
+			$order = 'RAND()';
+		}
+		elseif ($type === 'mssql')
+		{
+			$order = 'NEWID()';
+		}
+
+		$order_raw = $this->raw($order);
+
+		if ($where === null)
+		{
+			if ($columns === null)
+			{
+				$columns = [
+					'ORDER'  => $order_raw
+				];
+			}
+			else
+			{
+				$column = $join;
+				unset($columns[ 'ORDER' ]);
+
+				$columns[ 'ORDER' ] = $order_raw;
+			}
+		}
+		else
+		{
+			unset($where[ 'ORDER' ]);
+
+			$where[ 'ORDER' ] = $order_raw;
+		}
+
+		return $this->select($table, $join, $columns, $where);
+	}
+
 	private function aggregate($type, $table, $join = null, $column = null, $where = null)
 	{
 		$map = [];
