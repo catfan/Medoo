@@ -717,7 +717,9 @@ class Medoo
 
 		if (is_array($where))
 		{
-			$where_keys = array_keys($where);
+            $where_keys = array_keys($where);
+            foreach ($where_keys as $v)
+                if ($where[$v] === 0)  $where[$v] = '0';
 
 			$conditions = array_diff_key($where, array_flip(
 				['GROUP', 'ORDER', 'HAVING', 'LIMIT', 'LIKE', 'MATCH']
