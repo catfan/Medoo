@@ -208,7 +208,10 @@ class Medoo
 			isset($options[ 'charset' ])
 		)
 		{
-			$commands[] = "SET NAMES '" . $options[ 'charset' ] . "'";
+			$commands[] = "SET NAMES '{$options[ 'charset' ]}'" . (
+				$this->type === 'mysql' && isset($options[ 'collation' ]) ?
+				" COLLATE '{$options[ 'collation' ]}'" : ''
+			);
 		}
 
 		try {
