@@ -29,8 +29,6 @@ class Medoo
 
 	protected $statement;
 
-	protected $option = [];
-
 	protected $logs = [];
 
 	protected $logging = false;
@@ -56,24 +54,13 @@ class Medoo
 			$this->prefix = $options[ 'prefix' ];
 		}
 
-		if (isset($options[ 'option' ]))
-		{
-			$this->option = $options[ 'option' ];
-		}
-
 		if (isset($options[ 'logging' ]) && is_bool($options[ 'logging' ]))
 		{
 			$this->logging = $options[ 'logging' ];
 		}
 
-		if (isset($options[ 'command' ]) && is_array($options[ 'command' ]))
-		{
-			$commands = $options[ 'command' ];
-		}
-		else
-		{
-			$commands = [];
-		}
+		$option = isset($options[ 'option' ]) ? $options[ 'option' ] : [];
+		$commands = (isset($options[ 'command' ]) && is_array($options[ 'command' ])) ? $options[ 'command' ] : [];
 
 		if (isset($options[ 'dsn' ]))
 		{
@@ -229,7 +216,7 @@ class Medoo
 				$dsn,
 				isset($options[ 'username' ]) ? $options[ 'username' ] : null,
 				isset($options[ 'password' ]) ? $options[ 'password' ] : null,
-				$this->option
+				$option
 			);
 
 			foreach ($commands as $value)
