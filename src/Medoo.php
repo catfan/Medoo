@@ -47,6 +47,11 @@ class Medoo
 		if (isset($options[ 'database_type' ]))
 		{
 			$this->type = strtolower($options[ 'database_type' ]);
+
+			if ($this->type === 'mariadb')
+			{
+				$this->type = 'mysql';
+			}
 		}
 
 		if (isset($options[ 'prefix' ]))
@@ -87,7 +92,6 @@ class Medoo
 
 			switch ($this->type)
 			{
-				case 'mariadb':
 				case 'mysql':
 					$attr = [
 						'driver' => 'mysql',
@@ -204,7 +208,7 @@ class Medoo
 		$dsn = $driver . ':' . implode($stack, ';');
 
 		if (
-			in_array($this->type, ['mariadb', 'mysql', 'pgsql', 'sybase', 'mssql']) &&
+			in_array($this->type, ['mysql', 'pgsql', 'sybase', 'mssql']) &&
 			isset($options[ 'charset' ])
 		)
 		{
@@ -284,7 +288,6 @@ class Medoo
 	{
 		$identifier = [
 			'mysql' => '`$1`',
-			'mariadb' => '`$1`',
 			'mssql' => '[$1]'
 		];
 
