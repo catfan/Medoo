@@ -167,6 +167,11 @@ class Medoo
 							'host' => $options[ 'server' ] . ($is_port ? ':' . $port : ''),
 							'dbname' => $options[ 'database_name' ]
 						];
+
+						if (isset($options[ 'appname' ]))
+						{
+							$attr[ 'appname' ] = $options[ 'appname' ];
+						}
 					}
 					else
 					{
@@ -175,6 +180,11 @@ class Medoo
 							'Server' => $options[ 'server' ] . ($is_port ? ',' . $port : ''),
 							'Database' => $options[ 'database_name' ]
 						];
+
+						if (isset($options[ 'appname' ]))
+						{
+							$attr[ 'APP' ] = $options[ 'appname' ];
+						}
 					}
 
 					// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
