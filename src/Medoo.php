@@ -29,6 +29,8 @@ class Medoo
 
 	protected $statement;
 
+	protected $dsn;
+
 	protected $logs = [];
 
 	protected $logging = false;
@@ -227,6 +229,8 @@ class Medoo
 				" COLLATE '{$options[ 'collation' ]}'" : ''
 			);
 		}
+
+		$this->dsn = $dsn;
 
 		try {
 			$this->pdo = new PDO(
@@ -1601,6 +1605,8 @@ class Medoo
 		{
 			$output[ $key ] = @$this->pdo->getAttribute(constant('PDO::ATTR_' . $value));
 		}
+
+		$output[ 'dsn' ] = $this->dsn;
 
 		return $output;
 	}
