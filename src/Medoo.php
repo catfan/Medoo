@@ -74,6 +74,12 @@ class Medoo
 			if (is_array($options[ 'dsn' ]) && isset($options[ 'dsn' ][ 'driver' ]))
 			{
 				$attr = $options[ 'dsn' ];
+
+				if (isset($options[ 'database_type' ]))
+				{
+                    $this->addCommandsDependingByDatabaseType($this->type, $commands);
+                }
+
 			}
 			else
 			{
@@ -92,7 +98,9 @@ class Medoo
 
 			$is_port = isset($port);
 
-			switch ($this->type)
+            $this->addCommandsDependingByDatabaseType($this->type, $commands);
+
+            switch ($this->type)
 			{
 				case 'mysql':
 					$attr = [
@@ -114,8 +122,6 @@ class Medoo
 						}
 					}
 
-					// Make MySQL using standard quoted identifier
-					$commands[] = 'SET SQL_MODE=ANSI_QUOTES';
 					break;
 
 				case 'pgsql':
@@ -189,11 +195,6 @@ class Medoo
 						}
 					}
 
-					// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
-					$commands[] = 'SET QUOTED_IDENTIFIER ON';
-
-					// Make ANSI_NULLS is ON for NULL value
-					$commands[] = 'SET ANSI_NULLS ON';
 					break;
 
 				case 'sqlite':
@@ -1610,5 +1611,22 @@ class Medoo
 
 		return $output;
 	}
+
+	private function addCommandsDependingByDatabaseType($type, &$commands) {
+        switch ($type)
+        {
+            case 'mysql':
+                // Make MySQL using standard quoted identifier
+                $commands[] = 'SET SQL_MODE=ANSI_QUOTES';
+                break;
+            case 'mssql':
+                // Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
+                $commands[] = 'SET QUOTED_IDENTIFIER ON';
+
+                // Make ANSI_NULLS is ON for NULL value
+                $commands[] = 'SET ANSI_NULLS ON';
+                break;
+        }
+    }
 }
 ?>
