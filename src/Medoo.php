@@ -39,6 +39,10 @@ class Medoo
 
 	protected $guid = 0;
 
+	protected $_tableQuoteChar = '"';
+
+	protected $_columnQuoteChar = '"';
+
 	public function __construct($options = null)
 	{
 		if (!is_array($options))
@@ -74,6 +78,12 @@ class Medoo
 			if (is_array($options[ 'dsn' ]) && isset($options[ 'dsn' ][ 'driver' ]))
 			{
 				$attr = $options[ 'dsn' ];
+
+				if($options[ 'dsn' ][ 'driver' ] === "mysql")
+				{
+				    $this->_tableQuoteChar = $this->_columnQuoteChar = "`";
+                }
+
 			}
 			else
 			{
@@ -391,7 +401,7 @@ class Medoo
 
 	protected function tableQuote($table)
 	{
-		return '"' . $this->prefix . $table . '"';
+		return $this->_tableQuoteChar . $this->prefix . $table . $this->_tableQuoteChar;
 	}
 
 	protected function mapKey()
@@ -427,10 +437,10 @@ class Medoo
 	{
 		if (strpos($string, '.') !== false)
 		{
-			return '"' . $this->prefix . str_replace('.', '"."', $string) . '"';
+			return $this->_columnQuoteChar . $this->prefix . str_replace('.', "{$this->_columnQuoteChar}.{$this->_columnQuoteChar}", $string) . $this->_columnQuoteChar;
 		}
 
-		return '"' . $string . '"';
+		return $this->_columnQuoteChar . $string . $this->_columnQuoteChar;
 	}
 
 	protected function columnPush(&$columns, &$map)
