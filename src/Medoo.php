@@ -174,6 +174,11 @@ class Medoo
 						{
 							$attr[ 'appname' ] = $options[ 'appname' ];
 						}
+
+						if (isset($options[ 'charset' ]))
+						{
+							$attr[ 'charset' ] = $options[ 'charset' ];
+						}
 					}
 					else
 					{
@@ -186,6 +191,39 @@ class Medoo
 						if (isset($options[ 'appname' ]))
 						{
 							$attr[ 'APP' ] = $options[ 'appname' ];
+						}
+
+						$config = [
+							'ApplicationIntent',
+							'AttachDBFileName',
+							'Authentication',
+							'ColumnEncryption',
+							'ConnectionPooling',
+							'Encrypt',
+							'Failover_Partner',
+							'KeyStoreAuthentication',
+							'KeyStorePrincipalId',
+							'KeyStoreSecret',
+							'LoginTimeout',
+							'MultipleActiveResultSets',
+							'MultiSubnetFailover',
+							'Scrollable',
+							'TraceFile',
+							'TraceOn',
+							'TransactionIsolation',
+							'TransparentNetworkIPResolution',
+							'TrustServerCertificate',
+							'WSID',
+						];
+
+						foreach ($config as $value)
+						{
+							$keyname = strtolower(preg_replace(['/([a-z\d])([A-Z])/', '/([^_])([A-Z][a-z])/'], '$1_$2', $value));
+
+							if (isset($options[ $keyname ]))
+							{
+								$attr[ $value ] = $options[ $keyname ];
+							}
 						}
 					}
 
