@@ -13,6 +13,7 @@ namespace Medoo;
 use PDO;
 use Exception;
 use PDOException;
+use InvalidArgumentException;
 
 class Raw {
 	public $map;
@@ -39,13 +40,8 @@ class Medoo
 
 	protected $guid = 0;
 
-	public function __construct($options = null)
+	public function __construct(array $options)
 	{
-		if (!is_array($options))
-		{
-			return false;
-		}
-
 		if (isset($options[ 'database_type' ]))
 		{
 			$this->type = strtolower($options[ 'database_type' ]);
@@ -69,6 +65,41 @@ class Medoo
 		$option = isset($options[ 'option' ]) ? $options[ 'option' ] : [];
 		$commands = (isset($options[ 'command' ]) && is_array($options[ 'command' ])) ? $options[ 'command' ] : [];
 
+		switch ($this->type)
+		{
+			case 'mysql':
+				// Make MySQL using standard quoted identifier
+				$commands[] = 'SET SQL_MODE=ANSI_QUOTES';
+
+				break;
+
+			case 'mssql':
+				// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
+				$commands[] = 'SET QUOTED_IDENTIFIER ON';
+
+				// Make ANSI_NULLS is ON for NULL value
+				$commands[] = 'SET ANSI_NULLS ON';
+
+				break;
+		}
+
+		if (isset($options[ 'pdo' ]))
+		{
+			if (!$options[ 'pdo' ] instanceof PDO)
+			{
+				throw new InvalidArgumentException('Invalid PDO object supplied');
+			}
+
+			$this->pdo = $options[ 'pdo' ];
+
+			foreach ($commands as $value)
+			{
+				$this->pdo->exec($value);
+			}
+
+			return;
+		}
+
 		if (isset($options[ 'dsn' ]))
 		{
 			if (is_array($options[ 'dsn' ]) && isset($options[ 'dsn' ][ 'driver' ]))
@@ -77,7 +108,7 @@ class Medoo
 			}
 			else
 			{
-				return false;
+				throw new InvalidArgumentException('Invalid DSN option supplied');
 			}
 		}
 		else
@@ -114,8 +145,6 @@ class Medoo
 						}
 					}
 
-					// Make MySQL using standard quoted identifier
-					$commands[] = 'SET SQL_MODE=ANSI_QUOTES';
 					break;
 
 				case 'pgsql':
@@ -227,11 +256,6 @@ class Medoo
 						}
 					}
 
-					// Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
-					$commands[] = 'SET QUOTED_IDENTIFIER ON';
-
-					// Make ANSI_NULLS is ON for NULL value
-					$commands[] = 'SET ANSI_NULLS ON';
 					break;
 
 				case 'sqlite':
@@ -244,7 +268,17 @@ class Medoo
 			}
 		}
 
+		if (!isset($attr))
+		{
+			throw new InvalidArgumentException('Incorrect connection options');
+		}
+
 		$driver = $attr[ 'driver' ];
+
+		if (!in_array($driver, PDO::getAvailableDrivers()))
+		{
+			throw new InvalidArgumentException('Unsupported PDO driver');
+		}
 
 		unset($attr[ 'driver' ]);
 
