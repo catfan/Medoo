@@ -795,7 +795,7 @@ class Medoo
 				$where_clause = ' WHERE ' . $this->dataImplode($conditions, $map, ' AND');
 			}
 
-			if (isset($where[ 'MATCH' ]))
+			if (isset($where[ 'MATCH' ]) && $this->type === 'mysql')
 			{
 				$MATCH = $where[ 'MATCH' ];
 
