@@ -277,7 +277,7 @@ class Medoo
 
 		if (!in_array($driver, PDO::getAvailableDrivers()))
 		{
-			throw new InvalidArgumentException('Unsupported PDO driver');
+			throw new InvalidArgumentException("Unsupported PDO driver: {$driver}");
 		}
 
 		unset($attr[ 'driver' ]);
