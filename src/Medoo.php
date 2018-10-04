@@ -1683,4 +1683,3 @@ class Medoo
 		return $output;
 	}
 }
-?>
