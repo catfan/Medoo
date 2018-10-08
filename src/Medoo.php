@@ -880,7 +880,7 @@ class Medoo
 		return $where_clause;
 	}
 
-	protected function selectContext($table, &$map, $join, &$columns = null, $where = null, $column_fn = null)
+	protected function selectContext($table, &$map, $join, &$columns = null, $where = null, $column_fn = null, $countFoundRows = false)
 	{
 		preg_match('/(?<table>[a-zA-Z0-9_]+)\s*\((?<alias>[a-zA-Z0-9_]+)\)/i', $table, $table_match);
 
@@ -1017,7 +1017,7 @@ class Medoo
 		{
 			$column = $this->columnPush($columns, $map);
 		}
-                if(is_null($column_fn) && $this->type === 'mysql'){
+                if($countFoundRows && $this->type === 'mysql'){
                     return 'SELECT SQL_CALC_FOUND_ROWS ' . $column . ' FROM ' . $table_query . $this->whereClause($where, $map);
                 }
                 return 'SELECT ' . $column . ' FROM ' . $table_query . $this->whereClause($where, $map);
@@ -1143,7 +1143,7 @@ class Medoo
 		}
 	}
 
-	public function select($table, $join, $columns = null, $where = null)
+	public function select($table, $join, $columns = null, $where = null, $countFoundRows = false)
 	{
 		$map = [];
 		$stack = [];
@@ -1155,7 +1155,7 @@ class Medoo
 
 		$is_single = (is_string($column) && $column !== '*');
 
-		$query = $this->exec($this->selectContext($table, $map, $join, $columns, $where), $map);
+		$query = $this->exec($this->selectContext($table, $map, $join, $columns, $where, null, $countFoundRows), $map);
 
 		$this->columnMap($columns, $column_map);
 
@@ -1572,4 +1572,3 @@ class Medoo
                 return (int) $pdoSt->fetchColumn();
 	}
 }
-?>
