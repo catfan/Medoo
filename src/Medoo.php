@@ -1001,6 +1001,13 @@ class Medoo
 
 							foreach ($relation as $key => $value)
 							{
+								// For "select * from A left(right) join B on A.id=B.id and B.status=1" constant
+								$map = [];
+								if($raw = $this->buildRaw($value, $map)){
+									$value = $raw;
+								}else{
+									$value = $this->tableQuote(isset($match[ 'alias' ]) ? $match[ 'alias' ] : $match[ 'table' ]) . '."' . $value . '"';
+								}
 								$joins[] = (
 									strpos($key, '.') > 0 ?
 										// For ['tableB.column' => 'column']
@@ -1010,7 +1017,8 @@ class Medoo
 										$table . '."' . $key . '"'
 								) .
 								' = ' .
-								$this->tableQuote(isset($match[ 'alias' ]) ? $match[ 'alias' ] : $match[ 'table' ]) . '."' . $value . '"';
+								// $this->tableQuote(isset($match[ 'alias' ]) ? $match[ 'alias' ] : $match[ 'table' ]) . '."' . $value . '"';
+								$value;
 							}
 
 							$relation = 'ON ' . implode($joins, ' AND ');
