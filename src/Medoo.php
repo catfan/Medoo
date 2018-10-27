@@ -302,12 +302,15 @@ class Medoo
 			);
 		}
 
+		$this->dsn = $dsn;
+
 		$this->pdo = new PDO(
 			$dsn,
 			isset($options[ 'username' ]) ? $options[ 'username' ] : null,
 			isset($options[ 'password' ]) ? $options[ 'password' ] : null,
 			$option
 		);
+
 		foreach ($commands as $value)
 		{
 			$this->pdo->exec($value);
