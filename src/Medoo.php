@@ -1488,7 +1488,16 @@ class Medoo
 		$map = [];
 		$column = null;
 
-		$query = $this->exec('SELECT EXISTS(' . $this->selectContext($table, $map, $join, $column, $where, 1) . ')', $map);
+		if ($this->type === 'mssql')
+		{
+			$sql_pre ='SELECT 1 WHERE EXISTS(';
+		}
+		else
+		{
+			$sql_pre ='SELECT EXISTS(';
+		}
+
+		$query = $this->exec($sql_pre . $this->selectContext($table, $map, $join, $column, $where, 1) . ')', $map);
 
 		if ($query)
 		{
