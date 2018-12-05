@@ -1622,10 +1622,6 @@ class Medoo
 		{
 			return 0;
 		}
-		elseif ($type === 'mssql')
-		{
-			return $this->pdo->query('SELECT SCOPE_IDENTITY()')->fetchColumn();
-		}
 		elseif ($type === 'pgsql')
 		{
 			return $this->pdo->query('SELECT LASTVAL()')->fetchColumn();
