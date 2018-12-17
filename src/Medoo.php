@@ -997,21 +997,21 @@ class Medoo
 						}
 						else
 						{
-							$joins = [];
-
-							foreach ($relation as $key => $value)
-							{
-								$joins[] = (
-									strpos($key, '.') > 0 ?
-										// For ['tableB.column' => 'column']
-										$this->columnQuote($key) :
-
-										// For ['column1' => 'column2']
-										$table . '."' . $key . '"'
-								) .
-								' = ' .
-								$this->tableQuote(isset($match[ 'alias' ]) ? $match[ 'alias' ] : $match[ 'table' ]) . '."' . $value . '"';
-							}
+						    $joins = [];
+						    
+						    foreach ($relation as $key => $value)
+						    {
+						        $joins[] = (
+						            strpos($key, '.') > 0 ?
+						            // For ['tableB.column' => 'column']
+						            $this->columnQuote($key) :
+						            
+						            // For ['column1' => 'column2']
+						            $table . '."' . $key . '"'
+						            ) .
+						            ' = ' .
+						            (is_numeric($value) ? $value : ($this->tableQuote(isset($match[ 'alias' ]) ? $match[ 'alias' ] : $match[ 'table' ]) . '."' . $value . '"'));
+						    }
 
 							$relation = 'ON ' . implode($joins, ' AND ');
 						}
