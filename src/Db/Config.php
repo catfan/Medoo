@@ -23,9 +23,26 @@ class Config
             'prefix' => '',
             'option' => [],
             'servers' => [
-                ['range' => [0, 29], 'server' => '127.0.0.1', 'port' => 3306],
-                ['range' => [30,59], 'server' => '127.0.0.1', 'port' => 3306],
-                ['range' => [60,99], 'server' => '127.0.0.1', 'port' => 3306],
+                'writers' => [
+                    [
+                        'range' => [0, 29], 
+                        'server' => '127.0.0.1', 
+                        'port' => 3306
+                    ],
+                    [
+                        'range' => [30,59],
+                        'server' => '127.0.0.1',
+                        'port' => 3306
+                    ],
+                    [
+                        'range' => [60,99],
+                        'server' => '127.0.0.1',
+                        'port' => 3306
+                    ],
+                ],
+                'readers' => [
+
+                ],
             ],
         ],
     ];
@@ -105,10 +122,39 @@ class Config
             'database_name_format' => $groupConfig['database_name_format'] ?? '',
         ];
 
+        $originServers = $groupConfig['servers'];
+
+        if (isset($originServers['writers'])) {
+            $writerServerOptions = $this->parseServerConfig($originServers['writers'], $shardsType, $shardsCount);
+            $options['servers'] = $writerServerOptions['servers'];
+            $options['group_servers'] = $writerServerOptions['group_servers'];
+
+            $readerServerOptions = $writerServerOptions;
+            if (isset($originServers['readers']) 
+                    && is_array($originServers['readers']) 
+                    && count($originServers['readers'])
+            ) {
+                $readerServerOptions = $this->parseServerConfig($originServers['readers'], $shardsType, $shardsCount);
+
+                $options['reader_servers'] = $readerServerOptions['servers'];
+                $options['reader_group_servers'] = $readerServerOptions['group_servers'];
+            }
+        } else {
+            $serverOptions = $this->parseServerConfig($originServers, $shardsType, $shardsCount);
+            $options['servers'] = $serverOptions['servers'];
+            $options['group_servers'] = $serverOptions['group_servers'];
+            $options['server_count'] = count($serverOptions['servers']);
+        }
+
+        return $options;
+    }
+
+    protected function parseServerConfig($originServers, $shardsType, $shardsCount)
+    {
         $servers = [];
         $groupServers = [];
         $isRangeShardsType = $shardsType === 'range';
-        foreach($groupConfig['servers'] as $key => $server) {
+        foreach($originServers as $key => $server) {
             $servers[$key] = [
                 'server' => $server['server'],
                 'port' => $server['port'] ?? self::DEFAULT_PORT,
@@ -126,10 +172,9 @@ class Config
                 $groupServers[$i] = $i % $serverCount;
             }
         }
-        $options['servers'] = $servers;
-        $options['server_count'] = $serverCount;
-        $options['group_servers'] = $groupServers;
-
-        return $options;
+        return [
+            'servers' => $servers,
+            'group_servers' => $groupServers
+        ];
     }
 }

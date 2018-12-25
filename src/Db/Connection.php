@@ -42,7 +42,7 @@ class Connection
         return $table;
     }
 
-    public function connect($shardKey = null)
+    public function connect($shardKey = null, $isWriter = null)
     {
         $shardIndex = $this->getShard($shardKey);
         $serverIndex = $this->groupServers[$shardIndex];

@@ -12,9 +12,9 @@ class Database
         $this->connection = new Connection($group);
     }
 
-    public function connect($shardKey = null)
+    public function connect($shardKey = null, $isWriter = null)
     {
-        return $this->connection->connect($shardKey);
+        return $this->connection->connect($shardKey, $isWriter);
     }
 
     public function getShard($shardKey = null)
