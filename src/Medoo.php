@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * https://medoo.in
- * Version 1.6
+ * Version 1.6.1
  *
  * Copyright 2018, Angel Lai
  * Released under the MIT license
@@ -1066,6 +1066,10 @@ class Medoo
 					$where = $columns;
 				}
 			}
+			elseif ($raw = $this->buildRaw($column_fn, $map))
+			{
+				$column = $raw;
+			}
 			else
 			{
 				if (empty($columns) || $this->isRaw($columns))
@@ -1488,13 +1492,20 @@ class Medoo
 		$map = [];
 		$column = null;
 
-		$query = $this->exec('SELECT EXISTS(' . $this->selectContext($table, $map, $join, $column, $where, 1) . ')', $map);
+		if ($this->type === 'mssql')
+		{
+			$query = $this->exec($this->selectContext($table, $map, $join, $column, $where, Medoo::raw('TOP 1 1')), $map);
+		}
+		else
+		{
+			$query = $this->exec('SELECT EXISTS(' . $this->selectContext($table, $map, $join, $column, $where, 1) . ')', $map);
+		}
 
 		if ($query)
 		{
 			$result = $query->fetchColumn();
 
-			return $result === '1' || $result === true;
+			return $result === '1' || $result === 1 || $result === true;
 		}
 
 		return false;
@@ -1621,10 +1632,6 @@ class Medoo
 		if ($type === 'oracle')
 		{
 			return 0;
-		}
-		elseif ($type === 'mssql')
-		{
-			return $this->pdo->query('SELECT SCOPE_IDENTITY()')->fetchColumn();
 		}
 		elseif ($type === 'pgsql')
 		{
