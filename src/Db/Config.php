@@ -154,6 +154,7 @@ class Config
         $servers = [];
         $groupServers = [];
         $isRangeShardsType = $shardsType === 'range';
+        $originServers = isset($originServers[0]) ? $originServers : [$originServers];
         foreach($originServers as $key => $server) {
             $servers[$key] = [
                 'server' => $server['server'],
