@@ -1100,7 +1100,7 @@ class Medoo
 		{
 			if (is_int($key))
 			{
-				preg_match('/([a-zA-Z0-9_]+\.)?(?<column>[a-zA-Z0-9_]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/i', $value, $key_match);
+				preg_match('/([a-zA-Z0-9_]+\.)?(?<column>[a-zA-Z0-9_]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON|Index))\])?/i', $value, $key_match);
 
 				$column_key = !empty($key_match[ 'alias' ]) ?
 					$key_match[ 'alias' ] :
@@ -1139,7 +1139,7 @@ class Medoo
 		return $stack;
 	}
 
-	protected function dataMap($data, $columns, $column_map, &$stack)
+	protected function dataMap($data, $columns, $column_map, &$stack, $index = null)
 	{
 		foreach ($columns as $key => $value)
 		{
@@ -1191,6 +1191,11 @@ class Medoo
 						case 'String':
 							$stack[ $column_key ] = $result;
 							break;
+						
+						case 'Index':
+							$stack[ $column_key ] = (int) $result;
+							$index = (int) $result;
+							break;
 					}
 				}
 				else
@@ -1202,11 +1207,13 @@ class Medoo
 			{
 				$current_stack = [];
 
-				$this->dataMap($data, $value, $column_map, $current_stack);
+				$index = $this->dataMap($data, $value, $column_map, $current_stack, $index);
 
 				$stack[ $key ] = $current_stack;
 			}
 		}
+
+		return $index;
 	}
 
 	public function select($table, $join, $columns = null, $where = null)
@@ -1244,9 +1251,9 @@ class Medoo
 		{
 			$current_stack = [];
 
-			$this->dataMap($data, $columns, $column_map, $current_stack);
+			$pos = $this->dataMap($data, $columns, $column_map, $current_stack, $index);
 
-			$stack[ $index ] = $current_stack;
+			$stack[ $pos ] = $current_stack;
 
 			$index++;
 		}
