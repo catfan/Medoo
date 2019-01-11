@@ -107,7 +107,7 @@ class Config
     protected function parseGroupConfig($group, array $groupConfig)
     {
         $shardsCount = $groupConfig['shards_count'] ?? 1;
-        $shardsType = $groupConfig['shards_type'] ?? '';
+        $shardsType = $groupConfig['shards_type'] ?? 'range';
         $options = [
             'shards_count' => $shardsCount,
             'database_name' => $groupConfig['database_name'] ?? $group,
