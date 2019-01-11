@@ -1193,6 +1193,11 @@ class Medoo
 							break;
 						
 						case 'Index':
+							if (!is_null($index))
+							{
+								throw new InvalidArgumentException('Multiple indexes in query');
+							}
+
 							$stack[ $column_key ] = (int) $result;
 							$index = (int) $result;
 							break;
@@ -1251,9 +1256,9 @@ class Medoo
 		{
 			$current_stack = [];
 
-			$pos = $this->dataMap($data, $columns, $column_map, $current_stack, $index);
+			$pos = $this->dataMap($data, $columns, $column_map, $current_stack);
 
-			$stack[ $pos ] = $current_stack;
+			$stack[ is_null($pos) ? $index : $pos ] = $current_stack;
 
 			$index++;
 		}
