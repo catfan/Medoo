@@ -161,7 +161,7 @@ class Config
                 'port' => $server['port'] ?? self::DEFAULT_PORT,
             ];
             if ($isRangeShardsType) {
-                $range = $server['range'];
+                $range = $server['range'] ?? [0, 0];
                 for($i = $range[0]; $i <= $range[1]; $i ++) {
                     $groupServers[$i] = $key; 
                 }
