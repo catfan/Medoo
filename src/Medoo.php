@@ -431,7 +431,8 @@ class Medoo
 
     protected function tableQuote($table)
     {
-        return '"' . $this->prefix . $table . '"';
+        $quote = $this->type = 'mysql' ? '`' : '"';
+        return $quote . $this->prefix . $table . $quote;
     }
 
     protected function mapKey()
@@ -462,11 +463,12 @@ class Medoo
 
     protected function columnQuote($string)
     {
+        $quote = $this->type = 'mysql' ? '`' : '"';
         if (strpos($string, '.') !== false) {
-            return '"' . $this->prefix . str_replace('.', '"."', $string) . '"';
+            return $quote . $this->prefix . str_replace('.', $quote . '.' . $quote, $string) . $quote;
         }
 
-        return '"' . $string . '"';
+        return $quote . $string . $quote;
     }
 
     protected function columnPush(&$columns, &$map)
@@ -1375,7 +1377,7 @@ class Medoo
     {
         if (is_callable($actions)) {
             try {
-                set_error_handler(array($this, 'errorHandler'));
+                set_error_handler(array($this, 'error_handler'));
                 $this->pdo->beginTransaction();
                 restore_error_handler();
                 static::$reConnectTime = 0;
