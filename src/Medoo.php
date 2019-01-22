@@ -4,7 +4,7 @@
  * https://medoo.in
  * Version 1.6.1
  *
- * Copyright 2018, Angel Lai
+ * Copyright 2019, Angel Lai
  * Released under the MIT license
  */
 
@@ -654,8 +654,10 @@ class Medoo
 
 								foreach ($value as $index => $item)
 								{
-									$placeholders[] = $map_key . $index . '_i';
-									$map[ $map_key . $index . '_i' ] = $this->typeMap($item, gettype($item));
+									$stack_key = $map_key . $index . '_i';
+
+									$placeholders[] = $stack_key;
+									$map[ $stack_key ] = $this->typeMap($item, gettype($item));
 								}
 
 								$stack[] = $column . ' NOT IN (' . implode(', ', $placeholders) . ')';
@@ -749,8 +751,10 @@ class Medoo
 
 							foreach ($value as $index => $item)
 							{
-								$placeholders[] = $map_key . $index . '_i';
-								$map[ $map_key . $index . '_i' ] = $this->typeMap($item, gettype($item));
+								$stack_key = $map_key . $index . '_i';
+
+								$placeholders[] = $stack_key;
+								$map[ $stack_key ] = $this->typeMap($item, gettype($item));
 							}
 
 							$stack[] = $column . ' IN (' . implode(', ', $placeholders) . ')';
@@ -1288,7 +1292,7 @@ class Medoo
 					continue;
 				}
 
-				$map_key =$this->mapKey();
+				$map_key = $this->mapKey();
 
 				$values[] = $map_key;
 
