@@ -36,7 +36,7 @@ PHP 5.4+ and PDO extension installed
 
 Add Medoo to composer.json configuration file.
 ```
-$ composer require catfan/Medoo
+$ composer require catfan/medoo
 ```
 
 And update the composer
