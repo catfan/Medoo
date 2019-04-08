@@ -43,7 +43,7 @@ class MysqlMedoo extends Medoo
 
         $option = isset($options[ 'option' ]) ? (array) $options[ 'option' ] : [];
         foreach(self::DEFAULT_PDO_ATTRS as $key => $value) {
-            if (!$option[$key]) {
+            if (!isset($option[$key])) {
                 $option[$key] = $value;
             }
         }
