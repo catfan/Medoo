@@ -107,7 +107,7 @@ class Config
     protected function parseGroupConfig($group, array $groupConfig)
     {
         $shardsCount = $groupConfig['shards_count'] ?? 1;
-        $shardsType = $groupConfig['shards_type'] ?? '';
+        $shardsType = $groupConfig['shards_type'] ?? 'range';
         $options = [
             'shards_count' => $shardsCount,
             'database_name' => $groupConfig['database_name'] ?? $group,
@@ -161,7 +161,7 @@ class Config
                 'port' => $server['port'] ?? self::DEFAULT_PORT,
             ];
             if ($isRangeShardsType) {
-                $range = $server['range'];
+                $range = $server['range'] ?? [0, 0];
                 for($i = $range[0]; $i <= $range[1]; $i ++) {
                     $groupServers[$i] = $key; 
                 }
