@@ -12,6 +12,9 @@ class Connection
     protected $servers;
     protected $groupServers;
 
+    protected $readerServers;
+    protected $readerGroupServers;
+
     protected $instances;
 
     public function __construct($group)
@@ -21,6 +24,9 @@ class Connection
         $this->groupConfig = $this->config->getGroupConfig($group);
         $this->servers = $this->groupConfig['servers'];
         $this->groupServers = $this->groupConfig['group_servers'];
+
+        $this->readerServers = $this->groupConfig['reader_servers'] ?? null;
+        $this->readerGroupServers = $this->groupConfig['reader_group_servers'] ?? null;
     }
 
     public function getShard($shardKey = null)
@@ -45,8 +51,11 @@ class Connection
     public function connect($shardKey = null, $isWriter = null)
     {
         $shardIndex = $this->getShard($shardKey);
-        $serverIndex = $this->groupServers[$shardIndex];
-        $serverConfig = array_merge($this->groupConfig, $this->servers[$serverIndex]);
+        $serverIndex = $isWriter === false && $this->readerGroupServers ? 
+            $this->readerGroupServers[$shardIndex] : $this->groupServers[$shardIndex];
+        $serverConfig = array_merge($this->groupConfig, 
+            $isWriter === false && $this->readerServers ? 
+                $this->readerServers[$serverIndex] : $this->servers[$serverIndex]);
 
         $databaseName = $serverConfig['database_name'];
         $databaseNameFormat = $serverConfig['database_name_format'] ?? '';

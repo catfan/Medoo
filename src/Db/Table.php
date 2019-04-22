@@ -27,7 +27,7 @@ class Table
         $this->instance = Database::getInstance($this->database);
     }
 
-    public function find($id, $where = [])
+    public function find($id, $where = [], $shardKey = null, $isWriter = null)
     {
         $id = is_array($id) ? $id : [$id]; 
         if (count($id) != count($this->primary)) {
@@ -39,9 +39,9 @@ class Table
         return $this->get('*', $where);
     }
 
-    public function findForUpdate($id)
+    public function findForUpdate($id, $shardKey = null, $isWriter = true)
     {
-        return $this->find($id, ['LOCK' => 'UPDATE']); 
+        return $this->find($id, ['LOCK' => 'UPDATE'], $shardKey); 
     }
 
     public function getTable($shardKey = null)
@@ -49,7 +49,7 @@ class Table
         return $this->instance->getTable($this->table, $shardKey);
     }
 
-    public function connect($shardKey = null, $isWriter = true)
+    public function connect($shardKey = null, $isWriter = null)
     {
         $this->lastConnection =  $this->instance->connect($shardKey, $isWriter);
         return $this->lastConnection;
@@ -76,7 +76,7 @@ class Table
         return $this->connect($shardKey, $isWriter)->quote($string);
     }
 
-    public function action($actions, $shardKey = null)
+    public function action($actions, $shardKey = null, $isWriter = true)
     {
         return $this->connect($shardKey, $isWriter = true)->action($actions);
     }
