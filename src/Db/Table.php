@@ -34,7 +34,7 @@ class Table
             throw new \Exception("id count is not same as primary key count");
         }
         $where += [
-            'AND' => array_combine($this->primary, $id)
+            'AND' => isset($id[0]) ? array_combine($this->primary, $id) : $id,
         ];
         return $this->get('*', $where);
     }
