@@ -6,19 +6,42 @@ class Table
 {
     protected $database;
     protected $table;
+    protected $primary;
 
     protected $instance;
     protected $lastConnection;
 
-    public function __construct($table = null, $database = null)
+    public function __construct($table = null, $database = null, $primary = null)
     {
         $this->table = $table ?? $this->table;
         $this->database = $database ?? $this->database;
+        $this->primary = $primary ?? $this->primary;
         if ($this->database == null || $this->table == null) {
             throw new \Exception("Please first set database and table for " . static::class); 
         }
+        if ($this->primary == null) {
+            throw new \Exception("Please first set primary key for " . static::class); 
+        }
+        $this->primary = is_array($this->primary) ? $this->primary : [$this->primary];
 
         $this->instance = Database::getInstance($this->database);
+    }
+
+    public function find($id, $where = [])
+    {
+        $id = is_array($id) ? $id : [$id]; 
+        if (count($id) != count($this->primary)) {
+            throw new \Exception("id count is not same as primary key count");
+        }
+        $where += [
+            'AND' => array_combine($this->primary, $id)
+        ];
+        return $this->get('*', $where);
+    }
+
+    public function findForUpdate($id)
+    {
+        return $this->find($id, ['LOCK' => 'UPDATE']); 
     }
 
     public function getTable($shardKey = null)
