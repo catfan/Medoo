@@ -20,7 +20,9 @@ class Table
             throw new \Exception("Please first set database and table for " . static::class); 
         }
         if ($this->primary == null) {
-            throw new \Exception("Please first set primary key for " . static::class); 
+            // throw new \Exception("Please first set primary key for " . static::class); 
+            // the default primary key is table_name + '_id'
+            $this->primary = $this->table . '_id';
         }
         $this->primary = is_array($this->primary) ? $this->primary : [$this->primary];
 
