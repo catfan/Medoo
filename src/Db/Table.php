@@ -85,7 +85,7 @@ class Table
 
     public function begin($shardKey = null)
     {
-        return $this->connect($shardKey, $isWriter->true)->begin();
+        return $this->connect($shardKey, $isWriter = true)->begin();
     }
 
     public function commit($shardKey = null)
