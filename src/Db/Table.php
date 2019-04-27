@@ -82,6 +82,45 @@ class Table
     {
         return $this->connect($shardKey, $isWriter = true)->action($actions);
     }
+
+    public function begin($shardKey = null)
+    {
+        return $this->connect($shardKey, $isWriter->true)->begin();
+    }
+
+    public function commit($shardKey = null)
+    {
+        return $this->connect($shardKey, $isWriter = true)->commit();
+    }
+    
+    public function rollback($shardKey = null)
+    {
+        return $this->connect($shardKey, $isWriter = true)->rollback();
+    }
+
+    public function insertEx($data, $shardKey = null)
+    {
+        $result = $this->connect($shardKey, $isWriter = true)->insert($data);
+        if (isset($data[0])) {
+            $id = $this->id($shardKey); 
+            // TODO if the data is multiple records, the result is undefined
+            return $id;
+        } else {
+            if (count($this->primary) == 1) {
+                $primary = $this->primary[0]; 
+                if (isset($data[$primary])) {
+                    return $data[$primary];
+                }
+                return $this->id($shardKey);
+            }
+            return array_intersect(array_flip($this->primary), $data);
+        }
+    }
+
+    public function id($shardKey = null)
+    {
+        return $this->lastConnection->id();
+    }
     
     public function __call($method, $args)
     {
