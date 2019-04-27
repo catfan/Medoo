@@ -358,17 +358,17 @@ class MysqlMedoo extends Medoo
         if ($where === null)
         {
             $column = $join;
-            unset($columns[ 'LIMIT' ]);
+            $columns['LIMIT'] = [0, 1];
         }
         else
         {
             $column = $columns;
-            unset($where[ 'LIMIT' ]);
+            $where['LIMIT'] = [0, 1];
         }
 
         $is_single = (is_string($column) && $column !== '*' && $column[-1] !== '*');
 
-        $query = $this->exec($this->selectContext($table, $map, $join, $columns, $where) . ' LIMIT 1', $map);
+        $query = $this->exec($this->selectContext($table, $map, $join, $columns, $where), $map);
 
         if ($query)
         {
