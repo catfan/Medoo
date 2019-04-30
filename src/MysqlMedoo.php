@@ -555,6 +555,208 @@ class MysqlMedoo extends Medoo
         return $where_clause . $lockMode;
     }
 
+	protected function dataImplode($data, &$map, $conjunctor)
+	{
+		$stack = [];
+
+		foreach ($data as $key => $value)
+		{
+			$type = gettype($value);
+
+			if (
+				$type === 'array' &&
+				preg_match("/^(AND|OR)(\s+#.*)?$/", $key, $relation_match)
+			)
+			{
+				$relationship = $relation_match[ 1 ];
+
+				$stack[] = $value !== array_keys(array_keys($value)) ?
+					'(' . $this->dataImplode($value, $map, ' ' . $relationship) . ')' :
+					'(' . $this->innerConjunct($value, $map, ' ' . $relationship, $conjunctor) . ')';
+
+				continue;
+			}
+
+			$map_key = $this->mapKey();
+
+			if (
+				is_int($key) &&
+				preg_match('/([a-zA-Z0-9_\.]+)\[(?<operator>\>\=?|\<\=?|\!?\=)\]([a-zA-Z0-9_\.]+)/i', $value, $match)
+			)
+			{
+				$stack[] = $this->columnQuote($match[ 1 ]) . ' ' . $match[ 'operator' ] . ' ' . $this->columnQuote($match[ 3 ]);
+			}
+            else if (is_int($key) && $type === 'object')
+            {
+                $stack[] = $this->buildRaw($value, $map);
+            }
+			else
+			{
+				preg_match('/([a-zA-Z0-9_\.]+)(\[(?<operator>\>\=?|\<\=?|\!|\<\>|\>\<|\!?~|REGEXP)\])?/i', $key, $match);
+				$column = $this->columnQuote($match[ 1 ]);
+
+				if (isset($match[ 'operator' ]))
+				{
+					$operator = $match[ 'operator' ];
+
+					if (in_array($operator, ['>', '>=', '<', '<=']))
+					{
+						$condition = $column . ' ' . $operator . ' ';
+
+						if (is_numeric($value))
+						{
+							$condition .= $map_key;
+							$map[ $map_key ] = [$value, PDO::PARAM_INT];
+						}
+						elseif ($raw = $this->buildRaw($value, $map))
+						{
+							$condition .= $raw;
+						}
+						else
+						{
+							$condition .= $map_key;
+							$map[ $map_key ] = [$value, PDO::PARAM_STR];
+						}
+
+						$stack[] = $condition;
+					}
+					elseif ($operator === '!')
+					{
+						switch ($type)
+						{
+							case 'NULL':
+								$stack[] = $column . ' IS NOT NULL';
+								break;
+
+							case 'array':
+								$placeholders = [];
+
+								foreach ($value as $index => $item)
+								{
+									$placeholders[] = $map_key . $index . '_i';
+									$map[ $map_key . $index . '_i' ] = $this->typeMap($item, gettype($item));
+								}
+
+								$stack[] = $column . ' NOT IN (' . implode(', ', $placeholders) . ')';
+								break;
+
+							case 'object':
+								if ($raw = $this->buildRaw($value, $map))
+								{
+									$stack[] = $column . ' != ' . $raw;
+								}
+								break;
+
+							case 'integer':
+							case 'double':
+							case 'boolean':
+							case 'string':
+								$stack[] = $column . ' != ' . $map_key;
+								$map[ $map_key ] = $this->typeMap($value, $type);
+								break;
+						}
+					}
+					elseif ($operator === '~' || $operator === '!~')
+					{
+						if ($type !== 'array')
+						{
+							$value = [ $value ];
+						}
+
+						$connector = ' OR ';
+						$data = array_values($value);
+
+						if (is_array($data[ 0 ]))
+						{
+							if (isset($value[ 'AND' ]) || isset($value[ 'OR' ]))
+							{
+								$connector = ' ' . array_keys($value)[ 0 ] . ' ';
+								$value = $data[ 0 ];
+							}
+						}
+
+						$like_clauses = [];
+
+						foreach ($value as $index => $item)
+						{
+							$item = strval($item);
+
+							if (!preg_match('/(\[.+\]|_|%.+|.+%)/', $item))
+							{
+								$item = '%' . $item . '%';
+							}
+
+							$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $map_key . 'L' . $index;
+							$map[ $map_key . 'L' . $index ] = [$item, PDO::PARAM_STR];
+						}
+
+						$stack[] = '(' . implode($connector, $like_clauses) . ')';
+					}
+					elseif ($operator === '<>' || $operator === '><')
+					{
+						if ($type === 'array')
+						{
+							if ($operator === '><')
+							{
+								$column .= ' NOT';
+							}
+
+							$stack[] = '(' . $column . ' BETWEEN ' . $map_key . 'a AND ' . $map_key . 'b)';
+
+							$data_type = (is_numeric($value[ 0 ]) && is_numeric($value[ 1 ])) ? PDO::PARAM_INT : PDO::PARAM_STR;
+
+							$map[ $map_key . 'a' ] = [$value[ 0 ], $data_type];
+							$map[ $map_key . 'b' ] = [$value[ 1 ], $data_type];
+						}
+					}
+					elseif ($operator === 'REGEXP')
+					{
+						$stack[] = $column . ' REGEXP ' . $map_key;
+						$map[ $map_key ] = [$value, PDO::PARAM_STR];
+					}
+				}
+				else
+				{
+					switch ($type)
+					{
+						case 'NULL':
+							$stack[] = $column . ' IS NULL';
+							break;
+
+						case 'array':
+							$placeholders = [];
+
+							foreach ($value as $index => $item)
+							{
+								$placeholders[] = $map_key . $index . '_i';
+								$map[ $map_key . $index . '_i' ] = $this->typeMap($item, gettype($item));
+							}
+
+							$stack[] = $column . ' IN (' . implode(', ', $placeholders) . ')';
+							break;
+
+						case 'object':
+							if ($raw = $this->buildRaw($value, $map))
+							{
+								$stack[] = $column . ' = ' . $raw;
+							}
+							break;
+
+						case 'integer':
+						case 'double':
+						case 'boolean':
+						case 'string':
+							$stack[] = $column . ' = ' . $map_key;
+							$map[ $map_key ] = $this->typeMap($value, $type);
+							break;
+					}
+				}
+			}
+		}
+
+		return implode($conjunctor . ' ', $stack);
+	}
+
     public function begin()
     {
         $this->pdo->beginTransaction();
