@@ -633,7 +633,7 @@ class Medoo
 						if (is_numeric($value))
 						{
 							$condition .= $map_key;
-							$map[ $map_key ] = [$value, PDO::PARAM_INT];
+							$map[ $map_key ] = [$value, is_float($value) ? PDO::PARAM_STR : PDO::PARAM_INT];
 						}
 						elseif ($raw = $this->buildRaw($value, $map))
 						{
