@@ -121,6 +121,18 @@ class Table
     {
         return $this->lastConnection->id();
     }
+
+    /**
+     * @return MysqlMedoo.pdo
+     */
+    public function getPdo()
+    {
+        if(!$this->lastConnection) {
+            return null;
+        }
+
+        return $this->lastConnection->getPdo();
+    }
     
     public function __call($method, $args)
     {
