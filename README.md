@@ -10,7 +10,7 @@
     <a href="https://opencollective.com/medoo"><img alt="Sponsors on Open Collective" src="https://opencollective.com/Medoo/sponsors/badge.svg"> </a>
 </p>
 
-> The Lightest PHP database framework to accelerate development
+> The Lightweight PHP database framework to accelerate development
 
 ## Features
 

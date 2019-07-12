@@ -1,7 +1,7 @@
 {
 	"name": "catfan/medoo",
 	"type": "framework",
-	"description": "The lightest PHP database framework to accelerate development",
+	"description": "The lightweight PHP database framework to accelerate development",
 	"keywords": ["database", "lightweight", "PHP framework", "SQL", "MySQL", "MSSQL", "SQLite", "PostgreSQL", "MariaDB", "Oracle"],
 	"homepage": "https://medoo.in",
 	"license": "MIT",
@@ -18,10 +18,10 @@
 	},
 	"suggest": {
 		"ext-pdo_mysql": "For MySQL or MariaDB database",
-		"ext-pdo_sqlsrv": "For MSSQL database",
+		"ext-pdo_sqlsrv": "For MSSQL database on both Window/Liunx platform",
 		"ext-pdo_dblib": "For MSSQL or Sybase database on Linux/UNIX platform",
 		"ext-pdo_oci": "For Oracle database",
-		"ext-pdo_oci8": "For Oracle version 8 database",		
+		"ext-pdo_oci8": "For Oracle version 8 database",
 		"ext-pdo_pqsql": "For PostgreSQL database",
 		"ext-pdo_sqlite": "For SQLite database"
 	},
