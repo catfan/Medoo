@@ -1263,11 +1263,11 @@ class Medoo
 			{
 				$stack[] = preg_replace('/\<([a-zA-Z0-9_]+)\>/i', '"$1"', $definition);
 			}
-			else if (is_array($definition))
+			elseif (is_array($definition))
 			{
 				$stack[] = $name . ' ' . implode(' ', $definition);
 			}
-			else if (is_string($definition))
+			elseif (is_string($definition))
 			{
 				$stack[] = $name . ' ' . $this->query($definition);
 			}
@@ -1283,13 +1283,13 @@ class Medoo
 			{
 				if (is_string($value) || is_int($value))
 				{
-					$option_stack[] = $key . ' = ' . $value;
+					$option_stack[] = "$key = $value";
 				}
 			}
 
 			$table_option = ' ' . implode(', ', $option_stack);
 		}
-		else if (is_string($options))
+		elseif (is_string($options))
 		{
 			$table_option = ' ' . $options;
 		}
