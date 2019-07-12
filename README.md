@@ -10,7 +10,7 @@
     <a href="https://opencollective.com/medoo"><img alt="Sponsors on Open Collective" src="https://opencollective.com/Medoo/sponsors/badge.svg"> </a>
 </p>
 
-> The Lightweight PHP database framework to accelerate development
+> The lightweight PHP database framework to accelerate development
 
 ## Features
 
@@ -28,7 +28,7 @@
 
 ## Requirement
 
-PHP 5.4+ and PDO extension installed
+PHP 5.4+ and PDO extension installed, recommend PHP 7.0+
 
 ## Get Started
 
