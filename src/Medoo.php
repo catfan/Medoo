@@ -505,7 +505,7 @@ class Medoo
 		return '"' . $string . '"';
 	}
 
-	protected function columnPush(&$columns, &$map, $root)
+	protected function columnPush(&$columns, &$map, $root, $is_join = false)
 	{
 		if ($columns === '*')
 		{
@@ -523,27 +523,32 @@ class Medoo
 		{
 			if (!is_int($key) && is_array($value) && $root && count(array_keys($columns)) === 1)
 			{
-				$stack[] = $this->columnQuote( $key );
+				$stack[] = $this->columnQuote($key);
 
-				$stack[] = $this->columnPush($value, $map, false);
+				$stack[] = $this->columnPush($value, $map, false, $is_join);
 			}
 			elseif (is_array($value))
 			{
-				$stack[] = $this->columnPush($value, $map, false);
+				$stack[] = $this->columnPush($value, $map, false, $is_join);
 			}
 			elseif (!is_int($key) && $raw = $this->buildRaw($value, $map))
 			{
 				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(\s*\[(?<type>(String|Bool|Int|Number))\])?/i', $key, $match);
 
-				$stack[] = $raw . ' AS ' . $this->columnQuote( $match[ 'column' ] );
+				$stack[] = $raw . ' AS ' . $this->columnQuote($match[ 'column' ]);
 			}
 			elseif (is_int($key) && is_string($value))
 			{
+				if ($is_join && strpos($value, '*') !== false)
+				{
+					throw new InvalidArgumentException('Cannot use table.* to select all columns while joining table');
+				}
+
 				preg_match('/(?<column>[a-zA-Z0-9_\.]+)(?:\s*\((?<alias>[a-zA-Z0-9_]+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/i', $value, $match);
 
 				if (!empty($match[ 'alias' ]))
 				{
-					$stack[] = $this->columnQuote( $match[ 'column' ] ) . ' AS ' . $this->columnQuote( $match[ 'alias' ] );
+					$stack[] = $this->columnQuote($match[ 'column' ]) . ' AS ' . $this->columnQuote($match[ 'alias' ]);
 
 					$columns[ $key ] = $match[ 'alias' ];
 
@@ -554,7 +559,7 @@ class Medoo
 				}
 				else
 				{
-					$stack[] = $this->columnQuote( $match[ 'column' ] );
+					$stack[] = $this->columnQuote($match[ 'column' ]);
 				}
 			}
 		}
@@ -971,6 +976,7 @@ class Medoo
 			$table_query = $table;
 		}
 
+		$is_join = false;
 		$join_key = is_array($join) ? array_keys($join) : null;
 
 		if (
@@ -978,67 +984,8 @@ class Medoo
 			strpos($join_key[ 0 ], '[') === 0
 		)
 		{
-			$table_join = [];
-
-			$join_array = [
-				'>' => 'LEFT',
-				'<' => 'RIGHT',
-				'<>' => 'FULL',
-				'><' => 'INNER'
-			];
-
-			foreach($join as $sub_table => $relation)
-			{
-				preg_match('/(\[(?<join>\<\>?|\>\<?)\])?(?<table>[a-zA-Z0-9_]+)\s?(\((?<alias>[a-zA-Z0-9_]+)\))?/', $sub_table, $match);
-
-				if ($match[ 'join' ] !== '' && $match[ 'table' ] !== '')
-				{
-					if (is_string($relation))
-					{
-						$relation = 'USING ("' . $relation . '")';
-					}
-
-					if (is_array($relation))
-					{
-						// For ['column1', 'column2']
-						if (isset($relation[ 0 ]))
-						{
-							$relation = 'USING ("' . implode('", "', $relation) . '")';
-						}
-						else
-						{
-							$joins = [];
-
-							foreach ($relation as $key => $value)
-							{
-								$joins[] = (
-									strpos($key, '.') > 0 ?
-										// For ['tableB.column' => 'column']
-										$this->columnQuote($key) :
-
-										// For ['column1' => 'column2']
-										$table . '."' . $key . '"'
-								) .
-								' = ' .
-								$this->tableQuote(isset($match[ 'alias' ]) ? $match[ 'alias' ] : $match[ 'table' ]) . '."' . $value . '"';
-							}
-
-							$relation = 'ON ' . implode(' AND ', $joins);
-						}
-					}
-
-					$table_name = $this->tableQuote($match[ 'table' ]) . ' ';
-
-					if (isset($match[ 'alias' ]))
-					{
-						$table_name .= 'AS ' . $this->tableQuote($match[ 'alias' ]) . ' ';
-					}
-
-					$table_join[] = $join_array[ $match[ 'join' ] ] . ' JOIN ' . $table_name . $relation;
-				}
-			}
-
-			$table_query .= ' ' . implode(' ', $table_join);
+			$is_join = true;
+			$table_query .= ' ' . $this->buildJoin($join);
 		}
 		else
 		{
@@ -1093,10 +1040,75 @@ class Medoo
 		}
 		else
 		{
-			$column = $this->columnPush($columns, $map, true);
+			$column = $this->columnPush($columns, $map, true, $is_join);
 		}
 
 		return 'SELECT ' . $column . ' FROM ' . $table_query . $this->whereClause($where, $map);
+	}
+
+	protected function buildJoin($join)
+	{
+		$table_join = [];
+
+		$join_array = [
+			'>' => 'LEFT',
+			'<' => 'RIGHT',
+			'<>' => 'FULL',
+			'><' => 'INNER'
+		];
+
+		foreach($join as $sub_table => $relation)
+		{
+			preg_match('/(\[(?<join>\<\>?|\>\<?)\])?(?<table>[a-zA-Z0-9_]+)\s?(\((?<alias>[a-zA-Z0-9_]+)\))?/', $sub_table, $match);
+
+			if ($match[ 'join' ] !== '' && $match[ 'table' ] !== '')
+			{
+				if (is_string($relation))
+				{
+					$relation = 'USING ("' . $relation . '")';
+				}
+
+				if (is_array($relation))
+				{
+					// For ['column1', 'column2']
+					if (isset($relation[ 0 ]))
+					{
+						$relation = 'USING ("' . implode('", "', $relation) . '")';
+					}
+					else
+					{
+						$joins = [];
+
+						foreach ($relation as $key => $value)
+						{
+							$joins[] = (
+								strpos($key, '.') > 0 ?
+									// For ['tableB.column' => 'column']
+									$this->columnQuote($key) :
+
+									// For ['column1' => 'column2']
+									$table . '."' . $key . '"'
+							) .
+							' = ' .
+							$this->tableQuote(isset($match[ 'alias' ]) ? $match[ 'alias' ] : $match[ 'table' ]) . '."' . $value . '"';
+						}
+
+						$relation = 'ON ' . implode(' AND ', $joins);
+					}
+				}
+
+				$table_name = $this->tableQuote($match[ 'table' ]) . ' ';
+
+				if (isset($match[ 'alias' ]))
+				{
+					$table_name .= 'AS ' . $this->tableQuote($match[ 'alias' ]) . ' ';
+				}
+
+				$table_join[] = $join_array[ $match[ 'join' ] ] . ' JOIN ' . $table_name . $relation;
+			}
+		}
+
+		return implode(' ', $table_join);
 	}
 
 	protected function columnMap($columns, &$stack, $root)
