@@ -1251,6 +1251,59 @@ class Medoo
 		}
 	}
 
+	public function create($table, $columns, $options = null)
+	{
+		$stack = [];
+
+		$tableName = $this->prefix . $table;
+
+		foreach ($columns as $name => $definition)
+		{
+			if (is_int($name))
+			{
+				$stack[] = preg_replace('/\<([a-zA-Z0-9_]+)\>/i', '"$1"', $definition);
+			}
+			else if (is_array($definition))
+			{
+				$stack[] = $name . ' ' . implode(' ', $definition);
+			}
+			else if (is_string($definition))
+			{
+				$stack[] = $name . ' ' . $this->query($definition);
+			}
+		}
+
+		$table_option = '';
+
+		if (is_array($options))
+		{
+			$option_stack = [];
+
+			foreach ($options as $key => $value)
+			{
+				if (is_string($value) || is_int($value))
+				{
+					$option_stack[] = $key . ' = ' . $value;
+				}
+			}
+
+			$table_option = ' ' . implode(', ', $option_stack);
+		}
+		else if (is_string($options))
+		{
+			$table_option = ' ' . $options;
+		}
+
+		return $this->exec("CREATE TABLE IF NOT EXISTS $tableName (" . implode(', ', $stack) . ")$table_option");
+	}
+
+	public function drop($table)
+	{
+		$tableName = $this->prefix . $table;
+
+		return $this->exec("DROP TABLE IF EXISTS $tableName");
+	}
+
 	public function select($table, $join, $columns = null, $where = null)
 	{
 		$map = [];
