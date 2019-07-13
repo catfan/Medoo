@@ -1170,7 +1170,9 @@ class Medoo
 	{
 		if ($root)
 		{
-			if (count(array_keys($columns)) === 1)
+			$columns_key = array_keys($columns);
+
+			if (count($columns_key) === 1 && is_array($columns[$columns_key[0]]))
 			{
 				$index_key = array_keys($columns)[0];
 
@@ -1549,6 +1551,7 @@ class Medoo
 		$map = [];
 		$result = [];
 		$column_map = [];
+		$current_stack = [];
 
 		if ($where === null)
 		{
@@ -1578,14 +1581,14 @@ class Medoo
 
 				$this->columnMap($columns, $column_map, true);
 
-				$this->dataMap($data[ 0 ], $columns, $column_map, $result, true);
+				$this->dataMap($data[ 0 ], $columns, $column_map, $current_stack, true, $result);
 
 				if ($is_single)
 				{
-					return $result[ $column_map[ $column ][ 0 ] ];
+					return $result[ 0 ][ $column_map[ $column ][ 0 ] ];
 				}
 
-				return $result;
+				return $result[ 0 ];
 			}
 		}
 	}
