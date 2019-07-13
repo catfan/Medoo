@@ -985,7 +985,7 @@ class Medoo
 		)
 		{
 			$is_join = true;
-			$table_query .= ' ' . $this->buildJoin($join);
+			$table_query .= ' ' . $this->buildJoin($table, $join);
 		}
 		else
 		{
@@ -1046,7 +1046,7 @@ class Medoo
 		return 'SELECT ' . $column . ' FROM ' . $table_query . $this->whereClause($where, $map);
 	}
 
-	protected function buildJoin($join)
+	protected function buildJoin($table, $join)
 	{
 		$table_join = [];
 
