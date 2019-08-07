@@ -1189,7 +1189,7 @@ class Medoo
 			}
 			else
 			{
-				$this->dataMap($data, $columns, $column_map, $current_stack, false, $result);
+				$this->dataMap($data, $columns, $column_map, $stack, false, $result);
 
 				$result[] = $current_stack;
 			}
