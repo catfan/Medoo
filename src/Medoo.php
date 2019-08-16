@@ -1759,7 +1759,7 @@ class Medoo
 
 	public function error()
 	{
-		return $this->statement ? $this->statement->errorInfo() : null;
+		return $this->statement ? $this->statement->errorInfo() : $this->pdo->errorInfo();
 	}
 
 	public function last()
