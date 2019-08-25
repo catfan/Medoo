@@ -13,7 +13,7 @@
 		{"name": "Angel Lai", "email": "angel@catfan.me"}
 	],
 	"require": {
-		"php": ">=5.4",
+		"php": ">=5.5",
 		"ext-pdo": "*"
 	},
 	"suggest": {

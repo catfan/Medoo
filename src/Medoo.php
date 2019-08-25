@@ -1362,6 +1362,44 @@ class Medoo
 		return $result;
 	}
 
+	public function cursor($table, $join, $columns = null, $where = null)
+	{
+		$map = [];
+		$result = [];
+
+		$index = 0;
+
+		$column = $where === null ? $join : $columns;
+
+		$is_single = (is_string($column) && $column !== '*');
+
+		$query = $this->exec($this->selectContext($table, $map, $join, $columns, $where), $map);
+
+		if (!$query)
+		{
+			return false;
+		}
+
+		if ($columns === '*')
+		{
+			while($row = $query->fetch(PDO::FETCH_ASSOC)) {
+				yield $row;
+			}
+		}
+
+		if ($is_single)
+		{
+			while($row = $query->fetch(PDO::FETCH_COLUMN)) {
+				yield $row;
+			}
+		}
+
+		while ($row = $query->fetch(PDO::FETCH_ASSOC))
+		{
+			yield array_intersect_key($row, array_flip($columns));
+		}
+	}
+
 	public function insert($table, $datas)
 	{
 		$stack = [];
