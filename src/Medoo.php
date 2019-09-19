@@ -624,7 +624,7 @@ class Medoo
 			}
 			else
 			{
-				preg_match('/([a-zA-Z0-9_\.]+)(\[(?<operator>\>\=?|\<\=?|\!|\<\>|\>\<|\!?~|REGEXP)\])?/i', $key, $match);
+				preg_match('/([a-zA-Z0-9_\.]+)(\[(?<operator>\>\=?|\<\=?|\!|\<\>|\>\<|\!?~{1,2}|REGEXP)\])?/i', $key, $match);
 				$column = $this->columnQuote($match[ 1 ]);
 
 				if (isset($match[ 'operator' ]))
@@ -690,7 +690,7 @@ class Medoo
 								break;
 						}
 					}
-					elseif ($operator === '~' || $operator === '!~')
+					elseif ($operator === '~' || $operator === '!~' || $operator === '~~' || $operator === '!~~')
 					{
 						if ($type !== 'array')
 						{
@@ -720,7 +720,11 @@ class Medoo
 								$item = '%' . $item . '%';
 							}
 
-							$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $map_key . 'L' . $index;
+							if ($operator === '~~' || $operator === '!~~') {
+								$like_clauses[] = 'LOWER(' . $column . ')' . ($operator === '!~~' ? ' NOT' : '') . ' LIKE LOWER(' . $map_key . 'L' . $index . ')';
+							} else {
+								$like_clauses[] = $column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ' . $map_key . 'L' . $index;
+							}
 							$map[ $map_key . 'L' . $index ] = [$item, PDO::PARAM_STR];
 						}
 
