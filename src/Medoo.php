@@ -500,6 +500,11 @@ class Medoo
 
 	protected function columnQuote($string)
 	{
+		if (!preg_match('/^[a-zA-Z0-9]+(\.?[a-zA-Z0-9]+)?$/i', $string))
+		{
+			throw new InvalidArgumentException("Incorrect column name \"$string\"");
+		}
+
 		if (strpos($string, '.') !== false)
 		{
 			return '"' . $this->prefix . str_replace('.', '"."', $string) . '"';
