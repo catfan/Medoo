@@ -360,12 +360,15 @@ class Medoo
 				$statement->bindValue($key, $value[ 0 ], $value[ 1 ]);
 			}
 
-			$statement->execute();
+			if ($statement->execute())
+			{
+				$this->statement = $statement;
 
-			$this->statement = $statement;
-
-			return $statement;
+				return $statement;
+			}
 		}
+
+		$this->statement = null;
 
 		return false;
 	}
@@ -1736,6 +1739,11 @@ class Medoo
 
 	public function id()
 	{
+		if ($this->statement == null)
+		{
+			return null;
+		}
+
 		$type = $this->type;
 
 		if ($type === 'oracle')
@@ -1747,7 +1755,14 @@ class Medoo
 			return $this->pdo->query('SELECT LASTVAL()')->fetchColumn();
 		}
 
-		return $this->pdo->lastInsertId();
+		$lastId = $this->pdo->lastInsertId();
+
+		if ($lastId != "0" && $lastId != "")
+		{
+			return $lastId;
+		}
+
+		return null;
 	}
 
 	public function debug()
