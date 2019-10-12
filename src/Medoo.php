@@ -2,7 +2,7 @@
 /*!
  * Medoo database framework
  * https://medoo.in
- * Version 1.7.4
+ * Version 1.7.5
  *
  * Copyright 2019, Angel Lai
  * Released under the MIT license
@@ -500,7 +500,7 @@ class Medoo
 
 	protected function columnQuote($string)
 	{
-		if (!preg_match('/^[a-zA-Z0-9]+(\.?[a-zA-Z0-9]+)?$/i', $string))
+		if (!preg_match('/^[a-zA-Z0-9_]+(\.?[a-zA-Z0-9_]+)?$/i', $string))
 		{
 			throw new InvalidArgumentException("Incorrect column name \"$string\"");
 		}
