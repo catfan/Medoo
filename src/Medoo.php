@@ -1516,6 +1516,18 @@ class Medoo
 		return $this->exec('UPDATE ' . $this->tableQuote($table) . ' SET ' . implode(', ', $fields) . $this->whereClause($where, $map), $map);
 	}
 
+	public function upsert($table, $data, $where = null) 
+	{
+		if ($this->has($table, $where)) 
+		{
+			return $this->update($table, $data, $where);
+		} 
+		else 
+		{
+			return $this->insert($table, $data);
+		}
+	}
+
 	public function delete($table, $where)
 	{
 		$map = [];
