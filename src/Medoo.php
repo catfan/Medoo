@@ -40,6 +40,8 @@ class Medoo
 
 	protected $guid = 0;
 
+	protected $errorInfo = null;
+
 	public function __construct(array $options)
 	{
 		if (isset($options[ 'database_type' ]))
@@ -353,24 +355,31 @@ class Medoo
 
 		$statement = $this->pdo->prepare($query);
 
-		if ($statement)
+		if (!$statement)
 		{
-			foreach ($map as $key => $value)
-			{
-				$statement->bindValue($key, $value[ 0 ], $value[ 1 ]);
-			}
+			$this->errorInfo = $this->pdo->errorInfo();
+			$this->statement = null;
 
-			if ($statement->execute())
-			{
-				$this->statement = $statement;
-
-				return $statement;
-			}
+			return false;
 		}
 
-		$this->statement = null;
+		$this->statement = $statement;
 
-		return false;
+		foreach ($map as $key => $value)
+		{
+			$statement->bindValue($key, $value[ 0 ], $value[ 1 ]);
+		}
+
+		$execute = $statement->execute();
+
+		$this->errorInfo = $statement->errorInfo();
+
+		if (!$execute)
+		{
+			$this->statement = null;
+		}
+
+		return $statement;
 	}
 
 	protected function generate($query, $map)
@@ -1345,7 +1354,7 @@ class Medoo
 
 		$this->columnMap($columns, $column_map, true);
 
-		if (!$query)
+		if (!$this->statement)
 		{
 			return false;
 		}
@@ -1579,28 +1588,30 @@ class Medoo
 
 		$query = $this->exec($this->selectContext($table, $map, $join, $columns, $where) . ' LIMIT 1', $map);
 
-		if ($query)
+		if (!$this->statement)
 		{
-			$data = $query->fetchAll(PDO::FETCH_ASSOC);
+			return false;
+		}
 
-			if (isset($data[ 0 ]))
+		$data = $query->fetchAll(PDO::FETCH_ASSOC);
+
+		if (isset($data[ 0 ]))
+		{
+			if ($column === '*')
 			{
-				if ($column === '*')
-				{
-					return $data[ 0 ];
-				}
-
-				$this->columnMap($columns, $column_map, true);
-
-				$this->dataMap($data[ 0 ], $columns, $column_map, $current_stack, true, $result);
-
-				if ($is_single)
-				{
-					return $result[ 0 ][ $column_map[ $column ][ 0 ] ];
-				}
-
-				return $result[ 0 ];
+				return $data[ 0 ];
 			}
+
+			$this->columnMap($columns, $column_map, true);
+
+			$this->dataMap($data[ 0 ], $columns, $column_map, $current_stack, true, $result);
+
+			if ($is_single)
+			{
+				return $result[ 0 ][ $column_map[ $column ][ 0 ] ];
+			}
+
+			return $result[ 0 ];
 		}
 	}
 
@@ -1618,14 +1629,14 @@ class Medoo
 			$query = $this->exec('SELECT EXISTS(' . $this->selectContext($table, $map, $join, $column, $where, 1) . ')', $map);
 		}
 
-		if ($query)
+		if (!$this->statement)
 		{
-			$result = $query->fetchColumn();
-
-			return $result === '1' || $result === 1 || $result === true;
+			return false;
 		}
 
-		return false;
+		$result = $query->fetchColumn();
+
+		return $result === '1' || $result === 1 || $result === true;
 	}
 
 	public function rand($table, $join = null, $columns = null, $where = null)
@@ -1677,14 +1688,14 @@ class Medoo
 
 		$query = $this->exec($this->selectContext($table, $map, $join, $column, $where, strtoupper($type)), $map);
 
-		if ($query)
+		if (!$this->statement)
 		{
-			$number = $query->fetchColumn();
-
-			return is_numeric($number) ? $number + 0 : $number;
+			return false;
 		}
 
-		return false;
+		$number = $query->fetchColumn();
+
+		return is_numeric($number) ? $number + 0 : $number;
 	}
 
 	public function count($table, $join = null, $column = null, $where = null)
@@ -1779,7 +1790,7 @@ class Medoo
 
 	public function error()
 	{
-		return $this->statement ? $this->statement->errorInfo() : null;
+		return $this->errorInfo;
 	}
 
 	public function last()
