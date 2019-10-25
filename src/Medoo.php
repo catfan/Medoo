@@ -1364,16 +1364,24 @@ class Medoo
 			return $query->fetchAll(PDO::FETCH_ASSOC);
 		}
 
-		if ($is_single)
-		{
-			return $query->fetchAll(PDO::FETCH_COLUMN);
-		}
-
 		while ($data = $query->fetch(PDO::FETCH_ASSOC))
 		{
 			$current_stack = [];
 
 			$this->dataMap($data, $columns, $column_map, $current_stack, true, $result);
+		}
+
+		if ($is_single)
+		{
+			$single_result = [];
+			$result_key = $column_map[ $column ][ 0 ];
+
+			foreach ($result as $item)
+			{
+				$single_result[] = $item[ $result_key ];
+			}
+
+			return $single_result;
 		}
 
 		return $result;
