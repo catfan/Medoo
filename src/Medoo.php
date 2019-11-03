@@ -1002,7 +1002,7 @@ class Medoo
 		)
 		{
 			$is_join = true;
-			$table_query .= ' ' . $this->buildJoin($table, $join);
+			$table_query .= ' ' . $this->buildJoin($table, $join, $map);
 		}
 		else
 		{
@@ -1063,7 +1063,7 @@ class Medoo
 		return 'SELECT ' . $column . ' FROM ' . $table_query . $this->whereClause($where, $map);
 	}
 
-	protected function buildJoin($table, $join)
+	protected function buildJoin($table, $join, &$map)
 	{
 		$table_join = [];
 
@@ -1107,7 +1107,14 @@ class Medoo
 									$table . '."' . $key . '"'
 							) .
 							' = ' .
-							$this->tableQuote(isset($match[ 'alias' ]) ? $match[ 'alias' ] : $match[ 'table' ]) . '."' . $value . '"';
+							(
+								$this->isRaw($value) ?
+									// For ['column1' => Medoo::raw('1')]
+									$this->buildRaw($value, $map) :
+
+									// For ['column1' => 'column2']
+									$this->tableQuote(isset($match[ 'alias' ]) ? $match[ 'alias' ] : $match[ 'table' ]) . '."' . $value . '"'
+							);
 						}
 
 						$relation = 'ON ' . implode(' AND ', $joins);
