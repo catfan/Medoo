@@ -339,6 +339,7 @@ class Medoo
 		{
 			echo $this->generate($query, $map);
 
+			$this->statement = null;
 			$this->debug_mode = false;
 
 			return false;
