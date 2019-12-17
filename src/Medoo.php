@@ -805,6 +805,8 @@ class Medoo
 						case 'integer':
 						case 'double':
 						case 'boolean':
+							$stack[] = $column . ' = ' . ($value ? 'true' : 'false');
+							break;
 						case 'string':
 							$stack[] = $column . ' = ' . $map_key;
 							$map[ $map_key ] = $this->typeMap($value, $type);
