@@ -335,6 +335,8 @@ class Medoo
 
 	public function exec($query, $map = [])
 	{
+		$this->statement = null;
+
 		if ($this->debug_mode)
 		{
 			echo $this->generate($query, $map);
