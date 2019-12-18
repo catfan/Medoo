@@ -739,7 +739,7 @@ class Medoo
 						{
 							$item = strval($item);
 
-							if (!preg_match('/(\[.+\]|_|%.+|.+%)/', $item))
+							if (!preg_match('/(\[.+\]|[\*\?\!\%#^-_]|%.+|.+%)/', $item))
 							{
 								$item = '%' . $item . '%';
 							}
