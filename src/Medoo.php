@@ -445,15 +445,20 @@ class Medoo
 		}
 
 		$query = preg_replace_callback(
-			'/((FROM|TABLE|INTO|UPDATE)\s*)?\<([a-zA-Z0-9_\.]+)\>/i',
+			'/(([`\']).*?)?((FROM|TABLE|INTO|UPDATE)\s*)?\<(([a-zA-Z0-9_]+)(\.[a-zA-Z0-9_]+)?)\>(.*?\2)?/i',
 			function ($matches)
 			{
-				if (!empty($matches[ 2 ]))
+				if (!empty($matches[ 2 ] && isset($matches[ 8 ])))
 				{
-					return $matches[ 2 ] . ' ' . $this->tableQuote($matches[ 3 ]);
+					return $matches[ 0 ];
 				}
 
-				return $this->columnQuote($matches[ 3 ]);
+				if (!empty($matches[ 4 ]))
+				{
+					return $matches[ 1 ] . $matches[ 4 ] . ' ' . $this->tableQuote($matches[ 5 ]);
+				}
+
+				return $matches[ 1 ] . $this->columnQuote($matches[ 5 ]);
 			},
 			$raw->value);
 
