@@ -2,9 +2,9 @@
 /*!
  * Medoo database framework
  * https://medoo.in
- * Version 1.7.8
+ * Version 1.7.9
  *
- * Copyright 2019, Angel Lai
+ * Copyright 2020, Angel Lai
  * Released under the MIT license
  */
 
