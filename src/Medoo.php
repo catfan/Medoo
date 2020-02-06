@@ -445,7 +445,7 @@ class Medoo
 		}
 
 		$query = preg_replace_callback(
-			'/(([`\']).*?)?((FROM|TABLE|INTO|UPDATE)\s*)?\<(([a-zA-Z0-9_]+)(\.[a-zA-Z0-9_]+)?)\>(.*?\2)?/i',
+			'/(([`\']).*?)?((FROM|TABLE|INTO|UPDATE|JOIN)\s*)?\<(([a-zA-Z0-9_]+)(\.[a-zA-Z0-9_]+)?)\>(.*?\2)?/i',
 			function ($matches)
 			{
 				if (!empty($matches[ 2 ] && isset($matches[ 8 ])))
