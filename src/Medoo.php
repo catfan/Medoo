@@ -448,7 +448,7 @@ class Medoo
 			'/(([`\']).*?)?((FROM|TABLE|INTO|UPDATE|JOIN)\s*)?\<(([a-zA-Z0-9_]+)(\.[a-zA-Z0-9_]+)?)\>(.*?\2)?/i',
 			function ($matches)
 			{
-				if (!empty($matches[ 2 ] && isset($matches[ 8 ])))
+				if (!empty($matches[ 2 ]) && isset($matches[ 8 ]))
 				{
 					return $matches[ 0 ];
 				}
