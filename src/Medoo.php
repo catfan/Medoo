@@ -1596,12 +1596,16 @@ class Medoo
 		if ($where === null)
 		{
 			$column = $join;
-			unset($columns[ 'LIMIT' ]);
+			if (is_array($columns)) {
+				unset($columns[ 'LIMIT' ]);
+			}
 		}
 		else
 		{
 			$column = $columns;
-			unset($where[ 'LIMIT' ]);
+			if (is_array($where)) {
+				unset($where[ 'LIMIT' ]);
+			}
 		}
 
 		$is_single = (is_string($column) && $column !== '*');
