@@ -653,14 +653,14 @@ class Medoo
 			}
 			else
 			{
-				preg_match('/([a-zA-Z0-9_\.]+)(\[(?<operator>\>\=?|\<\=?|\!|\<\>|\>\<|\!?~|REGEXP)\])?/i', $key, $match);
+				preg_match('/([a-zA-Z0-9_\.]+)(\[(?<operator>\>\=?|\<\=?|&|\!|\<\>|\>\<|\!?~|REGEXP)\])?/i', $key, $match);
 				$column = $this->columnQuote($match[ 1 ]);
 
 				if (isset($match[ 'operator' ]))
 				{
 					$operator = $match[ 'operator' ];
 
-					if (in_array($operator, ['>', '>=', '<', '<=']))
+					if (in_array($operator, ['>', '>=', '<', '<=', '&']))
 					{
 						$condition = $column . ' ' . $operator . ' ';
 
@@ -932,7 +932,7 @@ class Medoo
 				}
 				elseif ($raw = $this->buildRaw($ORDER, $map))
 				{
-					$where_clause .= ' ORDER BY ' . $raw;	
+					$where_clause .= ' ORDER BY ' . $raw;
 				}
 				else
 				{
@@ -950,7 +950,7 @@ class Medoo
 					{
 						$LIMIT = [0, $LIMIT];
 					}
-					
+
 					if (
 						is_array($LIMIT) &&
 						is_numeric($LIMIT[ 0 ]) &&
@@ -1220,7 +1220,7 @@ class Medoo
 			else
 			{
 				$current_stack = [];
-				
+
 				$this->dataMap($data, $columns, $column_map, $current_stack, false, $result);
 
 				$result[] = $current_stack;
@@ -1491,7 +1491,7 @@ class Medoo
 
 		foreach ($data as $key => $value)
 		{
-			$column = $this->columnQuote(preg_replace("/(\s*\[(JSON|\+|\-|\*|\/)\]$)/i", '', $key));
+			$column = $this->columnQuote(preg_replace("/(\s*\[(JSON|\+|\-|\*|\/|&)\]$)/i", '', $key));
 
 			if ($raw = $this->buildRaw($value, $map))
 			{
@@ -1501,7 +1501,7 @@ class Medoo
 
 			$map_key = $this->mapKey();
 
-			preg_match('/(?<column>[a-zA-Z0-9_]+)(\[(?<operator>\+|\-|\*|\/)\])?/i', $key, $match);
+			preg_match('/(?<column>[a-zA-Z0-9_]+)(\[(?<operator>\+|\-|\*|\/|&)\])?/i', $key, $match);
 
 			if (isset($match[ 'operator' ]))
 			{
