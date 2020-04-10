@@ -1691,16 +1691,20 @@ class Medoo
 			else
 			{
 				$column = $join;
-				unset($columns[ 'ORDER' ]);
-
-				$columns[ 'ORDER' ] = $order_raw;
+				if (is_array($columns))
+				{
+					unset($columns['ORDER']);
+					$columns[ 'ORDER' ] = $order_raw;
+				}
 			}
 		}
 		else
 		{
-			unset($where[ 'ORDER' ]);
-
-			$where[ 'ORDER' ] = $order_raw;
+			if (is_array($where))
+			{
+				unset($where['ORDER']);
+				$where[ 'ORDER' ] = $order_raw;
+			}
 		}
 
 		return $this->select($table, $join, $columns, $where);
