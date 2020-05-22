@@ -645,7 +645,7 @@ class Medoo
 			$map_key = $this->mapKey();
 
 			if (
-				is_int($key) &&
+				is_int($key) && (!is_object($value)) &&
 				preg_match('/([a-zA-Z0-9_\.]+)\[(?<operator>\>\=?|\<\=?|\!?\=)\]([a-zA-Z0-9_\.]+)/i', $value, $match)
 			)
 			{
@@ -803,7 +803,14 @@ class Medoo
 						case 'object':
 							if ($raw = $this->buildRaw($value, $map))
 							{
-								$stack[] = $column . ' = ' . $raw;
+						       if (stripos($raw, 'FIND_IN_SET') === false) 
+						       {
+						            $stack[] = $column . ' = ' . $raw;
+						       } 
+						       else 
+						       {
+						            $stack[] = $raw;
+						       }
 							}
 							break;
 
