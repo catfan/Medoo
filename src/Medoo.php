@@ -38,6 +38,8 @@ class Medoo
 
 	protected $debug_mode = false;
 
+	protected $transaction_cnt = 0;
+
 	protected $guid = 0;
 
 	public function __construct(array $options)
@@ -1588,22 +1590,26 @@ class Medoo
 	{
 		if (is_callable($actions))
 		{
-			$this->pdo->beginTransaction();
 
+			++ $this->transaction_cnt;
+			if($this->transaction_cnt ==1 )$this->pdo->beginTransaction();
 			try {
 				$result = $actions($this);
 
 				if ($result === false)
 				{
-					$this->pdo->rollBack();
+					if($this->transaction_cnt == 1) $this->pdo->rollBack();
+					--$this->transaction_cnt;
 				}
 				else
 				{
-					$this->pdo->commit();
+					if ($this->transaction_cnt == 1) $this->pdo->commit();
+					--$this->transaction_cnt;
 				}
 			}
 			catch (Exception $e) {
-				$this->pdo->rollBack();
+				if($this->transaction_cnt == 1) $this->pdo->rollBack();
+				--$this->transaction_cnt;
 
 				throw $e;
 			}
