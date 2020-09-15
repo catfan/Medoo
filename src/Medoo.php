@@ -788,16 +788,27 @@ class Medoo
 
 						case 'array':
 							$placeholders = [];
+							$has_null = false;
 
 							foreach ($value as $index => $item)
 							{
+								if ($item === null)
+								{
+									$has_null = true;
+									continue;
+								}
+
 								$stack_key = $map_key . $index . '_i';
 
 								$placeholders[] = $stack_key;
 								$map[ $stack_key ] = $this->typeMap($item, gettype($item));
 							}
 
-							$stack[] = $column . ' IN (' . implode(', ', $placeholders) . ')';
+							$in_clause = $column . ' IN (' . implode(', ', $placeholders) . ')';
+							$stack[] = $has_null ?
+								'(' . $column . ' IS NULL OR ' . $in_clause . ')' :
+								$in_clause;
+
 							break;
 
 						case 'object':
