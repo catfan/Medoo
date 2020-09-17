@@ -1297,51 +1297,56 @@ class Medoo
 		}
 	}
 
-	public function create($table, $columns, $options = null)
-	{
-		$stack = [];
+    public function create($table, $columns, $options = null)
+    {
+        $stack = [];
 
-		$tableName = $this->prefix . $table;
+        $tableName = $this->prefix . $table;
 
-		foreach ($columns as $name => $definition)
-		{
-			if (is_int($name))
-			{
-				$stack[] = preg_replace('/\<([a-zA-Z0-9_]+)\>/i', '"$1"', $definition);
-			}
-			elseif (is_array($definition))
-			{
-				$stack[] = $name . ' ' . implode(' ', $definition);
-			}
-			elseif (is_string($definition))
-			{
-				$stack[] = $name . ' ' . $this->query($definition);
-			}
-		}
+        foreach ($columns as $name => $definition) {
+            if (is_int($name)) {
+                $stack[] = preg_replace('/\<([a-zA-Z0-9_]+)\>/i', '"$1"', $definition);
+            } elseif (is_array($definition)) {
+                if($this->type === 'mssql'){
+                    foreach($definition as $def_key => $def_value){
+                        if(preg_match('/^AUTO_INCREMENT$/', $def_value)){
+                            $definition[$def_key] = 'IDENTITY(1,1)';
+                        }
+                    }
+                }
+                $stack[] = $name . ' ' . implode(' ', $definition);
 
-		$table_option = '';
+            } elseif (is_string($definition)) {
+                if($this->type === 'mssql' && preg_match('/^AUTO_INCREMENT$/', $definition)){
+                    $stack[] = $name . ' IDENTITY(1,1)';
+                }else{
+                    $stack[] = $name . ' ' . $this->query($definition);
+                }
+            }
+        }
+        $table_option = '';
 
-		if (is_array($options))
-		{
-			$option_stack = [];
+        if (is_array($options)) {
+            $option_stack = [];
 
-			foreach ($options as $key => $value)
-			{
-				if (is_string($value) || is_int($value))
-				{
-					$option_stack[] = "$key = $value";
-				}
-			}
+            foreach ($options as $key => $value) {
+                if (is_string($value) || is_int($value)) {
+                    $option_stack[] = "$key = $value";
+                }
+            }
 
-			$table_option = ' ' . implode(', ', $option_stack);
-		}
-		elseif (is_string($options))
-		{
-			$table_option = ' ' . $options;
-		}
+            $table_option = ' ' . implode(', ', $option_stack);
+        } elseif (is_string($options)) {
+            $table_option = ' ' . $options;
+        }
 
-		return $this->exec("CREATE TABLE IF NOT EXISTS $tableName (" . implode(', ', $stack) . ")$table_option");
-	}
+        switch($this->type){
+            case 'mysql':
+                return $this->exec("CREATE TABLE IF NOT EXISTS $tableName (" . implode(', ', $stack) . ")$table_option");
+            case 'mssql':
+                return $this->exec("IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='$tableName' AND xtype='U') CREATE TABLE $tableName (" . implode(', ', $stack) . ")$table_option");
+        }
+    }
 
 	public function drop($table)
 	{
