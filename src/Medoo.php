@@ -1347,7 +1347,7 @@ class Medoo
 	{
 		$tableName = $this->prefix . $table;
 
-		return $this->exec("DROP TABLE IF EXISTS $tableName");
+		return $this->exec("DROP TABLE IF EXISTS `$tableName`");
 	}
 
 	public function select($table, $join, $columns = null, $where = null)
