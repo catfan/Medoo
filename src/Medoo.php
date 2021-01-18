@@ -41,7 +41,9 @@ class Medoo
 	protected $guid = 0;
 
 	protected $errorInfo = null;
-
+	
+	protected $options_cache=null;
+	
 	public function __construct(array $options)
 	{
 		if (isset($options[ 'database_type' ]))
@@ -334,6 +336,16 @@ class Medoo
 	}
 
 	public function exec($query, $map = [])
+	{
+		try{
+		 return $this->_exec($query, $map);
+		}catch(PDOException $e){
+			$this->__construct($this->options_cache);
+			return $this->_exec($query, $map);
+		}
+	}
+	
+	public function _exec($query, $map = [])
 	{
 		$this->statement = null;
 
