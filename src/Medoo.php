@@ -1506,7 +1506,7 @@ class Medoo
                         case 'object':
                             $value = serialize($value);
 
-                            // no break
+                            break;
                         case 'NULL':
                         case 'resource':
                         case 'boolean':
@@ -1576,7 +1576,7 @@ class Medoo
                     case 'object':
                         $value = serialize($value);
 
-                        // no break
+                        break;
                     case 'NULL':
                     case 'resource':
                     case 'boolean':
