@@ -394,34 +394,34 @@ class Medoo
     }
 
     /**
-     * Execute customized raw query.
+     * Execute customized raw statement.
      *
-     * @param string $query The SQL query.
+     * @param string $statement The raw SQL statement.
      * @param array $map The array of input parameters value for prepared statement.
      * @return \PDOStatement|false
      */
-    public function query($query, $map = [])
+    public function query($statement, $map = [])
     {
-        $raw = $this->raw($query, $map);
+        $raw = $this->raw($statement, $map);
 
-        $query = $this->buildRaw($raw, $map);
+        $statement = $this->buildRaw($raw, $map);
 
-        return $this->exec($query, $map);
+        return $this->exec($statement, $map);
     }
 
     /**
-     * Execute the raw query.
+     * Execute the raw statement.
      *
-     * @param string $query The SQL query.
+     * @param string $statement The SQL statement.
      * @param array $map The array of input parameters value for prepared statement.
      * @return \PDOStatement|false
      */
-    public function exec($query, $map = [])
+    public function exec($statement, $map = [])
     {
         $this->statement = null;
 
         if ($this->debug_mode) {
-            echo $this->generate($query, $map);
+            echo $this->generate($statement, $map);
 
             $this->debug_mode = false;
 
@@ -429,12 +429,12 @@ class Medoo
         }
 
         if ($this->logging) {
-            $this->logs[] = [$query, $map];
+            $this->logs[] = [$statement, $map];
         } else {
-            $this->logs = [[$query, $map]];
+            $this->logs = [[$statement, $map]];
         }
 
-        $statement = $this->pdo->prepare($query);
+        $statement = $this->pdo->prepare($statement);
 
         if (!$statement) {
             $this->errorInfo = $this->pdo->errorInfo();
@@ -461,23 +461,23 @@ class Medoo
     }
 
     /**
-     * Generate readable query.
+     * Generate readable statement.
      *
-     * @param string $query
+     * @param string $statement
      * @param array $map
      * @return string
      */
-    protected function generate($query, $map)
+    protected function generate($statement, $map)
     {
         $identifier = [
             'mysql' => '`$1`',
             'mssql' => '[$1]'
         ];
 
-        $query = preg_replace(
+        $statement = preg_replace(
             '/"([a-zA-Z0-9_]+)"/i',
             isset($identifier[$this->type]) ?  $identifier[$this->type] : '"$1"',
-            $query
+            $statement
         );
 
         foreach ($map as $key => $value) {
@@ -491,10 +491,10 @@ class Medoo
                 $replace = $value[0];
             }
 
-            $query = str_replace($key, $replace, $query);
+            $statement = str_replace($key, $replace, $statement);
         }
 
-        return $query;
+        return $statement;
     }
 
     /**
@@ -538,7 +538,7 @@ class Medoo
             return false;
         }
 
-        $query = preg_replace_callback(
+        $statement = preg_replace_callback(
             '/(([`\']).*?)?((FROM|TABLE|INTO|UPDATE|JOIN)\s*)?\<(([a-zA-Z0-9_]+)(\.[a-zA-Z0-9_]+)?)\>(.*?\2)?/i',
             function ($matches) {
                 if (!empty($matches[2]) && isset($matches[8])) {
@@ -562,7 +562,7 @@ class Medoo
             }
         }
 
-        return $query;
+        return $statement;
     }
 
     /**
@@ -1920,7 +1920,7 @@ class Medoo
     }
 
     /**
-     * Enable debug mode and output the generated query.
+     * Enable debug mode and output readable statement string.
      *
      * @return Medoo
      */
@@ -1942,7 +1942,7 @@ class Medoo
     }
 
     /**
-     * Return the last performed query.
+     * Return the last performed statement.
      *
      * @return string
      */
@@ -1954,7 +1954,7 @@ class Medoo
     }
 
     /**
-     * Return all executed queries.
+     * Return all executed statements.
      *
      * @return string[]
      */
