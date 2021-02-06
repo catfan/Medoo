@@ -18,6 +18,7 @@ use PDO;
 use Exception;
 use PDOException;
 use InvalidArgumentException;
+use PDOStatement;
 
 /**
  * The Medoo raw object
@@ -1423,7 +1424,7 @@ class Medoo
 
         $is_single = (is_string($column) && $column !== '*');
 
-        $query = $this->exec($this->selectContext($table, $map, $join, $columns, $where), $map);
+        $statement = $this->exec($this->selectContext($table, $map, $join, $columns, $where), $map);
 
         $this->columnMap($columns, $column_map, true);
 
@@ -1432,10 +1433,10 @@ class Medoo
         }
 
         if ($columns === '*') {
-            return $query->fetchAll(PDO::FETCH_ASSOC);
+            return $statement->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        while ($data = $query->fetch(PDO::FETCH_ASSOC)) {
+        while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
             $current_stack = [];
 
             $this->dataMap($data, $columns, $column_map, $current_stack, true, $result);
