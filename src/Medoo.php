@@ -529,11 +529,11 @@ class Medoo
     /**
      * Generate the actual query from raw object.
      *
-     * @param object $raw
+     * @param mixed $raw
      * @param array $map
      * @return string|false
      */
-    protected function buildRaw(object $raw, array &$map) : ?string
+    protected function buildRaw($raw, array &$map) : ?string
     {
         if (!$this->isRaw($raw)) {
             return false;
@@ -1070,7 +1070,7 @@ class Medoo
         array $join,
         &$columns = null,
         array $where = null,
-        string $column_fn = null
+        $column_fn = null
     ) : string
     {
         preg_match('/(?<table>[a-zA-Z0-9_]+)\s*\((?<alias>[a-zA-Z0-9_]+)\)/i', $table, $table_match);
