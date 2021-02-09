@@ -565,10 +565,10 @@ class Medoo
     protected function buildRaw($raw, array &$map) : ?string
     {
         if (!$this->isRaw($raw)) {
-            return false;
+            return null;
         }
 
-        $statement = preg_replace_callback(
+        $query = preg_replace_callback(
             '/(([`\']).*?)?((FROM|TABLE|INTO|UPDATE|JOIN)\s*)?\<(([a-zA-Z0-9_]+)(\.[a-zA-Z0-9_]+)?)\>(.*?\2)?/i',
             function ($matches) {
                 if (!empty($matches[2]) && isset($matches[8])) {
@@ -592,7 +592,7 @@ class Medoo
             }
         }
 
-        return $statement;
+        return $query;
     }
 
     /**
