@@ -117,11 +117,18 @@ class Medoo
     protected $guid = 0;
 
     /**
+     * Error Message
+     *
+     * @var string|null
+     */
+    public $error = null;
+
+    /**
      * The array of error information.
      *
      * @var array|null
      */
-    protected $errorInfo = null;
+    public $errorInfo = null;
 
     /**
      * Connect database.
@@ -387,6 +394,18 @@ class Medoo
                 $option
             );
 
+            $modeMap = [
+                PDO::ERRMODE_SILENT,
+                PDO::ERRMODE_WARNING,
+                PDO::ERRMODE_EXCEPTION
+            ];
+
+            $errorMode = in_array($options['error'], $modeMap) ?
+                $options['error'] :
+                PDO::ERRMODE_SILENT;
+
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, $errorMode);
+
             foreach ($commands as $value) {
                 $this->pdo->exec($value);
             }
@@ -421,6 +440,8 @@ class Medoo
     public function exec(string $statement, array $map = []) : ?PDOStatement
     {
         $this->statement = null;
+        $this->errorInfo = null;
+        $this->error = null;
 
         if ($this->debug_mode) {
             echo $this->generate($statement, $map);
@@ -438,14 +459,14 @@ class Medoo
 
         $statement = $this->pdo->prepare($statement);
 
-        if (!$statement) {
-            $this->errorInfo = $this->pdo->errorInfo();
-            $this->statement = null;
+        $errorInfo = $this->pdo->errorInfo();
+
+        if ($errorInfo[0] !== '00000') {
+            $this->errorInfo = $errorInfo;
+            $this->error = $errorInfo[2];
 
             return null;
         }
-
-        $this->statement = $statement;
 
         foreach ($map as $key => $value) {
             $statement->bindValue($key, $value[0], $value[1]);
@@ -453,10 +474,17 @@ class Medoo
 
         $execute = $statement->execute();
 
-        $this->errorInfo = $statement->errorInfo();
+        $errorInfo = $statement->errorInfo();
 
-        if (!$execute) {
-            $this->statement = null;
+        if ($errorInfo[0] !== '00000') {
+            $this->errorInfo = $errorInfo;
+            $this->error = $errorInfo[2];
+
+            return null;
+        }
+
+        if ($execute) {
+            $this->statement = $statement;
         }
 
         return $statement;
@@ -1429,7 +1457,7 @@ class Medoo
         $this->columnMap($columns, $column_map, true);
 
         if (!$this->statement) {
-            return false;
+            return $result;
         }
 
         if ($columns === '*') {
@@ -1938,16 +1966,6 @@ class Medoo
         $this->debug_mode = true;
 
         return $this;
-    }
-
-    /**
-     * Return error information associated with the last operation.
-     *
-     * @return array
-     */
-    public function error() : array
-    {
-        return $this->errorInfo;
     }
 
     /**
