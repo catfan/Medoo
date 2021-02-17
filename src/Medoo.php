@@ -175,7 +175,7 @@ class Medoo
             $this->logging = $options['logging'];
         }
 
-        $option = isset($options['option']) ? $options['option'] : [];
+        $option = $options['option'] ?? [];
         $commands = (isset($options['command']) && is_array($options['command'])) ? $options['command'] : [];
 
         switch ($this->type) {
@@ -389,8 +389,8 @@ class Medoo
         try {
             $this->pdo = new PDO(
                 $dsn,
-                isset($options['username']) ? $options['username'] : null,
-                isset($options['password']) ? $options['password'] : null,
+                $options['username'] ?? null,
+                $options['password'] ?? null,
                 $option
             );
 
@@ -506,7 +506,7 @@ class Medoo
 
         $statement = preg_replace(
             '/"([a-zA-Z0-9_]+)"/i',
-            isset($identifier[$this->type]) ?  $identifier[$this->type] : '"$1"',
+            $identifier[$this->type] ?? '"$1"',
             $statement
         );
 
@@ -1206,7 +1206,7 @@ class Medoo
                                     $table . '."' . $key . '"'
                             ) .
                             ' = ' .
-                            $this->tableQuote(isset($match['alias']) ? $match['alias'] : $match['table']) . '."' . $value . '"';
+                            $this->tableQuote($match['alias'] ?? $match['table']) . '."' . $value . '"';
                         }
 
                         $relation = 'ON ' . implode(' AND ', $joins);
@@ -1248,21 +1248,19 @@ class Medoo
                     $keyMatch['alias'] :
                     $keyMatch['column'];
 
-                if (isset($keyMatch['type'])) {
-                    $stack[$value] = [$columnKey, $keyMatch['type']];
-                } else {
-                    $stack[$value] = [$columnKey, 'String'];
-                }
+                $stack[$value] = isset($keyMatch['type']) ?
+                    [$columnKey, $keyMatch['type']] :
+                    [$columnKey, 'String'];
+
             } elseif ($this->isRaw($value)) {
                 preg_match('/([a-zA-Z0-9_]+\.)?(?<column>[a-zA-Z0-9_]+)(\s*\[(?<type>(String|Bool|Int|Number))\])?/i', $key, $keyMatch);
 
                 $columnKey = $keyMatch['column'];
 
-                if (isset($keyMatch['type'])) {
-                    $stack[$key] = [$columnKey, $keyMatch['type']];
-                } else {
-                    $stack[$key] = [$columnKey, 'String'];
-                }
+                $stack[$key] = isset($keyMatch['type']) ?
+                    [$columnKey, $keyMatch['type']] :
+                    [$columnKey, 'String'];
+                
             } elseif (!is_int($key) && is_array($value)) {
                 if ($root && count(array_keys($columns)) === 1) {
                     $stack[$key] = [$key, 'String'];
