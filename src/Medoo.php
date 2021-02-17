@@ -967,9 +967,9 @@ class Medoo
             }
 
             if (isset($where['MATCH']) && $this->type === 'mysql') {
-                $MATCH = $where['MATCH'];
+                $match = $where['MATCH'];
 
-                if (is_array($MATCH) && isset($MATCH['columns'], $MATCH['keyword'])) {
+                if (is_array($match) && isset($match['columns'], $match['keyword'])) {
                     $mode = '';
 
                     $modeMap = [
@@ -979,33 +979,33 @@ class Medoo
                         'query' => 'WITH QUERY EXPANSION'
                     ];
 
-                    if (isset($MATCH['mode'], $modeMap[$MATCH['mode']])) {
-                        $mode = ' ' . $modeMap[$MATCH['mode']];
+                    if (isset($match['mode'], $modeMap[$match['mode']])) {
+                        $mode = ' ' . $modeMap[$match['mode']];
                     }
 
-                    $columns = implode(', ', array_map([$this, 'columnQuote'], $MATCH['columns']));
+                    $columns = implode(', ', array_map([$this, 'columnQuote'], $match['columns']));
                     $mapKey = $this->mapKey();
-                    $map[$mapKey] = [$MATCH['keyword'], PDO::PARAM_STR];
+                    $map[$mapKey] = [$match['keyword'], PDO::PARAM_STR];
 
                     $whereClause .= ($whereClause !== '' ? ' AND ' : ' WHERE') . ' MATCH (' . $columns . ') AGAINST (' . $mapKey . $mode . ')';
                 }
             }
 
             if (isset($where['GROUP'])) {
-                $GROUP = $where['GROUP'];
+                $group = $where['GROUP'];
 
-                if (is_array($GROUP)) {
+                if (is_array($group)) {
                     $stack = [];
 
-                    foreach ($GROUP as $column => $value) {
+                    foreach ($group as $column => $value) {
                         $stack[] = $this->columnQuote($value);
                     }
 
                     $whereClause .= ' GROUP BY ' . implode(',', $stack);
-                } elseif ($raw = $this->buildRaw($GROUP, $map)) {
+                } elseif ($raw = $this->buildRaw($group, $map)) {
                     $whereClause .= ' GROUP BY ' . $raw;
                 } else {
-                    $whereClause .= ' GROUP BY ' . $this->columnQuote($GROUP);
+                    $whereClause .= ' GROUP BY ' . $this->columnQuote($group);
                 }
 
                 if (isset($where['HAVING'])) {
@@ -1018,12 +1018,12 @@ class Medoo
             }
 
             if (isset($where['ORDER'])) {
-                $ORDER = $where['ORDER'];
+                $order = $where['ORDER'];
 
-                if (is_array($ORDER)) {
+                if (is_array($order)) {
                     $stack = [];
 
-                    foreach ($ORDER as $column => $value) {
+                    foreach ($order as $column => $value) {
                         if (is_array($value)) {
                             $stack[] = 'FIELD(' . $this->columnQuote($column) . ', ' . $this->arrayQuote($value) . ')';
                         } elseif ($value === 'ASC' || $value === 'DESC') {
@@ -1034,43 +1034,43 @@ class Medoo
                     }
 
                     $whereClause .= ' ORDER BY ' . implode(',', $stack);
-                } elseif ($raw = $this->buildRaw($ORDER, $map)) {
+                } elseif ($raw = $this->buildRaw($order, $map)) {
                     $whereClause .= ' ORDER BY ' . $raw;
                 } else {
-                    $whereClause .= ' ORDER BY ' . $this->columnQuote($ORDER);
+                    $whereClause .= ' ORDER BY ' . $this->columnQuote($order);
                 }
 
                 if (
                     isset($where['LIMIT']) &&
                     in_array($this->type, ['oracle', 'mssql'])
                 ) {
-                    $LIMIT = $where['LIMIT'];
+                    $limit = $where['LIMIT'];
 
-                    if (is_numeric($LIMIT)) {
-                        $LIMIT = [0, $LIMIT];
+                    if (is_numeric($limit)) {
+                        $limit = [0, $limit];
                     }
                     
                     if (
-                        is_array($LIMIT) &&
-                        is_numeric($LIMIT[0]) &&
-                        is_numeric($LIMIT[1])
+                        is_array($limit) &&
+                        is_numeric($limit[0]) &&
+                        is_numeric($limit[1])
                     ) {
-                        $whereClause .= ' OFFSET ' . $LIMIT[0] . ' ROWS FETCH NEXT ' . $LIMIT[1] . ' ROWS ONLY';
+                        $whereClause .= ' OFFSET ' . $limit[0] . ' ROWS FETCH NEXT ' . $limit[1] . ' ROWS ONLY';
                     }
                 }
             }
 
             if (isset($where['LIMIT']) && !in_array($this->type, ['oracle', 'mssql'])) {
-                $LIMIT = $where['LIMIT'];
+                $limit = $where['LIMIT'];
 
-                if (is_numeric($LIMIT)) {
-                    $whereClause .= ' LIMIT ' . $LIMIT;
+                if (is_numeric($limit)) {
+                    $whereClause .= ' LIMIT ' . $limit;
                 } elseif (
-                    is_array($LIMIT) &&
-                    is_numeric($LIMIT[0]) &&
-                    is_numeric($LIMIT[1])
+                    is_array($limit) &&
+                    is_numeric($limit[0]) &&
+                    is_numeric($limit[1])
                 ) {
-                    $whereClause .= ' LIMIT ' . $LIMIT[1] . ' OFFSET ' . $LIMIT[0];
+                    $whereClause .= ' LIMIT ' . $limit[1] . ' OFFSET ' . $limit[0];
                 }
             }
         } elseif ($raw = $this->buildRaw($where, $map)) {
