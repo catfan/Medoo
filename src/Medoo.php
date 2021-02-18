@@ -1969,10 +1969,14 @@ class Medoo
     /**
      * Return the last performed statement.
      *
-     * @return string
+     * @return string|null
      */
-    public function last() : string
+    public function last() : ?string
     {
+        if (empty($this->logs)) {
+            return null;
+        }
+
         $log = end($this->logs);
 
         return $this->generate($log[0], $log[1]);
