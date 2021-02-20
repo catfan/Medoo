@@ -949,11 +949,11 @@ class Medoo
     /**
      * Build the where clause.
      *
-     * @param array $where
+     * @param array|null $where
      * @param array $map
      * @return string
      */
-    protected function whereClause(array $where, array &$map) : string
+    protected function whereClause($where, array &$map) : string
     {
         $whereClause = '';
 
@@ -1085,7 +1085,7 @@ class Medoo
      *
      * @param string $table
      * @param array $map
-     * @param array $join
+     * @param array|string $join
      * @param array|string $columns
      * @param array $where
      * @param string $columnFn
@@ -1094,7 +1094,7 @@ class Medoo
     protected function selectContext(
         string $table,
         array &$map,
-        array $join,
+        $join,
         &$columns = null,
         array $where = null,
         $columnFn = null
@@ -1808,21 +1808,19 @@ class Medoo
      * @param array $join
      * @param string $column
      * @param array $where
-     * @return int
+     * @return string|null
      */
-    private function aggregate(string $type, string $table, $join = null, $column = null, $where = null) : int
+    private function aggregate(string $type, string $table, $join = null, $column = null, $where = null) : ?string
     {
         $map = [];
 
         $query = $this->exec($this->selectContext($table, $map, $join, $column, $where, strtoupper($type)), $map);
 
         if (!$this->statement) {
-            return false;
+            return null;
         }
 
-        $number = $query->fetchColumn();
-
-        return is_numeric($number) ? $number + 0 : $number;
+        return $query->fetchColumn();
     }
 
     /**
@@ -1834,9 +1832,9 @@ class Medoo
      * @param array $where
      * @return int
      */
-    public function count(string $table, $join = null, $column = null, $where = null) : int
+    public function count(string $table, $join = null, $column = null, $where = null) : ?int
     {
-        return $this->aggregate('count', $table, $join, $column, $where);
+        return (int) $this->aggregate('count', $table, $join, $column, $where);
     }
 
     /**
@@ -1846,9 +1844,9 @@ class Medoo
      * @param array $join
      * @param string $column
      * @param array $where
-     * @return int
+     * @return string|null
      */
-    public function avg(string $table, $join, $column = null, $where = null) : int
+    public function avg(string $table, $join, $column = null, $where = null) : ?string
     {
         return $this->aggregate('avg', $table, $join, $column, $where);
     }
@@ -1860,9 +1858,9 @@ class Medoo
      * @param array $join
      * @param string $column
      * @param array $where
-     * @return int
+     * @return string|null
      */
-    public function max(string $table, $join, $column = null, $where = null) : int
+    public function max(string $table, $join, $column = null, $where = null) : ?string
     {
         return $this->aggregate('max', $table, $join, $column, $where);
     }
@@ -1874,9 +1872,9 @@ class Medoo
      * @param array $join
      * @param string $column
      * @param array $where
-     * @return int
+     * @return string|null
      */
-    public function min(string $table, $join, $column = null, $where = null)
+    public function min(string $table, $join, $column = null, $where = null) : ?string
     {
         return $this->aggregate('min', $table, $join, $column, $where);
     }
@@ -1888,9 +1886,9 @@ class Medoo
      * @param array $join
      * @param string $column
      * @param array $where
-     * @return int
+     * @return string|null
      */
-    public function sum(string $table, $join, $column = null, $where = null) : int
+    public function sum(string $table, $join, $column = null, $where = null) : ?string
     {
         return $this->aggregate('sum', $table, $join, $column, $where);
     }
