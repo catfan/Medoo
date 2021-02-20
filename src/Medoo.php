@@ -1897,9 +1897,9 @@ class Medoo
      * Start a transaction.
      *
      * @param callable $actions
-     * @return mixed
+     * @return void
      */
-    public function action(callable $actions)
+    public function action(callable $actions) : void
     {
         if (is_callable($actions)) {
             $this->pdo->beginTransaction();
@@ -1917,11 +1917,7 @@ class Medoo
 
                 throw $e;
             }
-
-            return $result;
         }
-
-        return false;
     }
 
     /**
