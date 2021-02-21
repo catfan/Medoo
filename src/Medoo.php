@@ -1580,7 +1580,7 @@ class Medoo
             $column = $this->columnQuote(preg_replace("/(\s*\[(JSON|\+|\-|\*|\/)\]$)/", '', $key));
 
             if ($raw = $this->buildRaw($value, $map)) {
-                $fields[] = $column . ' = ' . $raw;
+                $fields[] = "{$column} = {$raw}";
                 continue;
             }
 
