@@ -197,7 +197,7 @@ class Medoo
 
         if (isset($options['pdo'])) {
             if (!$options['pdo'] instanceof PDO) {
-                throw new InvalidArgumentException('Invalid PDO object supplied');
+                throw new InvalidArgumentException('Invalid PDO object supplied.');
             }
 
             $this->pdo = $options['pdo'];
@@ -213,7 +213,7 @@ class Medoo
             if (is_array($options['dsn']) && isset($options['dsn']['driver'])) {
                 $attr = $options['dsn'];
             } else {
-                throw new InvalidArgumentException('Invalid DSN option supplied');
+                throw new InvalidArgumentException('Invalid DSN option supplied.');
             }
         } else {
             if (
@@ -355,13 +355,13 @@ class Medoo
         }
 
         if (!isset($attr)) {
-            throw new InvalidArgumentException('Incorrect connection options');
+            throw new InvalidArgumentException('Incorrect connection options.');
         }
 
         $driver = $attr['driver'];
 
         if (!in_array($driver, PDO::getAvailableDrivers())) {
-            throw new InvalidArgumentException('Unsupported PDO driver: ' . $driver);
+            throw new InvalidArgumentException("Unsupported PDO driver: {$driver}.");
         }
 
         unset($attr['driver']);
@@ -628,7 +628,7 @@ class Medoo
             return '"' . $this->prefix . $table . '"';
         }
 
-        throw new InvalidArgumentException('Incorrect table name "' . $table . '"');
+        throw new InvalidArgumentException("Incorrect table name: {$table}.");
     }
 
     /**
@@ -640,7 +640,7 @@ class Medoo
     protected function columnQuote(string $string) : string
     {
         if (!preg_match('/^(?![_\d])[\p{N}\p{L}_]+(\.?(?![_\d])[\p{N}\p{L}_]+)?$/u', $string)) {
-            throw new InvalidArgumentException('Incorrect column name "' . $string . '"');
+            throw new InvalidArgumentException("Incorrect column name: {$string}.");
         }
 
         if (strpos($string, '.') !== false) {
@@ -729,7 +729,7 @@ class Medoo
                 $stack[] = "{$raw} AS {$this->columnQuote($match['column'])}";
             } elseif (is_int($key) && is_string($value)) {
                 if ($isJoin && strpos($value, '*') !== false) {
-                    throw new InvalidArgumentException('Cannot use table.* to select all columns while joining table');
+                    throw new InvalidArgumentException('Cannot use table.* to select all columns while joining table.');
                 }
 
                 preg_match('/(?<column>(?![_\d])[\p{L}\d_]+)(?:\s*\((?<alias>(?![_\d])[\p{L}\d_]+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/u', $value, $match);
