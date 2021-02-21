@@ -429,7 +429,7 @@ class Medoo
      *
      * @param string $statement The raw SQL statement.
      * @param array $map The array of input parameters value for prepared statement.
-     * @return \PDOStatement|false
+     * @return \PDOStatement|null
      */
     public function query(string $statement, array $map = []) : ?PDOStatement
     {
@@ -445,7 +445,7 @@ class Medoo
      *
      * @param string $statement The SQL statement.
      * @param array $map The array of input parameters value for prepared statement.
-     * @return \PDOStatement|false
+     * @return \PDOStatement|null
      */
     public function exec(string $statement, array $map = []) : ?PDOStatement
     {
@@ -570,7 +570,7 @@ class Medoo
      *
      * @param mixed $raw
      * @param array $map
-     * @return string|false
+     * @return string|null
      */
     protected function buildRaw($raw, array &$map) : ?string
     {
@@ -1378,7 +1378,7 @@ class Medoo
      * @param string $table
      * @param array $columns Columns definition.
      * @param array $options Additional table options for creating a table.
-     * @return \PDOStatement|false
+     * @return \PDOStatement|null
      */
     public function create(string $table, $columns, $options = null) : ?PDOStatement
     {
@@ -1419,7 +1419,7 @@ class Medoo
      * Drop a table.
      *
      * @param string $table
-     * @return \PDOStatement|false
+     * @return \PDOStatement|null
      */
     public function drop(string $table) : ?PDOStatement
     {
@@ -1486,7 +1486,7 @@ class Medoo
      *
      * @param string $table
      * @param array $datas
-     * @return \PDOStatement|false
+     * @return \PDOStatement|null
      */
     public function insert(string $table, array $datas) : ?PDOStatement
     {
@@ -1569,7 +1569,7 @@ class Medoo
      * @param string $table
      * @param array $data
      * @param array $where
-     * @return \PDOStatement|false
+     * @return \PDOStatement|null
      */
     public function update(string $table, $data, $where = null) : ?PDOStatement
     {
@@ -1631,7 +1631,7 @@ class Medoo
      *
      * @param string $table
      * @param array $where
-     * @return \PDOStatement|false
+     * @return \PDOStatement|null
      */
     public function delete(string $table, array $where) : ?PDOStatement
     {
@@ -1646,14 +1646,10 @@ class Medoo
      * @param string $table
      * @param array $columns
      * @param array $where
-     * @return \PDOStatement|false
+     * @return \PDOStatement|null
      */
-    public function replace(string $table, $columns, $where = null) : ?PDOStatement
+    public function replace(string $table, array $columns, $where = null) : ?PDOStatement
     {
-        if (!is_array($columns) || empty($columns)) {
-            return false;
-        }
-
         $map = [];
         $stack = [];
 
@@ -1672,11 +1668,11 @@ class Medoo
             }
         }
 
-        if (!empty($stack)) {
-            return $this->exec('UPDATE ' . $this->tableQuote($table) . ' SET ' . implode(', ', $stack) . $this->whereClause($where, $map), $map);
+        if (empty($stack)) {
+            throw new InvalidArgumentException('Invalid columns supplied.');
         }
 
-        return false;
+        return $this->exec('UPDATE ' . $this->tableQuote($table) . ' SET ' . implode(', ', $stack) . $this->whereClause($where, $map), $map);
     }
 
     /**
@@ -1831,7 +1827,7 @@ class Medoo
      * @param array $join
      * @param string $column
      * @param array $where
-     * @return int
+     * @return int|null
      */
     public function count(string $table, $join = null, $column = null, $where = null) : ?int
     {
