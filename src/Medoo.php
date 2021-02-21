@@ -634,20 +634,18 @@ class Medoo
     /**
      * Quote column name for use in a query.
      *
-     * @param string $string
+     * @param string $column
      * @return string
      */
-    protected function columnQuote(string $string) : string
+    protected function columnQuote(string $column) : string
     {
-        if (!preg_match('/^(?![_\d])[\p{N}\p{L}_]+(\.?(?![_\d])[\p{N}\p{L}_]+)?$/u', $string)) {
-            throw new InvalidArgumentException("Incorrect column name: {$string}.");
+        if (preg_match('/^(?![_\d])[\p{N}\p{L}_]+(\.?(?![_\d])[\p{N}\p{L}_]+)?$/u', $column)) {
+            return strpos($column, '.') !== false ?
+                '"' . $this->prefix . str_replace('.', '"."', $column) . '"' :
+                '"' . $column . '"';
         }
 
-        if (strpos($string, '.') !== false) {
-            return '"' . $this->prefix . str_replace('.', '"."', $string) . '"';
-        }
-
-        return '"' . $string . '"';
+        throw new InvalidArgumentException("Incorrect column name: {$column}.");
     }
 
     /**
@@ -732,7 +730,7 @@ class Medoo
                     throw new InvalidArgumentException('Cannot use table.* to select all columns while joining table.');
                 }
 
-                preg_match('/(?<column>(?![_\d])[\p{L}\d_]+)(?:\s*\((?<alias>(?![_\d])[\p{L}\d_]+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/u', $value, $match);
+                preg_match('/(?<column>[^(]+)(?:\s*\((?<alias>.+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/u', $value, $match);
 
                 if (!empty($match['alias'])) {
                     $stack[] = "{$this->columnQuote($match['column'])} AS {$this->columnQuote($match['alias'])}";
