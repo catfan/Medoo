@@ -415,6 +415,16 @@ class Medoo
     }
 
     /**
+     * Generate a new map key for placeholder.
+     *
+     * @return string
+     */
+    protected function mapKey() : string
+    {
+        return ':MeDoO_' . $this->guid++ . '_mEdOo';
+    }
+
+    /**
      * Execute customized raw statement.
      *
      * @param string $statement The raw SQL statement.
@@ -622,13 +632,39 @@ class Medoo
     }
 
     /**
-     * Generate a new map key for placeholder.
+     * Quote column name for use in a query.
      *
+     * @param string $string
      * @return string
      */
-    protected function mapKey() : string
+    protected function columnQuote(string $string) : string
     {
-        return ':MeDoO_' . $this->guid++ . '_mEdOo';
+        if (!preg_match('/^(?![_\d])[\p{N}\p{L}_]+(\.?(?![_\d])[\p{N}\p{L}_]+)?$/u', $string)) {
+            throw new InvalidArgumentException('Incorrect column name "' . $string . '"');
+        }
+
+        if (strpos($string, '.') !== false) {
+            return '"' . $this->prefix . str_replace('.', '"."', $string) . '"';
+        }
+
+        return '"' . $string . '"';
+    }
+
+    /**
+     * Quote array for use in a query.
+     *
+     * @param array $array
+     * @return string
+     */
+    protected function arrayQuote(array $array) : string
+    {
+        $stack = [];
+
+        foreach ($array as $value) {
+            $stack[] = is_int($value) ? $value : $this->pdo->quote($value);
+        }
+
+        return implode(',', $stack);
     }
 
     /**
@@ -657,25 +693,6 @@ class Medoo
         }
 
         return [$value, $map[$type]];
-    }
-
-    /**
-     * Quote column name for use in a query.
-     *
-     * @param string $string
-     * @return string
-     */
-    protected function columnQuote(string $string) : string
-    {
-        if (!preg_match('/^(?![_\d])[\p{N}\p{L}_]+(\.?(?![_\d])[\p{N}\p{L}_]+)?$/u', $string)) {
-            throw new InvalidArgumentException('Incorrect column name "' . $string . '"');
-        }
-
-        if (strpos($string, '.') !== false) {
-            return '"' . $this->prefix . str_replace('.', '"."', $string) . '"';
-        }
-
-        return '"' . $string . '"';
     }
 
     /**
@@ -729,23 +746,6 @@ class Medoo
                     $stack[] = $this->columnQuote($match['column']);
                 }
             }
-        }
-
-        return implode(',', $stack);
-    }
-
-    /**
-     * Quote array for use in a query.
-     *
-     * @param array $array
-     * @return string
-     */
-    protected function arrayQuote(array $array) : string
-    {
-        $stack = [];
-
-        foreach ($array as $value) {
-            $stack[] = is_int($value) ? $value : $this->pdo->quote($value);
         }
 
         return implode(',', $stack);
