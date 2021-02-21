@@ -1115,8 +1115,6 @@ class Medoo
         $isJoin = false;
         $joinKey = is_array($join) ? array_keys($join) : null;
 
-        var_dump($joinKey);
-
         if (
             isset($joinKey[0]) &&
             is_string($joinKey[0]) &&
