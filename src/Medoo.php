@@ -882,7 +882,7 @@ class Medoo
                         foreach ($value as $index => $item) {
                             $item = strval($item);
 
-                            if (!preg_match('/(\[.+\]|[\*\?\!\%#^-_]|%.+|.+%)/', $item)) {
+                            if (!preg_match('/(\[.+\]|[\*\?\!\%\-#^_]|%.+|.+%)/', $item)) {
                                 $item = '%' . $item . '%';
                             }
 
