@@ -1785,7 +1785,7 @@ class Medoo
                     'ORDER' => $orderRaw
                 ];
             } else {
-                $column = $join;
+                $columns = $join;
                 unset($columns['ORDER']);
 
                 $columns['ORDER'] = $orderRaw;
