@@ -1922,29 +1922,22 @@ class Medoo
     /**
      * Return the ID for the last inserted row.
      *
+     * @param string $name
      * @return string|null
      */
-    public function id() : ?string
+    public function id(string $name = null) : ?string
     {
-        if ($this->statement == null) {
-            return null;
-        }
-
         $type = $this->type;
 
         if ($type === 'oracle') {
-            return 0;
+            return "0";
         } elseif ($type === 'pgsql') {
-            return $this->pdo->query('SELECT LASTVAL()')->fetchColumn();
+            $id = $this->pdo->query('SELECT LASTVAL()')->fetchColumn();
+
+            return (string) $id ?: null;
         }
 
-        $lastId = $this->pdo->lastInsertId();
-
-        if ($lastId != "0" && $lastId != "") {
-            return $lastId;
-        }
-
-        return null;
+        return $this->pdo->lastInsertId($name);
     }
 
     /**
