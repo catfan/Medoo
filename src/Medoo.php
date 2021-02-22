@@ -1444,11 +1444,7 @@ class Medoo
         $map = [];
         $result = [];
         $columnMap = [];
-
-        $index = 0;
-
         $column = $where === null ? $join : $columns;
-
         $isSingle = (is_string($column) && $column !== '*');
 
         $statement = $this->exec($this->selectContext($table, $map, $join, $columns, $where), $map);
