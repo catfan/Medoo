@@ -1106,8 +1106,9 @@ class Medoo
 
         if (isset($tableMatch['table'], $tableMatch['alias'])) {
             $table = $this->tableQuote($tableMatch['table']);
+            $tableAlias = $this->tableQuote($tableMatch['alias']);
 
-            $tableQuery = "{$table} AS {$this->tableQuote($tableMatch['alias'])}";
+            $tableQuery = "{$table} AS {$tableAlias}";
         } else {
             $table = $this->tableQuote($table);
 
@@ -1123,7 +1124,7 @@ class Medoo
             strpos($joinKey[0], '[') === 0
         ) {
             $isJoin = true;
-            $tableQuery .= ' ' . $this->buildJoin($table, $join);
+            $tableQuery .= ' ' . $this->buildJoin($tableAlias ?? $table, $join);
         } else {
             if (is_null($columns)) {
                 if (
