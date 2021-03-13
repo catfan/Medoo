@@ -1692,15 +1692,15 @@ class Medoo
 
         if ($where === null) {
             $column = $join;
-            unset($columns['LIMIT']);
+            $columns['LIMIT'] = 1;
         } else {
             $column = $columns;
-            unset($where['LIMIT']);
+            $where['LIMIT'] = 1;
         }
 
         $isSingle = (is_string($column) && $column !== '*');
 
-        $query = $this->exec($this->selectContext($table, $map, $join, $columns, $where) . ' LIMIT 1', $map);
+        $query = $this->exec($this->selectContext($table, $map, $join, $columns, $where), $map);
 
         if (!$this->statement) {
             return false;
