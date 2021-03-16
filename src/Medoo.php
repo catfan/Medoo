@@ -1764,15 +1764,9 @@ class Medoo
      */
     public function rand(string $table, $join = null, $columns = null, $where = null) : array
     {
-        $type = $this->type;
-
-        $order = 'RANDOM()';
-
-        if ($type === 'mysql') {
-            $order = 'RAND()';
-        } elseif ($type === 'mssql') {
-            $order = 'NEWID()';
-        }
+        $order = ($this->type === 'mysql' ? 'RAND()'
+                : $this->type === 'mssql') ? 'NEWID()'
+                : 'RANDOM()';
 
         $orderRaw = $this->raw($order);
 
