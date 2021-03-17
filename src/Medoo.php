@@ -114,6 +114,20 @@ class Medoo
     protected $debugMode = false;
 
     /**
+     * Determine should saving debug logging.
+     *
+     * @var bool
+     */
+    protected $debugLogging = false;
+
+    /**
+     * The array of logs for debug.
+     *
+     * @var array
+     */
+    protected $debugLogs = [];
+
+    /**
      * The global unique id.
      *
      * @var integer
@@ -458,6 +472,12 @@ class Medoo
         $this->error = null;
 
         if ($this->debugMode) {
+
+            if ($this->debugLogging) {
+                $this->debugLogs[] = $this->generate($statement, $map);
+                return null;
+            }
+
             echo $this->generate($statement, $map);
 
             $this->debugMode = false;
@@ -1941,6 +1961,30 @@ class Medoo
         $this->debugMode = true;
 
         return $this;
+    }
+
+    /**
+     * Enable debug logging mode.
+     *
+     * @return void
+     */
+    public function beginDebug() : void
+    {
+        $this->debugMode = true;
+        $this->debugLogging = true;
+    }
+
+    /**
+     * Disable debug logging and return all readable statements.
+     *
+     * @return void
+     */
+    public function debugLog() : array
+    {
+        $this->debugMode = false;
+        $this->debugLogging = false;
+
+        return $this->debugLogs;
     }
 
     /**
