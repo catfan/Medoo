@@ -16,6 +16,9 @@
 		"php": ">=5.4",
 		"ext-pdo": "*"
 	},
+	"require-dev": {
+        "phpunit/phpunit": "^9.0"
+    },
 	"suggest": {
 		"ext-pdo_mysql": "For MySQL or MariaDB database",
 		"ext-pdo_sqlsrv": "For MSSQL database on both Window/Liunx platform",
@@ -27,7 +30,15 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Medoo\\": "/src"
+			"Medoo\\": "src/"
 		}
+	},
+	"autoload-dev": {
+        "psr-4": {
+            "Medoo\\Tests\\": "tests/"
+        }
+	},
+	"scripts": {
+		"test": "phpunit"
 	}
 }

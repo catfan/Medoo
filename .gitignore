@@ -217,3 +217,9 @@ pip-log.txt
 
 #php-cs-fixer
 /.php_cs
+
+#PHPUnit
+/.phpunit.cache
+
+/composer.lock
+/vendor
