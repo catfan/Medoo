@@ -69,7 +69,7 @@ class Medoo
      *
      * @var string
      */
-    protected $type;
+    public $type;
 
     /**
      * Table prefix
@@ -105,6 +105,20 @@ class Medoo
      * @var bool
      */
     protected $logging = false;
+
+    /**
+     * Determine is in test mode.
+     *
+     * @var bool
+     */
+    protected $testMode = false;
+
+    /**
+     * The query string last generated in test mode.
+     *
+     * @var string
+     */
+    public $queryString;
 
     /**
      * Determine is in debug mode.
@@ -187,6 +201,11 @@ class Medoo
 
         if (isset($options['prefix'])) {
             $this->prefix = $options['prefix'];
+        }
+
+        if (isset($options['testMode']) && $options['testMode'] == true) {
+            $this->testMode = true;
+            return;
         }
 
         if (isset($options['logging']) && is_bool($options['logging'])) {
@@ -470,6 +489,11 @@ class Medoo
         $this->statement = null;
         $this->errorInfo = null;
         $this->error = null;
+
+        if ($this->testMode) {
+            $this->queryString = $this->generate($statement, $map);
+            return null;
+        }
 
         if ($this->debugMode) {
 
