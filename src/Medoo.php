@@ -697,23 +697,6 @@ class Medoo
     }
 
     /**
-     * Quote array for use in a query.
-     *
-     * @param array $array
-     * @return string
-     */
-    protected function arrayQuote(array $array) : string
-    {
-        $stack = [];
-
-        foreach ($array as $value) {
-            $stack[] = is_int($value) ? $value : $this->pdo->quote($value);
-        }
-
-        return implode(',', $stack);
-    }
-
-    /**
      * Mapping the type name as PDO data type.
      *
      * @param mixed $value
@@ -1071,7 +1054,16 @@ class Medoo
 
                     foreach ($order as $column => $value) {
                         if (is_array($value)) {
-                            $stack[] = "FIELD({$this->columnQuote($column)}, {$this->arrayQuote($value)})";
+
+                            $valueStack = [];
+
+                            foreach ($value as $item) {
+                                $valueStack[] = is_int($item) ? $item : $this->quote($item);
+                            }
+
+                            $valueString = implode(',', $valueStack);
+
+                            $stack[] = "FIELD({$this->columnQuote($column)}, {$valueString})";
                         } elseif ($value === 'ASC' || $value === 'DESC') {
                             $stack[] = $this->columnQuote($column) . ' ' . $value;
                         } elseif (is_int($column)) {
