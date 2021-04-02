@@ -664,7 +664,11 @@ class Medoo
      */
     public function quote(string $string) : string
     {
-        return $this->pdo->quote($string);
+        if ($this->type === 'mysql') {
+            return "'" . preg_replace(['/([\'"])/', '/(\\\\\\\")/'], ["\\\\\${1}", '\\\${1}'], $string) . "'";
+        }
+
+        return "'" . preg_replace('/\'/', '\'\'', $string) . "'";
     }
 
     /**
