@@ -431,17 +431,20 @@ class Medoo
                 $option
             );
 
-            $modeMap = [
-                PDO::ERRMODE_SILENT,
-                PDO::ERRMODE_WARNING,
-                PDO::ERRMODE_EXCEPTION
-            ];
+            if (isset($options['error'])) {
+                $modes = [
+                    PDO::ERRMODE_SILENT,
+                    PDO::ERRMODE_WARNING,
+                    PDO::ERRMODE_EXCEPTION
+                ];
 
-            $errorMode = in_array($options['error'], $modeMap) ?
-                $options['error'] :
-                PDO::ERRMODE_SILENT;
-
-            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, $errorMode);
+                $this->pdo->setAttribute(
+                    PDO::ATTR_ERRMODE,
+                    in_array($options['error'], $modes) ?
+                        $options['error'] :
+                        PDO::ERRMODE_SILENT
+                );
+            }
 
             foreach ($commands as $value) {
                 $this->pdo->exec($value);
