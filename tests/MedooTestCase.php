@@ -40,7 +40,7 @@ class MedooTestCase extends TestCase
         ];
 
         return preg_replace(
-            '/"((?![_\d])[\p{N}\p{L}_]+)"/u',
+            '/(?!\'[^\s]+\s?)"((?![_\d])[\p{N}\p{L}_]+)"(?!\s?[^\s]+\')/u',
             $identifier[$this->database->type] ?? '"$1"',
             $expected
         );

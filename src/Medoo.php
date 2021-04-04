@@ -566,7 +566,7 @@ class Medoo
         ];
 
         $statement = preg_replace(
-            '/"((?![_\d])[\p{N}\p{L}_]+)"/u',
+            '/(?!\'[^\s]+\s?)"((?![_\d])[\p{N}\p{L}_]+)"(?!\s?[^\s]+\')/u',
             $identifier[$this->type] ?? '"$1"',
             $statement
         );
