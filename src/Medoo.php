@@ -1084,17 +1084,20 @@ class Medoo
                 } else {
                     $whereClause .= ' ORDER BY ' . $this->columnQuote($order);
                 }
+            }
 
-                if (
-                    isset($where['LIMIT']) &&
-                    in_array($this->type, ['oracle', 'mssql'])
-                ) {
-                    $limit = $where['LIMIT'];
+            if (isset($where['LIMIT'])) {
+                $limit = $where['LIMIT'];
+
+                if (in_array($this->type, ['oracle', 'mssql'])) {
+                    if (!isset($where['ORDER'])) {
+                        $whereClause .= ' ORDER BY (SELECT 0)';
+                    }
 
                     if (is_numeric($limit)) {
                         $limit = [0, $limit];
                     }
-                    
+
                     if (
                         is_array($limit) &&
                         is_numeric($limit[0]) &&
@@ -1103,19 +1106,16 @@ class Medoo
                         $whereClause .= " OFFSET {$limit[0]} ROWS FETCH NEXT {$limit[1]} ROWS ONLY";
                     }
                 }
-            }
-
-            if (isset($where['LIMIT']) && !in_array($this->type, ['oracle', 'mssql'])) {
-                $limit = $where['LIMIT'];
-
-                if (is_numeric($limit)) {
-                    $whereClause .= ' LIMIT ' . $limit;
-                } elseif (
-                    is_array($limit) &&
-                    is_numeric($limit[0]) &&
-                    is_numeric($limit[1])
-                ) {
-                    $whereClause .= " LIMIT {$limit[1]} OFFSET {$limit[0]}";
+                else {
+                    if (is_numeric($limit)) {
+                        $whereClause .= ' LIMIT ' . $limit;
+                    } elseif (
+                        is_array($limit) &&
+                        is_numeric($limit[0]) &&
+                        is_numeric($limit[1])
+                    ) {
+                        $whereClause .= " LIMIT {$limit[1]} OFFSET {$limit[0]}";
+                    }
                 }
             }
         } elseif ($raw = $this->buildRaw($where, $map)) {
