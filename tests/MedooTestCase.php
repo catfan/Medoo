@@ -22,8 +22,7 @@ class MedooTestCase extends TestCase
             'MySQL' => ['mysql'],
             'MSSQL' => ['mssql'],
             'SQLite' => ['sqlite'],
-            'PostgreSQL' => ['pgsql'],
-            'Oracle' => ['oracle']
+            'PostgreSQL' => ['pgsql']
         ];
     }
 
@@ -42,7 +41,7 @@ class MedooTestCase extends TestCase
         return preg_replace(
             '/(?!\'[^\s]+\s?)"((?![_\d])[\p{N}\p{L}_]+)"(?!\s?[^\s]+\')/u',
             $identifier[$this->database->type] ?? '"$1"',
-            $expected
+            str_replace("\n", " ", $expected)
         );
     }
 

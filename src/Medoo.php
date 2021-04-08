@@ -149,6 +149,13 @@ class Medoo
     protected $guid = 0;
 
     /**
+     * The return id for insert.
+     *
+     * @var string
+     */
+    public $returnId = "";
+
+    /**
      * Error Message
      *
      * @var string|null
@@ -487,7 +494,7 @@ class Medoo
      * @param array $map The array of input parameters value for prepared statement.
      * @return \PDOStatement|null
      */
-    public function exec(string $statement, array $map = []) : ?PDOStatement
+    public function exec(string $statement, array $map = [], callable $callback = null) : ?PDOStatement
     {
         $this->statement = null;
         $this->errorInfo = null;
@@ -531,6 +538,10 @@ class Medoo
 
         foreach ($map as $key => $value) {
             $statement->bindValue($key, $value[0], $value[1]);
+        }
+
+        if (is_callable($callback)) {
+            $callback($statement);
         }
 
         $execute = $statement->execute();
@@ -1528,9 +1539,10 @@ class Medoo
      *
      * @param string $table
      * @param array $datas
+     * @param string $primaryKey
      * @return \PDOStatement|null
      */
-    public function insert(string $table, array $datas) : ?PDOStatement
+    public function insert(string $table, array $datas, string $primaryKey = null) : ?PDOStatement
     {
         $stack = [];
         $columns = [];
@@ -1602,7 +1614,25 @@ class Medoo
             $fields[] = $this->columnQuote(preg_replace("/(\s*\[JSON\]$)/i", '', $key));
         }
 
-        return $this->exec('INSERT INTO ' . $this->tableQuote($table) . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $stack), $map);
+        $query = 'INSERT INTO ' . $this->tableQuote($table) . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $stack);
+
+        if ($this->type === 'oracle') {
+            if ($primaryKey) {
+                $returning = "";
+
+                $query .= ' RETURNING ' . $this->columnQuote($primaryKey) . ' INTO :RETURNID';
+
+                $statement = $this->exec($query, $map, function ($statement) use (&$returning) {
+                    $statement->bindParam('RETURNID', $returning, PDO::PARAM_INT, 8);
+                });
+
+                $this->returnId = "${returning}";
+
+                return $statement;
+            }
+        }
+
+        return $this->exec($query, $map);
     }
 
     /**
@@ -1964,7 +1994,7 @@ class Medoo
         $type = $this->type;
 
         if ($type === 'oracle') {
-            return "0";
+            return $this->returnId;
         } elseif ($type === 'pgsql') {
             $id = $this->pdo->query('SELECT LASTVAL()')->fetchColumn();
 
