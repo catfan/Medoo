@@ -1101,7 +1101,7 @@ class Medoo
                 $limit = $where['LIMIT'];
 
                 if (in_array($this->type, ['oracle', 'mssql'])) {
-                    if (!isset($where['ORDER'])) {
+                    if ($this->type === 'mssql' && !isset($where['ORDER'])) {
                         $whereClause .= ' ORDER BY (SELECT 0)';
                     }
 
