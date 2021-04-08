@@ -1441,15 +1441,15 @@ class Medoo
     {
         $stack = [];
 
-        $tableName = $this->prefix . $table;
+        $tableName = $this->tableQuote($this->prefix . $table);
 
         foreach ($columns as $name => $definition) {
             if (is_int($name)) {
                 $stack[] = preg_replace('/\<((?![_\d])[\p{N}\p{L}_]+)\>/u', '"$1"', $definition);
             } elseif (is_array($definition)) {
-                $stack[] = $name . ' ' . implode(' ', $definition);
+                $stack[] = $this->columnQuote($name) . ' ' . implode(' ', $definition);
             } elseif (is_string($definition)) {
-                $stack[] = $name . ' ' . $this->query($definition);
+                $stack[] = $this->columnQuote($name) . ' ' . $this->query($definition);
             }
         }
 
@@ -1469,7 +1469,13 @@ class Medoo
             $tableOption = ' ' . $options;
         }
 
-        return $this->exec("CREATE TABLE IF NOT EXISTS $tableName (" . implode(', ', $stack) . ")$tableOption");
+        $command = "CREATE TABLE";
+
+        if (in_array($this->type, ["mysql", "pgsql", "sqlite"])) {
+            $command = "CREATE TABLE IF NOT EXISTS";
+        }
+
+        return $this->exec("$command $tableName (" . implode(', ', $stack) . ")$tableOption");
     }
 
     /**
