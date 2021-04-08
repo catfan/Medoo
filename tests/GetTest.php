@@ -28,7 +28,13 @@ class GetTest extends MedooTestCase
                 WHERE [user_id] = 1234
                 ORDER BY (SELECT 0)
                 OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
-                EOD
+                EOD,
+            'oracle' => <<<EOD
+                SELECT "email"
+                FROM "account"
+                WHERE "user_id" = 1234
+                OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
+                EOD,
         ], $this->database->queryString);
     }
 
@@ -60,7 +66,13 @@ class GetTest extends MedooTestCase
                 WHERE [user_id] = 1234
                 ORDER BY (SELECT 0)
                 OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
-                EOD
+                EOD,
+            'oracle' => <<<EOD
+                SELECT "email","location"
+                FROM "account"
+                WHERE "user_id" = 1234
+                OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
+                EOD,
         ], $this->database->queryString);
     }
 
@@ -95,7 +107,14 @@ class GetTest extends MedooTestCase
                 LEFT JOIN [account] USING ([user_id])
                 ORDER BY [post].[rate]
                 OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
-                EOD
+                EOD,
+            'oracle' => <<<EOD
+                SELECT "post"."content","account"."user_name"
+                FROM "post"
+                LEFT JOIN "account" USING ("user_id")
+                ORDER BY "post"."rate"
+                OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
+                EOD,
         ], $this->database->queryString);
     }
 }

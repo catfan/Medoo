@@ -24,19 +24,32 @@ class CreateTest extends MedooTestCase
             ],
             "PRIMARY KEY (<id>)"
         ], [
-            "ENGINE" => "MyISAM",
             "AUTO_INCREMENT" => 200
         ]);
 
-        $this->assertQuery(<<<EOD
-            CREATE TABLE IF NOT EXISTS account
-            (id INT NOT NULL AUTO_INCREMENT,
-            email VARCHAR(70) NOT NULL UNIQUE,
-            PRIMARY KEY ("id"))
-            ENGINE = MyISAM,
-            AUTO_INCREMENT = 200
-            EOD,
-            $this->database->queryString
+        $this->assertQuery([
+            'default' => <<<EOD
+                CREATE TABLE IF NOT EXISTS "account"
+                ("id" INT NOT NULL AUTO_INCREMENT,
+                "email" VARCHAR(70) NOT NULL UNIQUE,
+                PRIMARY KEY ("id"))
+                AUTO_INCREMENT = 200
+                EOD,
+            'mssql' => <<<EOD
+                CREATE TABLE [account]
+                ([id] INT NOT NULL AUTO_INCREMENT,
+                [email] VARCHAR(70) NOT NULL UNIQUE,
+                PRIMARY KEY ([id]))
+                AUTO_INCREMENT = 200
+                EOD,
+            'oracle' => <<<EOD
+                CREATE TABLE "account"
+                ("id" INT NOT NULL AUTO_INCREMENT,
+                "email" VARCHAR(70) NOT NULL UNIQUE,
+                PRIMARY KEY ("id"))
+                AUTO_INCREMENT = 200
+                EOD
+        ], $this->database->queryString
         );
     }
 }

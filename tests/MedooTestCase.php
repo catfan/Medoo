@@ -22,7 +22,8 @@ class MedooTestCase extends TestCase
             'MySQL' => ['mysql'],
             'MSSQL' => ['mssql'],
             'SQLite' => ['sqlite'],
-            'PostgreSQL' => ['pgsql']
+            'PostgreSQL' => ['pgsql'],
+            'Oracle' => ['oracle']
         ];
     }
 

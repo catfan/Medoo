@@ -82,6 +82,11 @@ class SelectTest extends MedooTestCase
                 FROM "account"
                 ORDER BY (SELECT 0)
                 OFFSET 10 ROWS FETCH NEXT 20 ROWS ONLY
+                EOD,
+            'oracle' => <<<EOD
+                SELECT "name","id"
+                FROM "account"
+                OFFSET 10 ROWS FETCH NEXT 20 ROWS ONLY
                 EOD
         ], $this->database->queryString);
     }
