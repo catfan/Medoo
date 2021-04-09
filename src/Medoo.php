@@ -196,6 +196,15 @@ class Medoo
 
     public function __construct(array $options)
     {
+        if (isset($options['prefix'])) {
+            $this->prefix = $options['prefix'];
+        }
+
+        if (isset($options['testMode']) && $options['testMode'] == true) {
+            $this->testMode = true;
+            return;
+        }
+
         $options['type'] = $options['type'] ?? $options['database_type'];
         $options['database'] = $options['database'] ?? $options['database_name'];
         $options['host'] = $options['host'] ?? $options['server'];
@@ -206,15 +215,6 @@ class Medoo
             if ($this->type === 'mariadb') {
                 $this->type = 'mysql';
             }
-        }
-
-        if (isset($options['prefix'])) {
-            $this->prefix = $options['prefix'];
-        }
-
-        if (isset($options['testMode']) && $options['testMode'] == true) {
-            $this->testMode = true;
-            return;
         }
 
         if (isset($options['logging']) && is_bool($options['logging'])) {
@@ -690,7 +690,7 @@ class Medoo
      * @param string $table
      * @return string
      */
-    protected function tableQuote(string $table) : string
+    public function tableQuote(string $table) : string
     {
         if (preg_match('/(?![_\d])[\p{N}\p{L}_]+/u', $table)) {
             return '"' . $this->prefix . $table . '"';
@@ -705,7 +705,7 @@ class Medoo
      * @param string $column
      * @return string
      */
-    protected function columnQuote(string $column) : string
+    public function columnQuote(string $column) : string
     {
         if (preg_match('/^(?![_\d])[\p{N}\p{L}_]+(\.?(?![_\d])[\p{N}\p{L}_]+)?$/u', $column)) {
             return strpos($column, '.') !== false ?
