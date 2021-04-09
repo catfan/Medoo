@@ -175,17 +175,15 @@ class Medoo
      * ```
      * $database = new Medoo([
      *      // required
-     *      'database_type' => 'mysql',
-     *      'database_name' => 'name',
-     *      'server' => 'localhost',
+     *      'type' => 'mysql',
+     *      'database' => 'name',
+     *      'host' => 'localhost',
      *      'username' => 'your_username',
      *      'password' => 'your_password',
      * 
      *      // [optional]
      *      'charset' => 'utf8mb4',
      *      'port' => 3306,
-     * 
-     *      // [optional] Table prefix
      *      'prefix' => 'PREFIX_'
      * ]);
      * ```
@@ -198,8 +196,12 @@ class Medoo
 
     public function __construct(array $options)
     {
-        if (isset($options['database_type'])) {
-            $this->type = strtolower($options['database_type']);
+        $options['type'] = $options['type'] ?? $options['database_type'];
+        $options['database'] = $options['database'] ?? $options['database_name'];
+        $options['host'] = $options['host'] ?? $options['server'];
+
+        if (isset($options['type'])) {
+            $this->type = strtolower($options['type']);
 
             if ($this->type === 'mariadb') {
                 $this->type = 'mysql';
@@ -273,13 +275,13 @@ class Medoo
                 case 'mysql':
                     $attr = [
                         'driver' => 'mysql',
-                        'dbname' => $options['database_name']
+                        'dbname' => $options['database']
                     ];
 
                     if (isset($options['socket'])) {
                         $attr['unix_socket'] = $options['socket'];
                     } else {
-                        $attr['host'] = $options['server'];
+                        $attr['host'] = $options['host'];
 
                         if ($isPort) {
                             $attr['port'] = $port;
@@ -291,8 +293,8 @@ class Medoo
                 case 'pgsql':
                     $attr = [
                         'driver' => 'pgsql',
-                        'host' => $options['server'],
-                        'dbname' => $options['database_name']
+                        'host' => $options['host'],
+                        'dbname' => $options['database']
                     ];
 
                     if ($isPort) {
@@ -304,8 +306,8 @@ class Medoo
                 case 'sybase':
                     $attr = [
                         'driver' => 'dblib',
-                        'host' => $options['server'],
-                        'dbname' => $options['database_name']
+                        'host' => $options['host'],
+                        'dbname' => $options['database']
                     ];
 
                     if ($isPort) {
@@ -317,9 +319,9 @@ class Medoo
                 case 'oracle':
                     $attr = [
                         'driver' => 'oci',
-                        'dbname' => $options['server'] ?
-                            '//' . $options['server'] . ($isPort ? ':' . $port : ':1521') . '/' . $options['database_name'] :
-                            $options['database_name']
+                        'dbname' => $options['host'] ?
+                            '//' . $options['host'] . ($isPort ? ':' . $port : ':1521') . '/' . $options['database'] :
+                            $options['database']
                     ];
 
                     if (isset($options['charset'])) {
@@ -332,8 +334,8 @@ class Medoo
                     if (isset($options['driver']) && $options['driver'] === 'dblib') {
                         $attr = [
                             'driver' => 'dblib',
-                            'host' => $options['server'] . ($isPort ? ':' . $port : ''),
-                            'dbname' => $options['database_name']
+                            'host' => $options['host'] . ($isPort ? ':' . $port : ''),
+                            'dbname' => $options['database']
                         ];
 
                         if (isset($options['appname'])) {
@@ -346,8 +348,8 @@ class Medoo
                     } else {
                         $attr = [
                             'driver' => 'sqlsrv',
-                            'Server' => $options['server'] . ($isPort ? ',' . $port : ''),
-                            'Database' => $options['database_name']
+                            'Server' => $options['host'] . ($isPort ? ',' . $port : ''),
+                            'Database' => $options['database']
                         ];
 
                         if (isset($options['appname'])) {
