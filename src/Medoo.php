@@ -470,7 +470,7 @@ class Medoo
      */
     protected function mapKey() : string
     {
-        return ':MeDoO_' . $this->guid++ . '_mEdOo';
+        return ':MeD' . $this->guid++ . '_mK';
     }
 
     /**
