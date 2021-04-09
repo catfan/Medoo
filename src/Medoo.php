@@ -692,7 +692,7 @@ class Medoo
      */
     public function tableQuote(string $table) : string
     {
-        if (preg_match('/(?![_\d])[\p{N}\p{L}_]+/u', $table)) {
+        if (preg_match('/^(?![_\d])[\p{N}\p{L}_]+$/u', $table)) {
             return '"' . $this->prefix . $table . '"';
         }
 
