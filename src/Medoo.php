@@ -1171,15 +1171,9 @@ class Medoo
             $tableQuery = $table;
         }
 
-        $isJoin = false;
-        $joinKey = is_array($join) ? array_keys($join) : null;
+        $isJoin = $this->isJoin($join);
 
-        if (
-            isset($joinKey[0]) &&
-            is_string($joinKey[0]) &&
-            strpos($joinKey[0], '[') === 0
-        ) {
-            $isJoin = true;
+        if ($isJoin) {
             $tableQuery .= ' ' . $this->buildJoin($tableAlias ?? $table, $join);
         } else {
             if (is_null($columns)) {
@@ -1221,6 +1215,31 @@ class Medoo
         }
 
         return 'SELECT ' . $column . ' FROM ' . $tableQuery . $this->whereClause($where, $map);
+    }
+
+    /**
+     * Determine the array is with join syntax.
+     *
+     * @param mixed $join
+     * @return string
+     */
+    protected function isJoin($join) : bool
+    {
+        if (!is_array($join)) {
+            return false;
+        }
+
+        $joinKey = is_array($join) ? array_keys($join) : null;
+
+        if (
+            isset($joinKey[0]) &&
+            is_string($joinKey[0]) &&
+            strpos($joinKey[0], '[') === 0
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -1772,8 +1791,14 @@ class Medoo
         $currentStack = [];
 
         if ($where === null) {
+            
+            if ($this->isJoin($join)) {
+                $where['LIMIT'] = 1;
+            } else {
+                $columns['LIMIT'] = 1;
+            }
+
             $column = $join;
-            $columns['LIMIT'] = 1;
         } else {
             $column = $columns;
             $where['LIMIT'] = 1;

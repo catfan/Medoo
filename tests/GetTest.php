@@ -89,8 +89,6 @@ class GetTest extends MedooTestCase
         ], [
             "post.content",
             "account.user_name"
-        ], [
-            "ORDER" => "post.rate"
         ]);
 
         $this->assertQuery([
@@ -98,21 +96,62 @@ class GetTest extends MedooTestCase
                 SELECT "post"."content","account"."user_name"
                 FROM "post"
                 LEFT JOIN "account" USING ("user_id")
-                ORDER BY "post"."rate"
                 LIMIT 1
                 EOD,
             'mssql' => <<<EOD
                 SELECT [post].[content],[account].[user_name]
                 FROM [post]
                 LEFT JOIN [account] USING ([user_id])
-                ORDER BY [post].[rate]
+                ORDER BY (SELECT 0)
                 OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
                 EOD,
             'oracle' => <<<EOD
                 SELECT "post"."content","account"."user_name"
                 FROM "post"
                 LEFT JOIN "account" USING ("user_id")
-                ORDER BY "post"."rate"
+                OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
+                EOD,
+        ], $this->database->queryString);
+    }
+
+    /**
+     * @covers Medoo::get()
+     * @dataProvider typesProvider
+     */
+    public function testGetWithJoinAndWhere($type)
+    {
+        $this->setType($type);
+
+        $this->database->get("post", [
+            "[>]account" => "user_id"
+        ], [
+            "post.content",
+            "account.user_name"
+        ], [
+            'account.age[>]' => 18
+        ]);
+
+        $this->assertQuery([
+            'default' => <<<EOD
+                SELECT "post"."content","account"."user_name"
+                FROM "post"
+                LEFT JOIN "account" USING ("user_id")
+                WHERE "account"."age" > 18
+                LIMIT 1
+                EOD,
+            'mssql' => <<<EOD
+                SELECT [post].[content],[account].[user_name]
+                FROM [post]
+                LEFT JOIN [account] USING ([user_id])
+                WHERE [account].[age] > 18
+                ORDER BY (SELECT 0)
+                OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
+                EOD,
+            'oracle' => <<<EOD
+                SELECT "post"."content","account"."user_name"
+                FROM "post"
+                LEFT JOIN "account" USING ("user_id")
+                WHERE "account"."age" > 18
                 OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
                 EOD,
         ], $this->database->queryString);
