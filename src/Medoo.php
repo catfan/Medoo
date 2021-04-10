@@ -393,7 +393,7 @@ class Medoo
                 case 'sqlite':
                     $attr = [
                         'driver' => 'sqlite',
-                        $options['database_file']
+                        $options['database']
                     ];
 
                     break;
