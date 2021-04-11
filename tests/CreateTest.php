@@ -1,4 +1,5 @@
 <?php
+
 namespace Medoo\Tests;
 
 class CreateTest extends MedooTestCase
@@ -10,7 +11,7 @@ class CreateTest extends MedooTestCase
     public function testCreate($type)
     {
         $this->setType($type);
-        
+
         $this->database->create("account", [
             "id" => [
                 "INT",
@@ -27,7 +28,8 @@ class CreateTest extends MedooTestCase
             "AUTO_INCREMENT" => 200
         ]);
 
-        $this->assertQuery([
+        $this->assertQuery(
+            [
             'default' => <<<EOD
                 CREATE TABLE IF NOT EXISTS "account"
                 ("id" INT NOT NULL AUTO_INCREMENT,
@@ -49,7 +51,8 @@ class CreateTest extends MedooTestCase
                 PRIMARY KEY ("id"))
                 AUTO_INCREMENT = 200
                 EOD
-        ], $this->database->queryString
+        ],
+            $this->database->queryString
         );
     }
 }

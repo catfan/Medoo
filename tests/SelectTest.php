@@ -1,4 +1,5 @@
 <?php
+
 namespace Medoo\Tests;
 
 class SelectTest extends MedooTestCase
@@ -10,10 +11,11 @@ class SelectTest extends MedooTestCase
     public function testSelectAll($type)
     {
         $this->setType($type);
-        
+
         $this->database->select("account", "*");
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT * FROM "account"
             EOD,
             $this->database->queryString
@@ -27,10 +29,11 @@ class SelectTest extends MedooTestCase
     public function testSelectColumns($type)
     {
         $this->setType($type);
-        
+
         $this->database->select("account", ["name", "id"]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "name","id"
             FROM "account"
             EOD,
@@ -45,10 +48,11 @@ class SelectTest extends MedooTestCase
     public function testSelectColumnsWithAlias($type)
     {
         $this->setType($type);
-        
+
         $this->database->select("account", ["name(nickname)", "id"]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "name" AS "nickname","id"
             FROM "account"
             EOD,
@@ -63,7 +67,7 @@ class SelectTest extends MedooTestCase
     public function testSelectWithWhere($type)
     {
         $this->setType($type);
-        
+
         $this->database->select("account", [
             "name",
             "id"

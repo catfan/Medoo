@@ -1,4 +1,5 @@
 <?php
+
 namespace Medoo\Tests;
 
 use Medoo\Medoo;
@@ -13,7 +14,7 @@ class QuoteTest extends MedooTestCase
     public function testQuote($type)
     {
         $this->setType($type);
-        
+
         $quotedString = $this->database->quote("Co'mpl''ex \"st'\"ring");
 
         $expected = [
@@ -47,8 +48,8 @@ class QuoteTest extends MedooTestCase
         $this->assertEquals('"Column"."Name"', $this->database->columnQuote("Column.Name"));
     }
 
-    public function columnNamesProvider() : array
-    {    
+    public function columnNamesProvider(): array
+    {
         return [
             ["9ColumnName"],
             ["@ColumnName"],
@@ -91,8 +92,8 @@ class QuoteTest extends MedooTestCase
         $this->assertEquals('"PREFIX_TableName"', $database->tableQuote("TableName"));
     }
 
-    public function tableNamesProvider() : array
-    {    
+    public function tableNamesProvider(): array
+    {
         return [
             ["9TableName"],
             ["@TableName"],

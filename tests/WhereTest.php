@@ -1,4 +1,5 @@
 <?php
+
 namespace Medoo\Tests;
 
 use Medoo\Medoo;
@@ -23,7 +24,8 @@ class WhereTest extends MedooTestCase
             "age[><]" => [200, 500]
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE
@@ -51,7 +53,8 @@ class WhereTest extends MedooTestCase
             "birthday[<>]" => [date("Y-m-d", mktime(0, 0, 0, 1, 1, 2015)), date("Y-m-d", mktime(0, 0, 0, 1, 1, 2045))]
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE
@@ -73,7 +76,8 @@ class WhereTest extends MedooTestCase
             "birthday[><]" => [date("Y-m-d", mktime(0, 0, 0, 1, 1, 2015)), date("Y-m-d", mktime(0, 0, 0, 1, 1, 2045))]
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE
@@ -95,7 +99,8 @@ class WhereTest extends MedooTestCase
             "user_id" => [2, 123, 234, 54]
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE
@@ -117,7 +122,8 @@ class WhereTest extends MedooTestCase
             "email" => ["foo@bar.com", "cat@dog.com", "admin@medoo.in"]
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE
@@ -145,7 +151,8 @@ class WhereTest extends MedooTestCase
             ]
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE
@@ -174,7 +181,8 @@ class WhereTest extends MedooTestCase
             ]
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE
@@ -197,7 +205,8 @@ class WhereTest extends MedooTestCase
             "gender" => "female"
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE
@@ -223,7 +232,8 @@ class WhereTest extends MedooTestCase
             ]
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE
@@ -253,7 +263,8 @@ class WhereTest extends MedooTestCase
             ]
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE
@@ -284,7 +295,8 @@ class WhereTest extends MedooTestCase
             ]
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE
@@ -307,7 +319,8 @@ class WhereTest extends MedooTestCase
             "city[~]" => "lon"
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE
@@ -329,7 +342,8 @@ class WhereTest extends MedooTestCase
             "city[~]" => ["lon", "foo", "bar"]
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE
@@ -353,7 +367,8 @@ class WhereTest extends MedooTestCase
             "city[!~]" => "lon"
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE
@@ -376,7 +391,8 @@ class WhereTest extends MedooTestCase
             "city[~]" => ["OR" => ["lon", "on"]]
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE
@@ -402,7 +418,8 @@ class WhereTest extends MedooTestCase
             "nickname[~]" => "[!BCR]at"
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE
@@ -427,7 +444,8 @@ class WhereTest extends MedooTestCase
             "ORDER" => "user_id"
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             ORDER BY "user_id"
@@ -449,19 +467,20 @@ class WhereTest extends MedooTestCase
             "ORDER" => [
                 // Order by column with sorting by customized order.
                 "user_id" => [43, 12, 57, 98, 144, 1],
-         
+
                 // Order by column.
                 "register_date",
-         
+
                 // Order by column with descending sorting.
                 "profile_id" => "DESC",
-         
+
                 // Order by column with ascending sorting.
                 "date" => "ASC"
             ]
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             ORDER BY FIELD("user_id", 43,12,57,98,144,1),"register_date","profile_id" DESC,"date" ASC
@@ -485,7 +504,8 @@ class WhereTest extends MedooTestCase
             ]
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE MATCH (`content`, `title`) AGAINST ('foo' IN NATURAL LANGUAGE MODE)
@@ -506,7 +526,8 @@ class WhereTest extends MedooTestCase
             'user_name[REGEXP]' => '[a-z0-9]*'
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE "user_name" REGEXP '[a-z0-9]*'
@@ -527,7 +548,8 @@ class WhereTest extends MedooTestCase
             'datetime' => Medoo::raw('NOW()')
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             WHERE "datetime" = NOW()
@@ -567,7 +589,7 @@ class WhereTest extends MedooTestCase
                 EOD,
         ], $this->database->queryString);
     }
-    
+
     /**
      * @covers Medoo::where()
      * @dataProvider typesProvider
@@ -612,7 +634,8 @@ class WhereTest extends MedooTestCase
             'GROUP' => 'type',
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             GROUP BY "type"
@@ -637,7 +660,8 @@ class WhereTest extends MedooTestCase
             ]
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             GROUP BY "type","age","gender"
@@ -663,7 +687,8 @@ class WhereTest extends MedooTestCase
             ]
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             SELECT "user_name"
             FROM "account"
             GROUP BY "type"

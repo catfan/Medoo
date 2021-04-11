@@ -1,4 +1,5 @@
 <?php
+
 namespace Medoo\Tests;
 
 class ReplaceTest extends MedooTestCase
@@ -10,7 +11,7 @@ class ReplaceTest extends MedooTestCase
     public function testReplace($type)
     {
         $this->setType($type);
-        
+
         $this->database->replace("account", [
             "type" => [
                 "user" => "new_user",
@@ -23,7 +24,8 @@ class ReplaceTest extends MedooTestCase
             "user_id[>]" => 1000
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             UPDATE "account"
             SET "type" = REPLACE("type", 'user', 'new_user'),
             "type" = REPLACE("type", 'business', 'new_business'),

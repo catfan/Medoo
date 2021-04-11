@@ -1,4 +1,5 @@
 <?php
+
 namespace Medoo\Tests;
 
 class DropTest extends MedooTestCase
@@ -10,10 +11,11 @@ class DropTest extends MedooTestCase
     public function testDrop($type)
     {
         $this->setType($type);
-        
+
         $this->database->drop("account");
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             DROP TABLE IF EXISTS account
             EOD,
             $this->database->queryString

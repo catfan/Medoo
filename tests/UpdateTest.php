@@ -1,4 +1,5 @@
 <?php
+
 namespace Medoo\Tests;
 
 class UpdateTest extends MedooTestCase
@@ -10,7 +11,7 @@ class UpdateTest extends MedooTestCase
     public function testUpdate($type)
     {
         $this->setType($type);
-        
+
         $this->database->update("account", [
             "type" => "user",
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace Medoo\Tests;
 
 class RandTest extends MedooTestCase
@@ -10,7 +11,7 @@ class RandTest extends MedooTestCase
     public function testRand($type)
     {
         $this->setType($type);
-        
+
         $this->database->rand("account", [
             "user_name"
         ]);

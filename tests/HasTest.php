@@ -1,4 +1,5 @@
 <?php
+
 namespace Medoo\Tests;
 
 class HasTest extends MedooTestCase
@@ -10,7 +11,7 @@ class HasTest extends MedooTestCase
     public function testHas($type)
     {
         $this->setType($type);
-        
+
         $this->database->has("account", [
             "user_name" => "foo"
         ]);

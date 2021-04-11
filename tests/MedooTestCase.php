@@ -9,7 +9,7 @@ class MedooTestCase extends TestCase
 {
     protected Medoo $database;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         $this->database = new Medoo([
             'testMode' => true
@@ -27,12 +27,12 @@ class MedooTestCase extends TestCase
         ];
     }
 
-    public function setType($type) : void
+    public function setType($type): void
     {
         $this->database->type = $type;
     }
 
-    public function expectedQuery($expected) : string
+    public function expectedQuery($expected): string
     {
         $identifier = [
             'mysql' => '`$1`',
@@ -46,16 +46,14 @@ class MedooTestCase extends TestCase
         );
     }
 
-    public function assertQuery($expected, $query) : void
+    public function assertQuery($expected, $query): void
     {
         if (is_array($expected)) {
-            
             $this->assertEquals(
                 $this->expectedQuery($expected[$this->database->type] ?? $expected['default']),
                 $query
             );
-        }
-        else {
+        } else {
             $this->assertEquals($this->expectedQuery($expected), $query);
         }
     }

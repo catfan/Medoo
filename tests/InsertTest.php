@@ -1,4 +1,5 @@
 <?php
+
 namespace Medoo\Tests;
 
 class InsertTest extends MedooTestCase
@@ -10,13 +11,14 @@ class InsertTest extends MedooTestCase
     public function testInsert($type)
     {
         $this->setType($type);
-        
+
         $this->database->insert("account", [
             "user_name" => "foo",
             "email" => "foo@bar.com"
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             INSERT INTO "account" ("user_name", "email")
             VALUES ('foo', 'foo@bar.com')
             EOD,
@@ -31,7 +33,7 @@ class InsertTest extends MedooTestCase
     public function testInsertWithArray($type)
     {
         $this->setType($type);
-        
+
         $this->database->insert("account", [
             "user_name" => "foo",
             "lang" => ["en", "fr"]
@@ -56,7 +58,7 @@ class InsertTest extends MedooTestCase
     public function testInsertWithJSON($type)
     {
         $this->setType($type);
-        
+
         $this->database->insert("account", [
             "user_name" => "foo",
             "lang [JSON]" => ["en", "fr"]
@@ -81,7 +83,7 @@ class InsertTest extends MedooTestCase
     public function testMultiInsert($type)
     {
         $this->setType($type);
-        
+
         $this->database->insert("account", [
             [
                 "user_name" => "foo",
@@ -93,7 +95,8 @@ class InsertTest extends MedooTestCase
             ]
         ]);
 
-        $this->assertQuery(<<<EOD
+        $this->assertQuery(
+            <<<EOD
             INSERT INTO "account" ("user_name", "email")
             VALUES ('foo', 'foo@bar.com'), ('bar', 'bar@foo.com')
             EOD,

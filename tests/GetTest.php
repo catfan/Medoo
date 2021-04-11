@@ -1,4 +1,5 @@
 <?php
+
 namespace Medoo\Tests;
 
 class GetTest extends MedooTestCase
@@ -10,7 +11,7 @@ class GetTest extends MedooTestCase
     public function testGet($type)
     {
         $this->setType($type);
-        
+
         $this->database->get("account", "email", [
             "user_id" => 1234
         ]);
