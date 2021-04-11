@@ -42,6 +42,9 @@ class Raw
 
 /**
  * @method array select(string $table, array $columns, array $where)
+ * @method null select(string $table, array $columns, callable $callback)
+ * @method null select(string $table, array $columns, array $where, callable $callback)
+ * @method null select(string $table, array $join, array $columns, array $where, callable $callback)
  * @method mixed get(string $table, array|string $columns, array $where)
  * @method bool has(string $table, array $where)
  * @method mixed rand(string $table, array|string $column, array $where)
@@ -1363,7 +1366,7 @@ class Medoo
      * @param array $result
      * @return void
      */
-    protected function dataMap(array $data, array $columns, array $columnMap, array &$stack, bool $root, array &$result) : void
+    protected function dataMap(array $data, array $columns, array $columnMap, array &$stack, bool $root, array &$result = null) : void
     {
         if ($root) {
             $columnsKey = array_keys($columns);
@@ -1379,14 +1382,22 @@ class Medoo
 
                     $index = $data[$dataKey];
 
-                    $result[$index] = $currentStack;
+                    if (isset($result)) {
+                        $result[$index] = $currentStack;
+                    } else {
+                        $stack[$index] = $currentStack;
+                    }
                 }
             } else {
                 $currentStack = [];
                 
                 $this->dataMap($data, $columns, $columnMap, $currentStack, false, $result);
 
-                $result[] = $currentStack;
+                if (isset($result)) {
+                    $result[] = $currentStack;
+                } else {
+                    $stack = $currentStack;
+                }
             }
 
             return;
@@ -1519,13 +1530,20 @@ class Medoo
      * @param array $join
      * @param array|string $columns
      * @param array $where
-     * @return array
+     * @return array|null
      */
-    public function select(string $table, $join, $columns = null, $where = null) : array
+    public function select(string $table, $join, $columns = null, $where = null) : ?array
     {
         $map = [];
         $result = [];
         $columnMap = [];
+
+        $lastArgs = end(func_get_args());
+        $callback = is_callable($lastArgs) ? $lastArgs : null;
+
+        $where = is_callable($where) ? null : $where;
+        $columns = is_callable($columns) ? null : $columns;
+
         $column = $where === null ? $join : $columns;
         $isSingle = (is_string($column) && $column !== '*');
 
@@ -1538,13 +1556,38 @@ class Medoo
         }
 
         if ($columns === '*') {
+
+            if (isset($callback)) {
+                while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
+                    $callback($data);
+                }
+
+                return null;
+            }
+
             return $statement->fetchAll(PDO::FETCH_ASSOC);
         }
 
         while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
+
             $currentStack = [];
 
-            $this->dataMap($data, $columns, $columnMap, $currentStack, true, $result);
+            if (isset($callback)) {
+                
+                $this->dataMap($data, $columns, $columnMap, $currentStack, true);
+
+                $callback($isSingle ?
+                    $currentStack[$columnMap[$column][0]] :
+                    $currentStack
+                );
+            }
+            else {
+                $this->dataMap($data, $columns, $columnMap, $currentStack, true, $result);
+            }
+        }
+
+        if (isset($callback)) {
+            return null;
         }
 
         if ($isSingle) {
