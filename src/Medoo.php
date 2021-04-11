@@ -1633,7 +1633,8 @@ class Medoo
         $result = [];
         $columnMap = [];
 
-        $lastArgs = end(func_get_args());
+        $args = func_get_args();
+        $lastArgs = $args[array_key_last($args)];
         $callback = is_callable($lastArgs) ? $lastArgs : null;
 
         $where = is_callable($where) ? null : $where;
@@ -2232,7 +2233,7 @@ class Medoo
             return null;
         }
 
-        $log = end($this->logs);
+        $log = $this->logs[array_key_last($this->logs)];
 
         return $this->generate($log[0], $log[1]);
     }
