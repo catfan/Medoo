@@ -1371,10 +1371,10 @@ class Medoo
                                     $this->columnQuote($key) :
 
                                     // For ['column1' => 'column2']
-                                    $table . '."' . $key . '"'
+                                    $table . '.' . $this->columnQuote($key)
                             ) .
                             ' = ' .
-                            $this->tableQuote($match['alias'] ?? $match['table']) . '."' . $value . '"';
+                            $this->tableQuote($match['alias'] ?? $match['table']) . '.' . $this->columnQuote($value);
                         }
 
                         $relation = 'ON ' . implode(' AND ', $joins);
