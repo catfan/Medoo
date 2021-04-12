@@ -1245,7 +1245,7 @@ class Medoo
         $isJoin = $this->isJoin($join);
 
         if ($isJoin) {
-            $tableQuery .= ' ' . $this->buildJoin($tableAlias ?? $table, $join);
+            $tableQuery .= ' ' . $this->buildJoin($tableAlias ?? $table, $join, $map);
         } else {
 
             if (is_null($columns)) {
@@ -1325,9 +1325,10 @@ class Medoo
      *
      * @param string $table
      * @param array $join
+     * @param array $map
      * @return string
      */
-    protected function buildJoin(string $table, array $join): string
+    protected function buildJoin(string $table, array $join, array &$map): string
     {
         $tableJoin = [];
         $joinMap = [
@@ -1358,6 +1359,11 @@ class Medoo
                         $joins = [];
 
                         foreach ($relation as $key => $value) {
+
+                            if ($key === 'AND' && is_array($value)) {
+                                $joins[] = $this->dataImplode($value, $map, ' AND');
+                                continue;
+                            }
 
                             $joins[] = (
                                 strpos($key, '.') > 0 ?
