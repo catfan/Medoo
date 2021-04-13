@@ -142,7 +142,8 @@ class SelectTest extends MedooTestCase
             <<<EOD
             SELECT "account"."name","post"."title"
             FROM "account"
-            LEFT JOIN "post" USING ("user_id")
+            LEFT JOIN "post"
+            USING ("user_id")
             EOD,
             $this->database->queryString
         );
@@ -167,7 +168,8 @@ class SelectTest extends MedooTestCase
             <<<EOD
             SELECT "account"."name","post"."title"
             FROM "account"
-            RIGHT JOIN "post" USING ("user_id")
+            RIGHT JOIN "post"
+            USING ("user_id")
             EOD,
             $this->database->queryString
         );
@@ -192,7 +194,8 @@ class SelectTest extends MedooTestCase
             <<<EOD
             SELECT "account"."name","post"."title"
             FROM "account"
-            FULL JOIN "post" USING ("user_id")
+            FULL JOIN "post"
+            USING ("user_id")
             EOD,
             $this->database->queryString
         );
@@ -217,7 +220,8 @@ class SelectTest extends MedooTestCase
             <<<EOD
             SELECT "account"."name","post"."title"
             FROM "account"
-            INNER JOIN "post" USING ("user_id")
+            INNER JOIN "post"
+            USING ("user_id")
             EOD,
             $this->database->queryString
         );
@@ -392,6 +396,87 @@ class SelectTest extends MedooTestCase
             LEFT JOIN "post"
             ON "account"."user_id" = "post"."author_id"
             AND "post"."id" > 10
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers Medoo::select()
+     * @dataProvider typesProvider
+     */
+    public function testSelectWithDataMapping($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("post", [
+            "[>]account" => ["user_id"]
+        ], [
+            "post.content",
+         
+            "userData" => [
+                "account.user_id",
+                "account.email",
+         
+                "meta" => [
+                    "account.location",
+                    "account.gender"
+                ]
+            ]
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "post"."content","account"."user_id","account"."email","account"."location","account"."gender"
+            FROM "post"
+            LEFT JOIN "account"
+            USING ("user_id")
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers Medoo::select()
+     * @dataProvider typesProvider
+     */
+    public function testSelectWithIndexMapping($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account", [
+            "user_id" => [
+                "nickname",
+                "location"
+            ]
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "user_id","nickname","location"
+            FROM "account"
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers Medoo::select()
+     * @dataProvider typesProvider
+     */
+    public function testSelectWithUnicodeCharacter($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("considérer", [
+            "name (名前)",
+            "положение (ロケーション)"
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "name" AS "名前","положение" AS "ロケーション"
+            FROM "considérer"
             EOD,
             $this->database->queryString
         );
