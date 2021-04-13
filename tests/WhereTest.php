@@ -463,7 +463,6 @@ class WhereTest extends MedooTestCase
         $this->setType($type);
 
         $this->database->select("account", "user_name", [
-
             "ORDER" => [
                 // Order by column with sorting by customized order.
                 "user_id" => [43, 12, 57, 98, 144, 1],
@@ -679,7 +678,6 @@ class WhereTest extends MedooTestCase
         $this->setType($type);
 
         $this->database->select("account", "user_name", [
-
             'GROUP' => 'type',
 
             'HAVING' => [
