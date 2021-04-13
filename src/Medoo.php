@@ -805,7 +805,7 @@ class Medoo
                     throw new InvalidArgumentException('Cannot use table.* to select all columns while joining table.');
                 }
 
-                preg_match('/(?<column>[^(]+)(?:\s*\((?<alias>.+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/u', $value, $match);
+                preg_match('/(?<column>[\p{N}\p{L}_\.]+)(?:\s*\((?<alias>.+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/u', $value, $match);
 
                 if (!empty($match['alias'])) {
 
