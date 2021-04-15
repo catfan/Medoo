@@ -103,4 +103,23 @@ class InsertTest extends MedooTestCase
             $this->database->queryString
         );
     }
+
+    public function testOracleWithPrimaryKeyInsert()
+    {
+        $this->setType("oracle");
+
+        $this->database->insert("ACCOUNT", [
+            "NAME" => "foo",
+            "EMAIL" => "foo@bar.com"
+        ], "ID");
+
+        $this->assertQuery(
+            <<<EOD
+            INSERT INTO "ACCOUNT" ("NAME", "EMAIL")
+            VALUES ('foo', 'foo@bar.com')
+            RETURNING "ID" INTO :RETURNID
+            EOD,
+            $this->database->queryString
+        );
+    }
 }

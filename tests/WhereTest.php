@@ -311,6 +311,34 @@ class WhereTest extends MedooTestCase
      * @covers Medoo::where()
      * @dataProvider typesProvider
      */
+    public function testColumnsRelationshipWhere($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("post", [
+            "[>]account" => "user_id",
+        ], [
+            "post.content"
+        ], [
+            "post.restrict[<]account.age"
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "post"."content"
+            FROM "post"
+            LEFT JOIN "account"
+            USING ("user_id")
+            WHERE "post"."restrict" < "account"."age"
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers Medoo::where()
+     * @dataProvider typesProvider
+     */
     public function testBasicLikeWhere($type)
     {
         $this->setType($type);
