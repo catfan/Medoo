@@ -786,21 +786,24 @@ class Medoo
 
         foreach ($columns as $key => $value) {
 
-            if (!is_int($key) && is_array($value) && $root && count(array_keys($columns)) === 1) {
+            $isIntKey = is_int($key);
+            $isArrayValue = is_array($value);
+
+            if (!$isIntKey && $isArrayValue && $root && count(array_keys($columns)) === 1) {
 
                 $stack[] = $this->columnQuote($key);
                 $stack[] = $this->columnPush($value, $map, false, $isJoin);
 
-            } elseif (is_array($value)) {
+            } elseif ($isArrayValue) {
 
                 $stack[] = $this->columnPush($value, $map, false, $isJoin);
     
-            } elseif (!is_int($key) && $raw = $this->buildRaw($value, $map)) {
+            } elseif (!$isIntKey && $raw = $this->buildRaw($value, $map)) {
 
                 preg_match('/(?<column>[\p{N}\p{L}_\.]+)(\s*\[(?<type>(String|Bool|Int|Number))\])?/u', $key, $match);
                 $stack[] = "{$raw} AS {$this->columnQuote($match['column'])}";
 
-            } elseif (is_int($key) && is_string($value)) {
+            } elseif ($isIntKey && is_string($value)) {
 
                 if ($isJoin && strpos($value, '*') !== false) {
                     throw new InvalidArgumentException('Cannot use table.* to select all columns while joining table.');
