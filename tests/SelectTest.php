@@ -464,6 +464,28 @@ class SelectTest extends MedooTestCase
      * @covers Medoo::select()
      * @dataProvider typesProvider
      */
+    public function testSelectWithDistinct($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account", [
+            "@location",
+            "nickname"
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT DISTINCT "location","nickname"
+            FROM "account"
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers Medoo::select()
+     * @dataProvider typesProvider
+     */
     public function testSelectWithUnicodeCharacter($type)
     {
         $this->setType($type);

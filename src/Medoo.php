@@ -778,6 +778,7 @@ class Medoo
         }
 
         $stack = [];
+        $index = 0;
 
         if (is_string($columns)) {
             $columns = [$columns];
@@ -807,18 +808,28 @@ class Medoo
 
                 preg_match('/(?<column>[\p{N}\p{L}_\.]+)(?:\s*\((?<alias>.+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/u', $value, $match);
 
+                $columnString = "";
+
                 if (!empty($match['alias'])) {
 
-                    $stack[] = "{$this->columnQuote($match['column'])} AS {$this->columnQuote($match['alias'])}";
+                    $columnString = "{$this->columnQuote($match['column'])} AS {$this->columnQuote($match['alias'])}";
                     $columns[$key] = $match['alias'];
 
                     if (!empty($match['type'])) {
                         $columns[$key] .= ' [' . $match['type'] . ']';
                     }
                 } else {
-                    $stack[] = $this->columnQuote($match['column']);
+                    $columnString = $this->columnQuote($match['column']);
                 }
+
+                if ($index === 0 && strpos($value, '@') === 0) {
+                    $columnString = 'DISTINCT ' . $columnString;
+                }
+
+                $stack[] = $columnString;
             }
+
+            $index++;
         }
 
         return implode(',', $stack);
