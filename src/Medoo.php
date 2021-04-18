@@ -778,7 +778,7 @@ class Medoo
         }
 
         $stack = [];
-        $index = 0;
+        $hasDistinct = false;
 
         if (is_string($columns)) {
             $columns = [$columns];
@@ -825,14 +825,17 @@ class Medoo
                     $columnString = $this->columnQuote($match['column']);
                 }
 
-                if ($index === 0 && strpos($value, '@') === 0) {
+                if (!$hasDistinct && strpos($value, '@') === 0) {
+
                     $columnString = 'DISTINCT ' . $columnString;
+                    $hasDistinct = true;
+                    array_unshift($stack, $columnString);
+                    
+                    continue;
                 }
 
                 $stack[] = $columnString;
             }
-
-            $index++;
         }
 
         return implode(',', $stack);
