@@ -2,10 +2,13 @@
 
 namespace Medoo\Tests;
 
+/**
+ * @coversDefaultClass \Medoo\Medoo
+ */
 class SelectTest extends MedooTestCase
 {
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectAll($type)
@@ -23,7 +26,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectColumns($type)
@@ -42,7 +45,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectColumnsWithAlias($type)
@@ -61,7 +64,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectColumnsWithType($type)
@@ -80,7 +83,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectColumnsWithAliasAndType($type)
@@ -99,7 +102,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectWithWhere($type)
@@ -124,7 +127,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectWithLeftJoin($type)
@@ -150,7 +153,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectWithRightJoin($type)
@@ -176,7 +179,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectWithFullJoin($type)
@@ -202,7 +205,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectWithInnerJoin($type)
@@ -228,7 +231,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectWithSameKeysJoin($type)
@@ -254,7 +257,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectWithKeyJoin($type)
@@ -280,7 +283,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectWithAliasJoin($type)
@@ -306,7 +309,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectWithReferJoin($type)
@@ -336,7 +339,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectWithMultipleConditionJoin($type)
@@ -370,7 +373,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectWithAdditionalConditionJoin($type)
@@ -402,7 +405,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectWithDataMapping($type)
@@ -437,7 +440,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectWithIndexMapping($type)
@@ -461,7 +464,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectWithDistinct($type)
@@ -483,7 +486,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectWithDistinctDiffOrder($type)
@@ -505,7 +508,7 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::select()
+     * @covers ::select()
      * @dataProvider typesProvider
      */
     public function testSelectWithUnicodeCharacter($type)

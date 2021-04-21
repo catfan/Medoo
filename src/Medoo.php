@@ -196,6 +196,7 @@ class Medoo
      * @return Medoo
      * @throws PDOException
      * @link https://medoo.in/api/new
+     * @codeCoverageIgnore
      */
 
     public function __construct(array $options)
@@ -509,6 +510,7 @@ class Medoo
      *
      * @param string $statement The SQL statement.
      * @param array $map The array of input parameters value for prepared statement.
+     * @codeCoverageIgnore
      * @return \PDOStatement|null
      */
     public function exec(string $statement, array $map = [], callable $callback = null): ?PDOStatement
@@ -2075,6 +2077,7 @@ class Medoo
      * @param array $join
      * @param string $column
      * @param array $where
+     * @codeCoverageIgnore
      * @return string|null
      */
     private function aggregate(string $type, string $table, $join = null, $column = null, $where = null): ?string
@@ -2164,6 +2167,7 @@ class Medoo
      * Start a transaction.
      *
      * @param callable $actions
+     * @codeCoverageIgnore
      * @return void
      */
     public function action(callable $actions): void
@@ -2191,6 +2195,7 @@ class Medoo
      * Return the ID for the last inserted row.
      *
      * @param string $name
+     * @codeCoverageIgnore
      * @return string|null
      */
     public function id(string $name = null): ?string
@@ -2212,6 +2217,7 @@ class Medoo
     /**
      * Enable debug mode and output readable statement string.
      *
+     * @codeCoverageIgnore
      * @return Medoo
      */
     public function debug(): self
@@ -2224,6 +2230,7 @@ class Medoo
     /**
      * Enable debug logging mode.
      *
+     * @codeCoverageIgnore
      * @return void
      */
     public function beginDebug(): void
@@ -2235,6 +2242,7 @@ class Medoo
     /**
      * Disable debug logging and return all readable statements.
      *
+     * @codeCoverageIgnore
      * @return void
      */
     public function debugLog(): array
@@ -2248,6 +2256,7 @@ class Medoo
     /**
      * Return the last performed statement.
      *
+     * @codeCoverageIgnore
      * @return string|null
      */
     public function last(): ?string
@@ -2264,6 +2273,7 @@ class Medoo
     /**
      * Return all executed statements.
      *
+     * @codeCoverageIgnore
      * @return string[]
      */
     public function log(): array
@@ -2279,6 +2289,7 @@ class Medoo
     /**
      * Get information about database connection.
      *
+     * @codeCoverageIgnore
      * @return array
      */
     public function info(): array

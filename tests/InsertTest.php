@@ -5,7 +5,7 @@ namespace Medoo\Tests;
 class InsertTest extends MedooTestCase
 {
     /**
-     * @covers Medoo::insert()
+     * @covers \Medoo\Medoo::insert()
      * @dataProvider typesProvider
      */
     public function testInsert($type)
@@ -27,7 +27,7 @@ class InsertTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::insert()
+     * @covers \Medoo\Medoo::insert()
      * @dataProvider typesProvider
      */
     public function testInsertWithArray($type)
@@ -52,7 +52,7 @@ class InsertTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::insert()
+     * @covers \Medoo\Medoo::insert()
      * @dataProvider typesProvider
      */
     public function testInsertWithJSON($type)
@@ -77,7 +77,7 @@ class InsertTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::insert()
+     * @covers \Medoo\Medoo::insert()
      * @dataProvider typesProvider
      */
     public function testMultiInsert($type)

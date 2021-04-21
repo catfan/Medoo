@@ -5,10 +5,13 @@ namespace Medoo\Tests;
 use Medoo\Medoo;
 use InvalidArgumentException;
 
+/**
+ * @coversDefaultClass \Medoo\Medoo
+ */
 class QuoteTest extends MedooTestCase
 {
     /**
-     * @covers Medoo::quote()
+     * @covers ::quote()
      * @dataProvider typesProvider
      */
     public function testQuote($type)
@@ -39,7 +42,7 @@ class QuoteTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::columnQuote()
+     * @covers ::columnQuote()
      */
     public function testColumnQuote()
     {
@@ -61,7 +64,7 @@ class QuoteTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::columnQuote
+     * @covers ::columnQuote()
      * @dataProvider columnNamesProvider
      */
     public function testIncorrectColumnQuote($column)
@@ -72,7 +75,7 @@ class QuoteTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::tableQuote()
+     * @covers ::tableQuote()
      */
     public function testTableQuote()
     {
@@ -80,7 +83,7 @@ class QuoteTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::tableQuote()
+     * @covers ::tableQuote()
      */
     public function testPrefixTableQuote()
     {
@@ -105,7 +108,7 @@ class QuoteTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::tableQuote()
+     * @covers ::tableQuote()
      * @dataProvider tableNamesProvider
      */
     public function testIncorrectTableQuote($table)

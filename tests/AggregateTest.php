@@ -2,10 +2,13 @@
 
 namespace Medoo\Tests;
 
+/**
+ * @coversDefaultClass \Medoo\Medoo
+ */
 class AggregateTest extends MedooTestCase
 {
     /**
-     * @covers Medoo::count()
+     * @covers ::count()
      * @dataProvider typesProvider
      */
     public function testCount($type)
@@ -27,7 +30,7 @@ class AggregateTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::max()
+     * @covers ::max()
      * @dataProvider typesProvider
      */
     public function testMax($type)
@@ -46,7 +49,7 @@ class AggregateTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::min()
+     * @covers ::min()
      * @dataProvider typesProvider
      */
     public function testMin($type)
@@ -65,7 +68,7 @@ class AggregateTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::avg()
+     * @covers ::avg()
      * @dataProvider typesProvider
      */
     public function testAvg($type)
@@ -84,7 +87,7 @@ class AggregateTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::sum()
+     * @covers ::sum()
      * @dataProvider typesProvider
      */
     public function testSum($type)

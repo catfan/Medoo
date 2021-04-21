@@ -2,10 +2,13 @@
 
 namespace Medoo\Tests;
 
+/**
+ * @coversDefaultClass \Medoo\Medoo
+ */
 class ReplaceTest extends MedooTestCase
 {
     /**
-     * @covers Medoo::replace()
+     * @covers ::replace()
      * @dataProvider typesProvider
      */
     public function testReplace($type)

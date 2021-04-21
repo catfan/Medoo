@@ -2,10 +2,13 @@
 
 namespace Medoo\Tests;
 
+/**
+ * @coversDefaultClass \Medoo\Medoo
+ */
 class DropTest extends MedooTestCase
 {
     /**
-     * @covers Medoo::drop()
+     * @covers ::drop()
      * @dataProvider typesProvider
      */
     public function testDrop($type)

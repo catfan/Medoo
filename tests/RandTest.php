@@ -2,10 +2,13 @@
 
 namespace Medoo\Tests;
 
+/**
+ * @coversDefaultClass \Medoo\Medoo
+ */
 class RandTest extends MedooTestCase
 {
     /**
-     * @covers Medoo::rand()
+     * @covers ::rand()
      * @dataProvider typesProvider
      */
     public function testRand($type)

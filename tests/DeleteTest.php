@@ -2,10 +2,13 @@
 
 namespace Medoo\Tests;
 
+/**
+ * @coversDefaultClass \Medoo\Medoo
+ */
 class DeleteTest extends MedooTestCase
 {
     /**
-     * @covers Medoo::delete()
+     * @covers ::delete()
      * @dataProvider typesProvider
      */
     public function testDelete($type)

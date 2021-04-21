@@ -2,10 +2,13 @@
 
 namespace Medoo\Tests;
 
+/**
+ * @coversDefaultClass \Medoo\Medoo
+ */
 class GetTest extends MedooTestCase
 {
     /**
-     * @covers Medoo::get()
+     * @covers ::get()
      * @dataProvider typesProvider
      */
     public function testGet($type)
@@ -40,7 +43,7 @@ class GetTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::get()
+     * @covers ::get()
      * @dataProvider typesProvider
      */
     public function testGetWithColumns($type)
@@ -78,7 +81,7 @@ class GetTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::get()
+     * @covers ::get()
      * @dataProvider typesProvider
      */
     public function testGetWithJoin($type)
@@ -116,7 +119,7 @@ class GetTest extends MedooTestCase
     }
 
     /**
-     * @covers Medoo::get()
+     * @covers ::get()
      * @dataProvider typesProvider
      */
     public function testGetWithJoinAndWhere($type)

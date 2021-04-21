@@ -2,10 +2,13 @@
 
 namespace Medoo\Tests;
 
+/**
+ * @coversDefaultClass \Medoo\Medoo
+ */
 class HasTest extends MedooTestCase
 {
     /**
-     * @covers Medoo::has()
+     * @covers ::has()
      * @dataProvider typesProvider
      */
     public function testHas($type)

@@ -2,10 +2,13 @@
 
 namespace Medoo\Tests;
 
+/**
+ * @coversDefaultClass \Medoo\Medoo
+ */
 class CreateTest extends MedooTestCase
 {
     /**
-     * @covers Medoo::create()
+     * @covers ::create()
      * @dataProvider typesProvider
      */
     public function testCreate($type)

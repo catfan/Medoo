@@ -2,10 +2,13 @@
 
 namespace Medoo\Tests;
 
+/**
+ * @coversDefaultClass \Medoo\Medoo
+ */
 class UpdateTest extends MedooTestCase
 {
     /**
-     * @covers Medoo::update()
+     * @covers \Medoo\Medoo::update()
      * @dataProvider typesProvider
      */
     public function testUpdate($type)
