@@ -410,6 +410,52 @@ class WhereTest extends MedooTestCase
      * @covers Medoo::where()
      * @dataProvider typesProvider
      */
+    public function testNonEscapeLikeWhere($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account", "user_name", [
+            "city[~]" => "some_where"
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "user_name"
+            FROM "account"
+            WHERE
+            ("city" LIKE 'some_where')
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers Medoo::where()
+     * @dataProvider typesProvider
+     */
+    public function testEscapeLikeWhere($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account", "user_name", [
+            "city[~]" => "some\_where"
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "user_name"
+            FROM "account"
+            WHERE
+            ("city" LIKE '%some\_where%')
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers Medoo::where()
+     * @dataProvider typesProvider
+     */
     public function testCompoundLikeWhere($type)
     {
         $this->setType($type);
