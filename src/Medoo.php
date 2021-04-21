@@ -2050,19 +2050,13 @@ class Medoo
 
         if ($where === null) {
 
-            if ($columns === null) {
-
-                $columns = ['ORDER' => $orderRaw];
-
+            if ($this->isJoin($join)) {
+                $where['ORDER'] = $orderRaw;
             } else {
-
-                $columns = $join;
-
-                unset($columns['ORDER']);
                 $columns['ORDER'] = $orderRaw;
             }
+
         } else {
-            unset($where['ORDER']);
             $where['ORDER'] = $orderRaw;
         }
 
