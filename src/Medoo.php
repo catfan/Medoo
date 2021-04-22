@@ -1449,6 +1449,7 @@ class Medoo
      * @param array $stack
      * @param bool $root
      * @param array $result
+     * @codeCoverageIgnore
      * @return void
      */
     protected function dataMap(
@@ -1793,7 +1794,9 @@ class Medoo
                 $query .= ' RETURNING ' . $this->columnQuote($primaryKey) . ' INTO :RETURNID';
 
                 $statement = $this->exec($query, $map, function ($statement) use (&$returning) {
+                    // @codeCoverageIgnoreStart
                     $statement->bindParam('RETURNID', $returning, PDO::PARAM_INT, 8);
+                    // @codeCoverageIgnoreEnd
                 });
 
                 $this->returnId = "${returning}";
