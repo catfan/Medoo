@@ -11,6 +11,7 @@ class InsertTest extends MedooTestCase
 {
     /**
      * @covers ::insert()
+     * @covers ::typeMap()
      * @dataProvider typesProvider
      */
     public function testInsert($type)
@@ -33,6 +34,7 @@ class InsertTest extends MedooTestCase
 
     /**
      * @covers ::insert()
+     * @covers ::typeMap()
      * @dataProvider typesProvider
      */
     public function testInsertWithArray($type)
@@ -58,6 +60,7 @@ class InsertTest extends MedooTestCase
 
     /**
      * @covers ::insert()
+     * @covers ::typeMap()
      * @dataProvider typesProvider
      */
     public function testInsertWithJSON($type)
@@ -104,6 +107,7 @@ class InsertTest extends MedooTestCase
 
     /**
      * @covers ::insert()
+     * @covers ::typeMap()
      * @dataProvider typesProvider
      */
     public function testInsertWithNull($type)
@@ -125,6 +129,7 @@ class InsertTest extends MedooTestCase
 
     /**
      * @covers ::insert()
+     * @covers ::typeMap()
      * @dataProvider typesProvider
      */
     public function testInsertWithObject($type)

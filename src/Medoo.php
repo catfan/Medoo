@@ -1771,38 +1771,32 @@ class Medoo
 
                 $mapKey = $this->mapKey();
                 $values[] = $mapKey;
+                $value = $data[$key];
+                $type = gettype($value);
 
-                if (!isset($data[$key])) {
-                    $map[$mapKey] = [null, PDO::PARAM_NULL];
-                } else {
+                switch ($type) {
 
-                    $value = $data[$key];
-                    $type = gettype($value);
+                    case 'array':
+                        $map[$mapKey] = [
+                            strpos($key, '[JSON]') === strlen($key) - 6 ?
+                                json_encode($value) :
+                                serialize($value),
+                            PDO::PARAM_STR
+                        ];
+                        break;
 
-                    switch ($type) {
+                    case 'object':
+                        $value = serialize($value);
+                        break;
 
-                        case 'array':
-                            $map[$mapKey] = [
-                                strpos($key, '[JSON]') === strlen($key) - 6 ?
-                                    json_encode($value) :
-                                    serialize($value),
-                                PDO::PARAM_STR
-                            ];
-                            break;
-
-                        case 'object':
-                            $value = serialize($value);
-
-                            break;
-                        case 'NULL':
-                        case 'resource':
-                        case 'boolean':
-                        case 'integer':
-                        case 'double':
-                        case 'string':
-                            $map[$mapKey] = $this->typeMap($value, $type);
-                            break;
-                    }
+                    case 'NULL':
+                    case 'resource':
+                    case 'boolean':
+                    case 'integer':
+                    case 'double':
+                    case 'string':
+                        $map[$mapKey] = $this->typeMap($value, $type);
+                        break;
                 }
             }
 

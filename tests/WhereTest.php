@@ -12,6 +12,7 @@ class WhereTest extends MedooTestCase
     /**
      * @covers ::select()
      * @covers ::dataImplode()
+     * @covers ::typeMap()
      * @covers ::whereClause()
      * @dataProvider typesProvider
      */
@@ -29,7 +30,8 @@ class WhereTest extends MedooTestCase
             "age[><]" => [200, 500],
             "income[>]" => Medoo::raw("COUNT(<average>)"),
             "remote_id" => Medoo::raw("UUID()"),
-            "location" => null
+            "location" => null,
+            "is_selected" => true
         ]);
 
         $this->assertQuery(
@@ -46,7 +48,8 @@ class WhereTest extends MedooTestCase
             ("age" NOT BETWEEN 200 AND 500) AND
             "income" > COUNT("average") AND
             "remote_id" = UUID() AND
-            "location" IS NULL
+            "location" IS NULL AND
+            "is_selected" = 1
             EOD,
             $this->database->queryString
         );
