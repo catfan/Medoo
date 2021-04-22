@@ -1601,7 +1601,7 @@ class Medoo
             } elseif (is_array($definition)) {
                 $stack[] = $this->columnQuote($name) . ' ' . implode(' ', $definition);
             } elseif (is_string($definition)) {
-                $stack[] = $this->columnQuote($name) . ' ' . $this->query($definition);
+                $stack[] = $this->columnQuote($name) . ' ' . $definition;
             }
         }
 
