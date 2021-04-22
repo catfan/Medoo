@@ -1303,7 +1303,7 @@ class Medoo
             return false;
         }
 
-        $joinKey = is_array($join) ? array_keys($join) : null;
+        $joinKey = array_keys($join);
 
         if (
             isset($joinKey[0]) &&
