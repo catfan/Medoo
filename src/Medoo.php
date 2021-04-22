@@ -845,26 +845,6 @@ class Medoo
     }
 
     /**
-     * Conjunct the inner relationship.
-     *
-     * @param array $data
-     * @param array $map
-     * @param string $conjunctor
-     * @param string $outerConjunctor
-     * @return string
-     */
-    protected function innerConjunct(array $data, array $map, string $conjunctor, string $outerConjunctor): string
-    {
-        $stack = [];
-
-        foreach ($data as $value) {
-            $stack[] = '(' . $this->dataImplode($value, $map, $conjunctor) . ')';
-        }
-
-        return implode($outerConjunctor . ' ', $stack);
-    }
-
-    /**
      * Implode where conditions.
      *
      * @param array $data
@@ -884,11 +864,7 @@ class Medoo
                 $type === 'array' &&
                 preg_match("/^(AND|OR)(\s+#.*)?$/", $key, $relationMatch)
             ) {
-                $relationship = $relationMatch[1];
-                $stack[] = $value !== array_keys(array_keys($value)) ?
-                    '(' . $this->dataImplode($value, $map, ' ' . $relationship) . ')' :
-                    '(' . $this->innerConjunct($value, $map, ' ' . $relationship, $conjunctor) . ')';
-
+                $stack[] = '(' . $this->dataImplode($value, $map, ' ' . $relationMatch[1]) . ')';
                 continue;
             }
 
