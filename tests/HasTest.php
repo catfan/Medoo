@@ -9,6 +9,7 @@ class HasTest extends MedooTestCase
 {
     /**
      * @covers ::has()
+     * @covers ::selectContext()
      * @dataProvider typesProvider
      */
     public function testHas($type)

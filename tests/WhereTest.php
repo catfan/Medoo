@@ -111,6 +111,30 @@ class WhereTest extends MedooTestCase
      * @covers ::whereClause()
      * @dataProvider typesProvider
      */
+    public function testGreaterDateTimeWhere($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account", "user_name", [
+            "birthday[>]" => date("Y-m-d", mktime(0, 0, 0, 1, 1, 2045))
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "user_name"
+            FROM "account"
+            WHERE "birthday" > '2045-01-01'
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
+     * @dataProvider typesProvider
+     */
     public function testArrayIntValuesWhere($type)
     {
         $this->setType($type);
@@ -172,7 +196,7 @@ class WhereTest extends MedooTestCase
                 "email[!]" => ["foo@bar.com", "admin@medoo.in"],
                 "city[!]" => null,
                 "promoted[!]" => true,
-                "object[!]" => new Foo()
+                "location[!]" => Medoo::raw('LOWER("New York")')
             ]
         ]);
 
@@ -185,7 +209,8 @@ class WhereTest extends MedooTestCase
             "user_id" != 1024 AND
             "email" NOT IN ('foo@bar.com', 'admin@medoo.in') AND
             "city" IS NOT NULL AND
-            "promoted" != 1)
+            "promoted" != 1 AND
+            "location" != LOWER("New York"))
             EOD,
             $this->database->queryString
         );
@@ -621,6 +646,30 @@ class WhereTest extends MedooTestCase
      * @covers ::select()
      * @covers ::dataImplode()
      * @covers ::whereClause()
+     * @dataProvider typesProvider
+     */
+    public function testOrderWithRawWhere($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account", "user_name", [
+            "ORDER" => Medoo::raw("<location>, <gender>")
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "user_name"
+            FROM "account"
+            ORDER BY "location", "gender"
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      */
     public function testFullTextSearchWhere()
     {
@@ -818,6 +867,30 @@ class WhereTest extends MedooTestCase
      * @covers ::whereClause()
      * @dataProvider typesProvider
      */
+    public function testGroupWithRawWhere($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account", "user_name", [
+            'GROUP' => Medoo::raw("<location>, <gender>")
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "user_name"
+            FROM "account"
+            GROUP BY "location", "gender"
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
+     * @dataProvider typesProvider
+     */
     public function testHavingWhere($type)
     {
         $this->setType($type);
@@ -847,6 +920,33 @@ class WhereTest extends MedooTestCase
      * @covers ::whereClause()
      * @dataProvider typesProvider
      */
+    public function testHavingWithRawWhere($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account", "user_name", [
+            'GROUP' => 'type',
+
+            'HAVING' => Medoo::raw('<location> = LOWER("NEW YORK")')
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "user_name"
+            FROM "account"
+            GROUP BY "type"
+            HAVING "location" = LOWER("NEW YORK")
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
+     * @dataProvider typesProvider
+     */
     public function testRawWhereClause($type)
     {
         $this->setType($type);
@@ -854,7 +954,7 @@ class WhereTest extends MedooTestCase
         $this->database->select(
             "account",
             "user_name",
-            \Medoo\Medoo::raw("WHERE <id> => 10")
+            Medoo::raw("WHERE <id> => 10")
         );
 
         $this->assertQuery(

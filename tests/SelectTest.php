@@ -52,7 +52,6 @@ class SelectTest extends MedooTestCase
         );
     }
 
-
     /**
      * @covers ::columnMap()
      * @covers ::columnPush()
@@ -163,7 +162,7 @@ class SelectTest extends MedooTestCase
         $this->setType($type);
 
         $this->database->select("account", [
-            "id" => Medoo::raw("UUID()")
+            "id [String]" => Medoo::raw("UUID()")
         ]);
 
         $this->assertQuery(
@@ -178,6 +177,7 @@ class SelectTest extends MedooTestCase
     /**
      * @covers ::select()
      * @covers ::selectContext()
+     * @covers ::isJoin()
      * @dataProvider typesProvider
      */
     public function testSelectWithWhere($type)
