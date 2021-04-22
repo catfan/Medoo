@@ -2,6 +2,9 @@
 
 namespace Medoo\Tests;
 
+use Medoo\Medoo;
+use InvalidArgumentException;
+
 /**
  * @coversDefaultClass \Medoo\Medoo
  */
@@ -9,6 +12,10 @@ class SelectTest extends MedooTestCase
 {
     /**
      * @covers ::select()
+     * @covers ::selectContext()
+     * @covers ::isJoin()
+     * @covers ::columnMap()
+     * @covers ::columnPush()
      * @dataProvider typesProvider
      */
     public function testSelectAll($type)
@@ -27,6 +34,48 @@ class SelectTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::selectContext()
+     * @dataProvider typesProvider
+     */
+    public function testSelectTableWithAlias($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account (user)", "name");
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "name"
+            FROM "account" AS "user"
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+
+    /**
+     * @covers ::columnMap()
+     * @covers ::columnPush()
+     * @dataProvider typesProvider
+     */
+    public function testSelectSingleColumn($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account", "name");
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "name"
+            FROM "account"
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers ::columnMap()
+     * @covers ::columnPush()
      * @dataProvider typesProvider
      */
     public function testSelectColumns($type)
@@ -45,7 +94,8 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers ::select()
+     * @covers ::columnMap()
+     * @covers ::columnPush()
      * @dataProvider typesProvider
      */
     public function testSelectColumnsWithAlias($type)
@@ -64,7 +114,8 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers ::select()
+     * @covers ::columnMap()
+     * @covers ::columnPush()
      * @dataProvider typesProvider
      */
     public function testSelectColumnsWithType($type)
@@ -83,7 +134,8 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers ::select()
+     * @covers ::columnMap()
+     * @covers ::columnPush()
      * @dataProvider typesProvider
      */
     public function testSelectColumnsWithAliasAndType($type)
@@ -102,7 +154,30 @@ class SelectTest extends MedooTestCase
     }
 
     /**
+     * @covers ::columnMap()
+     * @covers ::columnPush()
+     * @dataProvider typesProvider
+     */
+    public function testSelectColumnsWithRaw($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account", [
+            "id" => Medoo::raw("UUID()")
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT UUID() AS "id"
+            FROM "account"
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
      * @covers ::select()
+     * @covers ::selectContext()
      * @dataProvider typesProvider
      */
     public function testSelectWithWhere($type)
@@ -128,6 +203,9 @@ class SelectTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::selectContext()
+     * @covers ::isJoin()
+     * @covers ::buildJoin()
      * @dataProvider typesProvider
      */
     public function testSelectWithLeftJoin($type)
@@ -135,7 +213,7 @@ class SelectTest extends MedooTestCase
         $this->setType($type);
 
         $this->database->select("account", [
-           "[>]post" => "user_id" 
+           "[>]post" => "user_id"
         ], [
             "account.name",
             "post.title"
@@ -153,7 +231,8 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers ::select()
+     * @covers ::isJoin()
+     * @covers ::buildJoin()
      * @dataProvider typesProvider
      */
     public function testSelectWithRightJoin($type)
@@ -161,7 +240,7 @@ class SelectTest extends MedooTestCase
         $this->setType($type);
 
         $this->database->select("account", [
-           "[<]post" => "user_id" 
+           "[<]post" => "user_id"
         ], [
             "account.name",
             "post.title"
@@ -179,7 +258,8 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers ::select()
+     * @covers ::isJoin()
+     * @covers ::buildJoin()
      * @dataProvider typesProvider
      */
     public function testSelectWithFullJoin($type)
@@ -187,7 +267,7 @@ class SelectTest extends MedooTestCase
         $this->setType($type);
 
         $this->database->select("account", [
-           "[<>]post" => "user_id" 
+           "[<>]post" => "user_id"
         ], [
             "account.name",
             "post.title"
@@ -205,7 +285,8 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers ::select()
+     * @covers ::isJoin()
+     * @covers ::buildJoin()
      * @dataProvider typesProvider
      */
     public function testSelectWithInnerJoin($type)
@@ -213,7 +294,7 @@ class SelectTest extends MedooTestCase
         $this->setType($type);
 
         $this->database->select("account", [
-           "[><]post" => "user_id" 
+           "[><]post" => "user_id"
         ], [
             "account.name",
             "post.title"
@@ -231,7 +312,8 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers ::select()
+     * @covers ::isJoin()
+     * @covers ::buildJoin()
      * @dataProvider typesProvider
      */
     public function testSelectWithSameKeysJoin($type)
@@ -257,7 +339,8 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers ::select()
+     * @covers ::isJoin()
+     * @covers ::buildJoin()
      * @dataProvider typesProvider
      */
     public function testSelectWithKeyJoin($type)
@@ -283,7 +366,8 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers ::select()
+     * @covers ::isJoin()
+     * @covers ::buildJoin()
      * @dataProvider typesProvider
      */
     public function testSelectWithAliasJoin($type)
@@ -309,7 +393,8 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers ::select()
+     * @covers ::isJoin()
+     * @covers ::buildJoin()
      * @dataProvider typesProvider
      */
     public function testSelectWithReferJoin($type)
@@ -339,7 +424,8 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers ::select()
+     * @covers ::isJoin()
+     * @covers ::buildJoin()
      * @dataProvider typesProvider
      */
     public function testSelectWithMultipleConditionJoin($type)
@@ -373,7 +459,8 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers ::select()
+     * @covers ::isJoin()
+     * @covers ::buildJoin()
      * @dataProvider typesProvider
      */
     public function testSelectWithAdditionalConditionJoin($type)
@@ -405,7 +492,26 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers ::select()
+     * @covers ::columnMap()
+     * @covers ::columnPush()
+     * @dataProvider typesProvider
+     */
+    public function testSelectAllWithJoin($type)
+    {
+        $this->setType($type);
+
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->database->select("account", [
+            "[>]post" => "user_id"
+        ], [
+            "account.*"
+        ]);
+    }
+
+    /**
+     * @covers ::columnMap()
+     * @covers ::columnPush()
      * @dataProvider typesProvider
      */
     public function testSelectWithDataMapping($type)
@@ -416,11 +522,11 @@ class SelectTest extends MedooTestCase
             "[>]account" => ["user_id"]
         ], [
             "post.content",
-         
+
             "userData" => [
                 "account.user_id",
                 "account.email",
-         
+
                 "meta" => [
                     "account.location",
                     "account.gender"
@@ -440,7 +546,8 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers ::select()
+     * @covers ::columnMap()
+     * @covers ::columnPush()
      * @dataProvider typesProvider
      */
     public function testSelectWithIndexMapping($type)
@@ -449,14 +556,14 @@ class SelectTest extends MedooTestCase
 
         $this->database->select("account", [
             "user_id" => [
-                "nickname",
+                "name (nickname)",
                 "location"
             ]
         ]);
 
         $this->assertQuery(
             <<<EOD
-            SELECT "user_id","nickname","location"
+            SELECT "user_id","name" AS "nickname","location"
             FROM "account"
             EOD,
             $this->database->queryString
@@ -464,7 +571,8 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers ::select()
+     * @covers ::columnMap()
+     * @covers ::columnPush()
      * @dataProvider typesProvider
      */
     public function testSelectWithDistinct($type)
@@ -486,7 +594,8 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers ::select()
+     * @covers ::columnMap()
+     * @covers ::columnPush()
      * @dataProvider typesProvider
      */
     public function testSelectWithDistinctDiffOrder($type)
@@ -508,7 +617,8 @@ class SelectTest extends MedooTestCase
     }
 
     /**
-     * @covers ::select()
+     * @covers ::columnMap()
+     * @covers ::columnPush()
      * @dataProvider typesProvider
      */
     public function testSelectWithUnicodeCharacter($type)

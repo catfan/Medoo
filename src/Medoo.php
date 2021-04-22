@@ -586,6 +586,7 @@ class Medoo
      *
      * @param string $statement
      * @param array $map
+     * @codeCoverageIgnore
      * @return string
      */
     protected function generate(string $statement, array $map): string
@@ -1676,6 +1677,7 @@ class Medoo
             return $result;
         }
 
+        // @codeCoverageIgnoreStart
         if ($columns === '*') {
 
             if (isset($callback)) {
@@ -1726,6 +1728,7 @@ class Medoo
 
         return $result;
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * Insert one or more records into table.
@@ -1984,6 +1987,7 @@ class Medoo
             return false;
         }
 
+        // @codeCoverageIgnoreStart
         $data = $query->fetchAll(PDO::FETCH_ASSOC);
 
         if (isset($data[0])) {
@@ -2002,6 +2006,7 @@ class Medoo
             return $result[0];
         }
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * Determine whether the target data existed from the table.
@@ -2026,10 +2031,12 @@ class Medoo
             return false;
         }
 
+        // @codeCoverageIgnoreStart
         $result = $query->fetchColumn();
 
         return $result === '1' || $result === 1 || $result === true;
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * Fetch data from the table randomly.
@@ -2071,7 +2078,6 @@ class Medoo
      * @param array $join
      * @param string $column
      * @param array $where
-     * @codeCoverageIgnore
      * @return string|null
      */
     private function aggregate(string $type, string $table, $join = null, $column = null, $where = null): ?string
@@ -2084,8 +2090,10 @@ class Medoo
             return null;
         }
 
+        // @codeCoverageIgnoreStart
         return $query->fetchColumn();
     }
+    // @codeCoverageIgnoreEnd
 
     /**
      * Count the number of rows from the table.

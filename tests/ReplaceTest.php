@@ -2,6 +2,8 @@
 
 namespace Medoo\Tests;
 
+use InvalidArgumentException;
+
 /**
  * @coversDefaultClass \Medoo\Medoo
  */
@@ -37,5 +39,17 @@ class ReplaceTest extends MedooTestCase
             EOD,
             $this->database->queryString
         );
+    }
+
+    /**
+     * @covers ::replace()
+     */
+    public function testReplaceEmptyColumns()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        $this->database->replace("account", [], [
+            "user_id[>]" => 1000
+        ]);
     }
 }

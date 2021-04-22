@@ -58,3 +58,13 @@ class MedooTestCase extends TestCase
         }
     }
 }
+
+class Foo
+{
+    public $bar = "cat";
+
+    public function __wakeup()
+    {
+        $this->bar = "dog";
+    }
+}

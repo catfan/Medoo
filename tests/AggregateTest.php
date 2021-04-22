@@ -9,6 +9,8 @@ class AggregateTest extends MedooTestCase
 {
     /**
      * @covers ::count()
+     * @covers ::aggregate()
+     * @covers ::selectContext()
      * @dataProvider typesProvider
      */
     public function testCount($type)
@@ -31,6 +33,8 @@ class AggregateTest extends MedooTestCase
 
     /**
      * @covers ::max()
+     * @covers ::aggregate()
+     * @covers ::selectContext()
      * @dataProvider typesProvider
      */
     public function testMax($type)
@@ -50,6 +54,8 @@ class AggregateTest extends MedooTestCase
 
     /**
      * @covers ::min()
+     * @covers ::aggregate()
+     * @covers ::selectContext()
      * @dataProvider typesProvider
      */
     public function testMin($type)
@@ -69,6 +75,8 @@ class AggregateTest extends MedooTestCase
 
     /**
      * @covers ::avg()
+     * @covers ::aggregate()
+     * @covers ::selectContext()
      * @dataProvider typesProvider
      */
     public function testAvg($type)
@@ -88,6 +96,8 @@ class AggregateTest extends MedooTestCase
 
     /**
      * @covers ::sum()
+     * @covers ::aggregate()
+     * @covers ::selectContext()
      * @dataProvider typesProvider
      */
     public function testSum($type)

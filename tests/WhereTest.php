@@ -11,6 +11,8 @@ class WhereTest extends MedooTestCase
 {
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testBasicWhere($type)
@@ -24,7 +26,10 @@ class WhereTest extends MedooTestCase
             "user_id[>=]" => 200,
             "user_id[!]" => 200,
             "age[<>]" => [200, 500],
-            "age[><]" => [200, 500]
+            "age[><]" => [200, 500],
+            "income[>]" => Medoo::raw("COUNT(<average>)"),
+            "remote_id" => Medoo::raw("UUID()"),
+            "location" => null
         ]);
 
         $this->assertQuery(
@@ -38,7 +43,10 @@ class WhereTest extends MedooTestCase
             "user_id" >= 200 AND
             "user_id" != 200 AND
             ("age" BETWEEN 200 AND 500) AND
-            ("age" NOT BETWEEN 200 AND 500)
+            ("age" NOT BETWEEN 200 AND 500) AND
+            "income" > COUNT("average") AND
+            "remote_id" = UUID() AND
+            "location" IS NULL
             EOD,
             $this->database->queryString
         );
@@ -46,6 +54,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testBetweenDateTimeWhere($type)
@@ -69,6 +79,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testNotBetweenDateTimeWhere($type)
@@ -92,6 +104,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testArrayIntValuesWhere($type)
@@ -115,6 +129,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testArrayStringValuesWhere($type)
@@ -138,6 +154,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testNegativeWhere($type)
@@ -150,7 +168,8 @@ class WhereTest extends MedooTestCase
                 "user_id[!]" => 1024,
                 "email[!]" => ["foo@bar.com", "admin@medoo.in"],
                 "city[!]" => null,
-                "promoted[!]" => true
+                "promoted[!]" => true,
+                "object[!]" => new Foo()
             ]
         ]);
 
@@ -171,6 +190,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testBasicAndRelativityWhere($type)
@@ -197,6 +218,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testBasicSingleRelativityWhere($type)
@@ -221,6 +244,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testBasicOrRelativityWhere($type)
@@ -250,6 +275,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testCompoundRelativityWhere($type)
@@ -279,6 +306,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testCompoundDuplicatedKeysWhere($type)
@@ -312,6 +341,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testColumnsRelationshipWhere($type)
@@ -340,6 +371,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testBasicLikeWhere($type)
@@ -363,6 +396,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testGroupedLikeWhere($type)
@@ -388,6 +423,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testNegativeLikeWhere($type)
@@ -411,6 +448,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testNonEscapeLikeWhere($type)
@@ -434,6 +473,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testEscapeLikeWhere($type)
@@ -457,6 +498,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testCompoundLikeWhere($type)
@@ -482,6 +525,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testWildcardLikeWhere($type)
@@ -511,6 +556,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testBasicOrderWhere($type)
@@ -533,6 +580,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testMultipleOrderWhere($type)
@@ -567,6 +616,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      */
     public function testFullTextSearchWhere()
     {
@@ -592,6 +643,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testRegularExpressionWhere($type)
@@ -614,6 +667,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testRawWhere($type)
@@ -636,6 +691,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testLimitWhere($type)
@@ -668,6 +725,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testLimitOffsetWhere($type)
@@ -700,6 +759,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testGroupWhere($type)
@@ -722,6 +783,8 @@ class WhereTest extends MedooTestCase
 
     /**
      * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testGroupWithArrayWhere($type)
@@ -747,7 +810,9 @@ class WhereTest extends MedooTestCase
     }
 
     /**
-     * @covers \Medoo\Medoo::select()
+     * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
      * @dataProvider typesProvider
      */
     public function testHavingWhere($type)
@@ -768,6 +833,32 @@ class WhereTest extends MedooTestCase
             FROM "account"
             GROUP BY "type"
             HAVING "user_id" > 500
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
+     * @dataProvider typesProvider
+     */
+    public function testRawWhereClause($type)
+    {
+        $this->setType($type);
+
+        $this->database->select(
+            "account",
+            "user_name",
+            \Medoo\Medoo::raw("WHERE <id> => 10")
+        );
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "user_name"
+            FROM "account"
+            WHERE "id" => 10
             EOD,
             $this->database->queryString
         );

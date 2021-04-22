@@ -2,10 +2,15 @@
 
 namespace Medoo\Tests;
 
+use Medoo\Medoo;
+
+/**
+ * @coversDefaultClass \Medoo\Medoo
+ */
 class InsertTest extends MedooTestCase
 {
     /**
-     * @covers \Medoo\Medoo::insert()
+     * @covers ::insert()
      * @dataProvider typesProvider
      */
     public function testInsert($type)
@@ -27,7 +32,7 @@ class InsertTest extends MedooTestCase
     }
 
     /**
-     * @covers \Medoo\Medoo::insert()
+     * @covers ::insert()
      * @dataProvider typesProvider
      */
     public function testInsertWithArray($type)
@@ -52,7 +57,7 @@ class InsertTest extends MedooTestCase
     }
 
     /**
-     * @covers \Medoo\Medoo::insert()
+     * @covers ::insert()
      * @dataProvider typesProvider
      */
     public function testInsertWithJSON($type)
@@ -77,7 +82,72 @@ class InsertTest extends MedooTestCase
     }
 
     /**
-     * @covers \Medoo\Medoo::insert()
+     * @covers ::insert()
+     * @dataProvider typesProvider
+     */
+    public function testInsertWithRaw($type)
+    {
+        $this->setType($type);
+
+        $this->database->insert("account", [
+            "user_name" => Medoo::raw("UUID()")
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            INSERT INTO "account" ("user_name")
+            VALUES (UUID())
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers ::insert()
+     * @dataProvider typesProvider
+     */
+    public function testInsertWithNull($type)
+    {
+        $this->setType($type);
+
+        $this->database->insert("account", [
+            "location" => null
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            INSERT INTO "account" ("location")
+            VALUES (NULL)
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers ::insert()
+     * @dataProvider typesProvider
+     */
+    public function testInsertWithObject($type)
+    {
+        $this->setType($type);
+
+        $objectData = new Foo();
+
+        $this->database->insert("account", [
+            "object" => $objectData
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            INSERT INTO "account" ("object")
+            VALUES (:MeD0_mK)
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers ::insert()
      * @dataProvider typesProvider
      */
     public function testMultiInsert($type)
