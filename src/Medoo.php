@@ -451,7 +451,7 @@ class Medoo
             );
 
             if (isset($options['error'])) {
-                $modes = [
+                $mode = [
                     PDO::ERRMODE_SILENT,
                     PDO::ERRMODE_WARNING,
                     PDO::ERRMODE_EXCEPTION
@@ -459,7 +459,7 @@ class Medoo
 
                 $this->pdo->setAttribute(
                     PDO::ATTR_ERRMODE,
-                    in_array($options['error'], $modes) ?
+                    in_array($options['error'], $mode) ?
                         $options['error'] :
                         PDO::ERRMODE_SILENT
                 );
@@ -1018,15 +1018,15 @@ class Medoo
                 if (is_array($match) && isset($match['columns'], $match['keyword'])) {
                     $mode = '';
 
-                    $modeMap = [
+                    $options = [
                         'natural' => 'IN NATURAL LANGUAGE MODE',
                         'natural+query' => 'IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION',
                         'boolean' => 'IN BOOLEAN MODE',
                         'query' => 'WITH QUERY EXPANSION'
                     ];
 
-                    if (isset($match['mode'], $modeMap[$match['mode']])) {
-                        $mode = ' ' . $modeMap[$match['mode']];
+                    if (isset($match['mode'], $options[$match['mode']])) {
+                        $mode = ' ' . $options[$match['mode']];
                     }
 
                     $columns = implode(', ', array_map([$this, 'columnQuote'], $match['columns']));
@@ -1219,12 +1219,12 @@ class Medoo
             return false;
         }
 
-        $joinKey = array_keys($join);
+        $keys = array_keys($join);
 
         if (
-            isset($joinKey[0]) &&
-            is_string($joinKey[0]) &&
-            strpos($joinKey[0], '[') === 0
+            isset($keys[0]) &&
+            is_string($keys[0]) &&
+            strpos($keys[0], '[') === 0
         ) {
             return true;
         }
@@ -1250,8 +1250,8 @@ class Medoo
             '><' => 'INNER'
         ];
 
-        foreach ($join as $subTable => $relation) {
-            preg_match('/(\[(?<join>\<\>?|\>\<?)\])?(?<table>(?![_\d])[\p{N}\p{L}_]+)\s?(\((?<alias>(?![_\d])[\p{N}\p{L}_]+)\))?/u', $subTable, $match);
+        foreach ($join as $subtable => $relation) {
+            preg_match('/(\[(?<join>\<\>?|\>\<?)\])?(?<table>(?![_\d])[\p{N}\p{L}_]+)\s?(\((?<alias>(?![_\d])[\p{N}\p{L}_]+)\))?/u', $subtable, $match);
 
             if ($match['join'] !== '' && $match['table'] !== '') {
                 if (is_string($relation)) {
@@ -1597,22 +1597,22 @@ class Medoo
      * Insert one or more records into table.
      *
      * @param string $table
-     * @param array $datas
+     * @param array $values
      * @param string $primaryKey
      * @return \PDOStatement|null
      */
-    public function insert(string $table, array $datas, string $primaryKey = null): ?PDOStatement
+    public function insert(string $table, array $values, string $primaryKey = null): ?PDOStatement
     {
         $stack = [];
         $columns = [];
         $fields = [];
         $map = [];
 
-        if (!isset($datas[0])) {
-            $datas = [$datas];
+        if (!isset($values[0])) {
+            $values = [$values];
         }
 
-        foreach ($datas as $data) {
+        foreach ($values as $data) {
             foreach ($data as $key => $value) {
                 $columns[] = $key;
             }
@@ -1620,7 +1620,7 @@ class Medoo
 
         $columns = array_unique($columns);
 
-        foreach ($datas as $data) {
+        foreach ($values as $data) {
             $values = [];
 
             foreach ($columns as $key) {
