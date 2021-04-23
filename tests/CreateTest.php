@@ -72,7 +72,8 @@ class CreateTest extends MedooTestCase
             "email" => "VARCHAR(70) NOT NULL UNIQUE"
         ]);
 
-        $this->assertQuery([
+        $this->assertQuery(
+            [
             'default' => <<<EOD
                 CREATE TABLE IF NOT EXISTS "account"
                 ("id" INT NOT NULL AUTO_INCREMENT,
