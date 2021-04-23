@@ -3,9 +3,9 @@
 declare(strict_types=1);
 /**
  * Medoo Database Framework.
- * 
+ *
  * The Lightweight PHP Database Framework to Accelerate Development.
- * 
+ *
  * @version 2.0.0
  * @author Angel Lai
  * @package Medoo
@@ -140,7 +140,7 @@ class Medoo
     protected $debugLogging = false;
 
     /**
-     * The array of logs for debug.
+     * The array of logs for debugging.
      *
      * @var array
      */
@@ -154,7 +154,7 @@ class Medoo
     protected $guid = 0;
 
     /**
-     * The return id for insert.
+     * The returned id for the insert.
      *
      * @var string
      */
@@ -638,7 +638,7 @@ class Medoo
     }
 
     /**
-     * Generate the actual query from raw object.
+     * Generate the actual query from the raw object.
      *
      * @param mixed $raw
      * @param array $map
@@ -1766,7 +1766,7 @@ class Medoo
     }
 
     /**
-     * Replace old data into new one.
+     * Replace old data with a new one.
      *
      * @param string $table
      * @param array $columns
@@ -1915,7 +1915,7 @@ class Medoo
     }
 
     /**
-     * Build for aggregate function.
+     * Build for the aggregate function.
      *
      * @param string $type
      * @param string $table
@@ -2131,7 +2131,7 @@ class Medoo
     }
 
     /**
-     * Get information about database connection.
+     * Get information about the database connection.
      *
      * @codeCoverageIgnore
      * @return array
