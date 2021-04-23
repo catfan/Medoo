@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 /**
- * Medoo database framework
- *
- * Released under the MIT license
- *
- * @version 1.7.10
+ * Medoo Database Framework.
+ * 
+ * The Lightweight PHP Database Framework to Accelerate Development.
+ * 
+ * @version 2.0.0
  * @author Angel Lai
  * @package Medoo
- * @copyright Copyright 2021 Medoo Project, Angel Lai
+ * @copyright Copyright 2021 Medoo Project, Angel Lai.
  * @license https://opensource.org/licenses/MIT
  * @link https://medoo.in
  */
@@ -23,7 +23,7 @@ use InvalidArgumentException;
 use PDOStatement;
 
 /**
- * The Medoo raw object
+ * The Medoo raw object.
  */
 class Raw
 {
@@ -77,7 +77,7 @@ class Medoo
     public $type;
 
     /**
-     * Table prefix
+     * Table prefix.
      *
      * @var string
      */
@@ -161,7 +161,7 @@ class Medoo
     public $returnId = "";
 
     /**
-     * Error Message
+     * Error Message.
      *
      * @var string|null
      */
@@ -175,7 +175,7 @@ class Medoo
     public $errorInfo = null;
 
     /**
-     * Connect database.
+     * Connect the database.
      *
      * ```
      * $database = new Medoo([
@@ -235,16 +235,16 @@ class Medoo
         switch ($this->type) {
 
             case 'mysql':
-                // Make MySQL using standard quoted identifier
+                // Make MySQL using standard quoted identifier.
                 $commands[] = 'SET SQL_MODE=ANSI_QUOTES';
 
                 break;
 
             case 'mssql':
-                // Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting
+                // Keep MSSQL QUOTED_IDENTIFIER is ON for standard quoting.
                 $commands[] = 'SET QUOTED_IDENTIFIER ON';
 
-                // Make ANSI_NULLS is ON for NULL value
+                // Make ANSI_NULLS is ON for NULL value.
                 $commands[] = 'SET ANSI_NULLS ON';
 
                 break;
@@ -1345,7 +1345,7 @@ class Medoo
     }
 
     /**
-     * Mapping the data.
+     * Mapping the data from the table.
      *
      * @param array $data
      * @param array $columns
@@ -1594,7 +1594,7 @@ class Medoo
     // @codeCoverageIgnoreEnd
 
     /**
-     * Insert one or more records into table.
+     * Insert one or more records into the table.
      *
      * @param string $table
      * @param array $values
@@ -1885,7 +1885,7 @@ class Medoo
     // @codeCoverageIgnoreEnd
 
     /**
-     * Fetch data from the table randomly.
+     * Randomly fetch data from the table.
      *
      * @param string $table
      * @param array $join
