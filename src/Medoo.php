@@ -147,7 +147,7 @@ class Medoo
     protected $debugLogs = [];
 
     /**
-     * The global unique id.
+     * The unique global id.
      *
      * @var integer
      */
