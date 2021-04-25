@@ -638,4 +638,26 @@ class SelectTest extends MedooTestCase
             $this->database->queryString
         );
     }
+
+    /**
+     * @covers ::columnMap()
+     * @covers ::columnPush()
+     * @dataProvider typesProvider
+     */
+    public function testSelectWithHyphenCharacter($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account", [
+            "nick-name"
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "nick-name"
+            FROM "account"
+            EOD,
+            $this->database->queryString
+        );
+    }
 }
