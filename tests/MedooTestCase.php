@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class MedooTestCase extends TestCase
 {
-    protected Medoo $database;
+    protected $database;
 
     public function setUp(): void
     {
