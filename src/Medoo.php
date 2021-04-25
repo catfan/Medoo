@@ -1490,10 +1490,10 @@ class Medoo
             $tableOption = ' ' . $options;
         }
 
-        $command = "CREATE TABLE";
+        $command = 'CREATE TABLE';
 
-        if (in_array($this->type, ["mysql", "pgsql", "sqlite"])) {
-            $command = "CREATE TABLE IF NOT EXISTS";
+        if (in_array($this->type, ['mysql', 'pgsql', 'sqlite'])) {
+            $command .= ' IF NOT EXISTS';
         }
 
         return $this->exec("$command $tableName (" . implode(', ', $stack) . ")$tableOption");
@@ -1507,9 +1507,7 @@ class Medoo
      */
     public function drop(string $table): ?PDOStatement
     {
-        $tableName = $this->prefix . $table;
-
-        return $this->exec('DROP TABLE IF EXISTS ' . $tableName);
+        return $this->exec('DROP TABLE IF EXISTS ' . $this->tableQuote($this->prefix . $table));
     }
 
     /**
