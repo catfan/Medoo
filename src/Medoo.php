@@ -1290,13 +1290,13 @@ class Medoo
                 $relation = $raw;
             }
 
-            $tableName = $this->tableQuote($match['table']) . ' ';
+            $tableName = $this->tableQuote($match['table']);
 
             if (isset($match['alias'])) {
-                $tableName .= 'AS ' . $this->tableQuote($match['alias']) . ' ';
+                $tableName .= ' AS ' . $this->tableQuote($match['alias']);
             }
 
-            $tableJoin[] = $type[$match['join']] . ' JOIN ' . $tableName . $relation;
+            $tableJoin[] = $type[$match['join']] . " JOIN ${tableName} ${relation}";
         }
 
         return implode(' ', $tableJoin);
