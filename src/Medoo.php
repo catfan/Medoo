@@ -451,17 +451,15 @@ class Medoo
             );
 
             if (isset($options['error'])) {
-                $mode = [
-                    PDO::ERRMODE_SILENT,
-                    PDO::ERRMODE_WARNING,
-                    PDO::ERRMODE_EXCEPTION
-                ];
-
                 $this->pdo->setAttribute(
                     PDO::ATTR_ERRMODE,
-                    in_array($options['error'], $mode) ?
-                        $options['error'] :
-                        PDO::ERRMODE_SILENT
+                    in_array($options['error'], [
+                        PDO::ERRMODE_SILENT,
+                        PDO::ERRMODE_WARNING,
+                        PDO::ERRMODE_EXCEPTION
+                    ]) ?
+                    $options['error'] :
+                    PDO::ERRMODE_SILENT
                 );
             }
 
