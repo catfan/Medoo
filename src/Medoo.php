@@ -1243,7 +1243,7 @@ class Medoo
     protected function buildJoin(string $table, array $join, array &$map): string
     {
         $tableJoin = [];
-        $joinMap = [
+        $type = [
             '>' => 'LEFT',
             '<' => 'RIGHT',
             '<>' => 'FULL',
@@ -1253,48 +1253,48 @@ class Medoo
         foreach ($join as $subtable => $relation) {
             preg_match('/(\[(?<join>\<\>?|\>\<?)\])?(?<table>(?![_\d])[\p{N}\p{L}\-_]+)\s?(\((?<alias>(?![_\d])[\p{N}\p{L}\-_]+)\))?/u', $subtable, $match);
 
-            if ($match['join'] !== '' && $match['table'] !== '') {
-                if (is_string($relation)) {
-                    $relation = 'USING ("' . $relation . '")';
-                }
+            if ($match['join'] === '' || $match['table'] === '') {
+                continue;
+            }
 
-                if (is_array($relation)) {
-                    // For ['column1', 'column2']
-                    if (isset($relation[0])) {
-                        $relation = 'USING ("' . implode('", "', $relation) . '")';
-                    } else {
-                        $joins = [];
+            if (is_string($relation)) {
+                $relation = 'USING ("' . $relation . '")';
+            } elseif (is_array($relation)) {
+                // For ['column1', 'column2']
+                if (isset($relation[0])) {
+                    $relation = 'USING ("' . implode('", "', $relation) . '")';
+                } else {
+                    $joins = [];
 
-                        foreach ($relation as $key => $value) {
-                            if ($key === 'AND' && is_array($value)) {
-                                $joins[] = $this->dataImplode($value, $map, ' AND');
-                                continue;
-                            }
-
-                            $joins[] = (
-                                strpos($key, '.') > 0 ?
-                                    // For ['tableB.column' => 'column']
-                                    $this->columnQuote($key) :
-
-                                    // For ['column1' => 'column2']
-                                    $table . '.' . $this->columnQuote($key)
-                            ) .
-                            ' = ' .
-                            $this->tableQuote($match['alias'] ?? $match['table']) . '.' . $this->columnQuote($value);
+                    foreach ($relation as $key => $value) {
+                        if ($key === 'AND' && is_array($value)) {
+                            $joins[] = $this->dataImplode($value, $map, ' AND');
+                            continue;
                         }
 
-                        $relation = 'ON ' . implode(' AND ', $joins);
+                        $joins[] = (
+                            strpos($key, '.') > 0 ?
+                                // For ['tableB.column' => 'column']
+                                $this->columnQuote($key) :
+
+                                // For ['column1' => 'column2']
+                                $table . '.' . $this->columnQuote($key)
+                        ) .
+                        ' = ' .
+                        $this->tableQuote($match['alias'] ?? $match['table']) . '.' . $this->columnQuote($value);
                     }
+
+                    $relation = 'ON ' . implode(' AND ', $joins);
                 }
-
-                $tableName = $this->tableQuote($match['table']) . ' ';
-
-                if (isset($match['alias'])) {
-                    $tableName .= 'AS ' . $this->tableQuote($match['alias']) . ' ';
-                }
-
-                $tableJoin[] = $joinMap[$match['join']] . ' JOIN ' . $tableName . $relation;
             }
+
+            $tableName = $this->tableQuote($match['table']) . ' ';
+
+            if (isset($match['alias'])) {
+                $tableName .= 'AS ' . $this->tableQuote($match['alias']) . ' ';
+            }
+
+            $tableJoin[] = $type[$match['join']] . ' JOIN ' . $tableName . $relation;
         }
 
         return implode(' ', $tableJoin);
