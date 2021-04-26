@@ -492,6 +492,33 @@ class SelectTest extends MedooTestCase
     }
 
     /**
+     * @covers ::isJoin()
+     * @covers ::buildJoin()
+     * @dataProvider typesProvider
+     */
+    public function testSelectRawJoin($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account", [
+            "[>]post" => Medoo::raw("ON <account.user_id> = <post.author_id>")
+        ], [
+            "account.name",
+            "post.title"
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "account"."name","post"."title"
+            FROM "account"
+            LEFT JOIN "post"
+            ON "account"."user_id" = "post"."author_id"
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
      * @covers ::columnMap()
      * @covers ::columnPush()
      * @dataProvider typesProvider

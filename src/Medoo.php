@@ -1286,6 +1286,8 @@ class Medoo
 
                     $relation = 'ON ' . implode(' AND ', $joins);
                 }
+            } elseif ($raw = $this->buildRaw($relation, $map)) {
+                $relation = $raw;
             }
 
             $tableName = $this->tableQuote($match['table']) . ' ';
