@@ -999,7 +999,7 @@ class Medoo
      */
     protected function whereClause($where, array &$map): string
     {
-        $whereClause = '';
+        $clause = '';
 
         if (is_array($where)) {
             $conditions = array_diff_key($where, array_flip(
@@ -1007,7 +1007,7 @@ class Medoo
             ));
 
             if (!empty($conditions)) {
-                $whereClause = ' WHERE ' . $this->dataImplode($conditions, $map, ' AND');
+                $clause = ' WHERE ' . $this->dataImplode($conditions, $map, ' AND');
             }
 
             if (isset($where['MATCH']) && $this->type === 'mysql') {
@@ -1030,7 +1030,7 @@ class Medoo
                     $columns = implode(', ', array_map([$this, 'columnQuote'], $match['columns']));
                     $mapKey = $this->mapKey();
                     $map[$mapKey] = [$match['keyword'], PDO::PARAM_STR];
-                    $whereClause .= ($whereClause !== '' ? ' AND ' : ' WHERE') . ' MATCH (' . $columns . ') AGAINST (' . $mapKey . $mode . ')';
+                    $clause .= ($clause !== '' ? ' AND ' : ' WHERE') . ' MATCH (' . $columns . ') AGAINST (' . $mapKey . $mode . ')';
                 }
             }
 
@@ -1044,11 +1044,11 @@ class Medoo
                         $stack[] = $this->columnQuote($value);
                     }
 
-                    $whereClause .= ' GROUP BY ' . implode(',', $stack);
+                    $clause .= ' GROUP BY ' . implode(',', $stack);
                 } elseif ($raw = $this->buildRaw($group, $map)) {
-                    $whereClause .= ' GROUP BY ' . $raw;
+                    $clause .= ' GROUP BY ' . $raw;
                 } else {
-                    $whereClause .= ' GROUP BY ' . $this->columnQuote($group);
+                    $clause .= ' GROUP BY ' . $this->columnQuote($group);
                 }
             }
 
@@ -1056,9 +1056,9 @@ class Medoo
                 $having = $where['HAVING'];
 
                 if ($raw = $this->buildRaw($having, $map)) {
-                    $whereClause .= ' HAVING ' . $raw;
+                    $clause .= ' HAVING ' . $raw;
                 } else {
-                    $whereClause .= ' HAVING ' . $this->dataImplode($having, $map, ' AND');
+                    $clause .= ' HAVING ' . $this->dataImplode($having, $map, ' AND');
                 }
             }
 
@@ -1085,11 +1085,11 @@ class Medoo
                         }
                     }
 
-                    $whereClause .= ' ORDER BY ' . implode(',', $stack);
+                    $clause .= ' ORDER BY ' . implode(',', $stack);
                 } elseif ($raw = $this->buildRaw($order, $map)) {
-                    $whereClause .= ' ORDER BY ' . $raw;
+                    $clause .= ' ORDER BY ' . $raw;
                 } else {
-                    $whereClause .= ' ORDER BY ' . $this->columnQuote($order);
+                    $clause .= ' ORDER BY ' . $this->columnQuote($order);
                 }
             }
 
@@ -1098,7 +1098,7 @@ class Medoo
 
                 if (in_array($this->type, ['oracle', 'mssql'])) {
                     if ($this->type === 'mssql' && !isset($where['ORDER'])) {
-                        $whereClause .= ' ORDER BY (SELECT 0)';
+                        $clause .= ' ORDER BY (SELECT 0)';
                     }
 
                     if (is_numeric($limit)) {
@@ -1110,25 +1110,25 @@ class Medoo
                         is_numeric($limit[0]) &&
                         is_numeric($limit[1])
                     ) {
-                        $whereClause .= " OFFSET {$limit[0]} ROWS FETCH NEXT {$limit[1]} ROWS ONLY";
+                        $clause .= " OFFSET {$limit[0]} ROWS FETCH NEXT {$limit[1]} ROWS ONLY";
                     }
                 } else {
                     if (is_numeric($limit)) {
-                        $whereClause .= ' LIMIT ' . $limit;
+                        $clause .= ' LIMIT ' . $limit;
                     } elseif (
                         is_array($limit) &&
                         is_numeric($limit[0]) &&
                         is_numeric($limit[1])
                     ) {
-                        $whereClause .= " LIMIT {$limit[1]} OFFSET {$limit[0]}";
+                        $clause .= " LIMIT {$limit[1]} OFFSET {$limit[0]}";
                     }
                 }
             }
         } elseif ($raw = $this->buildRaw($where, $map)) {
-            $whereClause .= ' ' . $raw;
+            $clause .= ' ' . $raw;
         }
 
-        return $whereClause;
+        return $clause;
     }
 
     /**
