@@ -1928,7 +1928,7 @@ class Medoo
     {
         $map = [];
 
-        $query = $this->exec($this->selectContext($table, $map, $join, $column, $where, strtoupper($type)), $map);
+        $query = $this->exec($this->selectContext($table, $map, $join, $column, $where, $type), $map);
 
         if (!$this->statement) {
             return null;
@@ -1950,7 +1950,7 @@ class Medoo
      */
     public function count(string $table, $join = null, $column = null, $where = null): ?int
     {
-        return (int) $this->aggregate('count', $table, $join, $column, $where);
+        return (int) $this->aggregate('COUNT', $table, $join, $column, $where);
     }
 
     /**
@@ -1964,7 +1964,7 @@ class Medoo
      */
     public function avg(string $table, $join, $column = null, $where = null): ?string
     {
-        return $this->aggregate('avg', $table, $join, $column, $where);
+        return $this->aggregate('AVG', $table, $join, $column, $where);
     }
 
     /**
@@ -1978,7 +1978,7 @@ class Medoo
      */
     public function max(string $table, $join, $column = null, $where = null): ?string
     {
-        return $this->aggregate('max', $table, $join, $column, $where);
+        return $this->aggregate('MAX', $table, $join, $column, $where);
     }
 
     /**
@@ -1992,7 +1992,7 @@ class Medoo
      */
     public function min(string $table, $join, $column = null, $where = null): ?string
     {
-        return $this->aggregate('min', $table, $join, $column, $where);
+        return $this->aggregate('MIN', $table, $join, $column, $where);
     }
 
     /**
@@ -2006,7 +2006,7 @@ class Medoo
      */
     public function sum(string $table, $join, $column = null, $where = null): ?string
     {
-        return $this->aggregate('sum', $table, $join, $column, $where);
+        return $this->aggregate('SUM', $table, $join, $column, $where);
     }
 
     /**
