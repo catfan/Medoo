@@ -649,7 +649,7 @@ class Medoo
         }
 
         $query = preg_replace_callback(
-            '/(([`\']).*?)?((FROM|TABLE|INTO|UPDATE|JOIN)\s*)?\<(((?![_\d])[\p{N}\p{L}\-_]+)(\.(?![_\d])[\p{N}\p{L}\-_]+)?)\>(.*?\2)?/u',
+            '/(([`\']).*?)?((FROM|TABLE|INTO|UPDATE|JOIN)\s*)?\<(((?![_\d])[\p{N}\p{L}\-_]+)(\.(?![_\d])[\p{N}\p{L}\-_]+)?)\>([^,]*?\2)?/u',
             function ($matches) {
                 if (!empty($matches[2]) && isset($matches[8])) {
                     return $matches[0];
