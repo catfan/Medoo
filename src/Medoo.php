@@ -1498,7 +1498,7 @@ class Medoo
             $command .= ' IF NOT EXISTS';
         }
 
-        return $this->exec("$command $tableName (" . implode(', ', $stack) . ")$tableOption");
+        return $this->exec("{$command} {$tableName} (" . implode(', ', $stack) . "){$tableOption}");
     }
 
     /**
