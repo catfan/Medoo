@@ -1050,13 +1050,15 @@ class Medoo
                 } else {
                     $whereClause .= ' GROUP BY ' . $this->columnQuote($group);
                 }
+            }
 
-                if (isset($where['HAVING'])) {
-                    if ($raw = $this->buildRaw($where['HAVING'], $map)) {
-                        $whereClause .= ' HAVING ' . $raw;
-                    } else {
-                        $whereClause .= ' HAVING ' . $this->dataImplode($where['HAVING'], $map, ' AND');
-                    }
+            if (isset($where['HAVING'])) {
+                $having = $where['HAVING'];
+
+                if ($raw = $this->buildRaw($having, $map)) {
+                    $whereClause .= ' HAVING ' . $raw;
+                } else {
+                    $whereClause .= ' HAVING ' . $this->dataImplode($having, $map, ' AND');
                 }
             }
 

@@ -896,8 +896,6 @@ class WhereTest extends MedooTestCase
         $this->setType($type);
 
         $this->database->select("account", "user_name", [
-            'GROUP' => 'type',
-
             'HAVING' => [
                 'user_id[>]' => 500
             ]
@@ -907,7 +905,6 @@ class WhereTest extends MedooTestCase
             <<<EOD
             SELECT "user_name"
             FROM "account"
-            GROUP BY "type"
             HAVING "user_id" > 500
             EOD,
             $this->database->queryString
@@ -925,8 +922,6 @@ class WhereTest extends MedooTestCase
         $this->setType($type);
 
         $this->database->select("account", "user_name", [
-            'GROUP' => 'type',
-
             'HAVING' => Medoo::raw('<location> = LOWER("NEW YORK")')
         ]);
 
@@ -934,8 +929,33 @@ class WhereTest extends MedooTestCase
             <<<EOD
             SELECT "user_name"
             FROM "account"
-            GROUP BY "type"
             HAVING "location" = LOWER("NEW YORK")
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
+     * @dataProvider typesProvider
+     */
+    public function testHavingWithAggregateRawWhere($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account", [
+            "total" => Medoo::raw('SUM(<salary>)')
+        ], [
+            'HAVING' => Medoo::raw('SUM(<salary>) > 1000')
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT SUM("salary") AS "total"
+            FROM "account"
+            HAVING SUM("salary") > 1000
             EOD,
             $this->database->queryString
         );
