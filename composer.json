@@ -10,10 +10,10 @@
 		"source": "https://github.com/catfan/Medoo"
 	},
 	"authors": [
-		{"name": "Angel Lai", "email": "angel@catfan.me"}
+		{"name": "Angel Lai", "email": "angel@medoo.in"}
 	],
 	"require": {
-		"php": ">=5.4",
+		"php": ">=7.3",
 		"ext-pdo": "*"
 	},
 	"require-dev": {
@@ -24,7 +24,6 @@
 		"ext-pdo_sqlsrv": "For MSSQL database on both Window/Liunx platform",
 		"ext-pdo_dblib": "For MSSQL or Sybase database on Linux/UNIX platform",
 		"ext-pdo_oci": "For Oracle database",
-		"ext-pdo_oci8": "For Oracle version 8 database",
 		"ext-pdo_pqsql": "For PostgreSQL database",
 		"ext-pdo_sqlite": "For SQLite database"
 	},
@@ -39,6 +38,6 @@
         }
 	},
 	"scripts": {
-		"test": "phpunit"
+		"test": "vendor/bin/phpunit tests"
 	}
 }
