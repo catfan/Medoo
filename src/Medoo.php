@@ -598,7 +598,7 @@ class Medoo
             } elseif ($value[1] === PDO::PARAM_LOB) {
                 $replace = '{LOB_DATA}';
             } else {
-                $replace = $value[0];
+                $replace = $value[0] . '';
             }
 
             $statement = str_replace($key, $replace, $statement);
