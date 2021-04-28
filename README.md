@@ -3,6 +3,7 @@
 </p>
 
 <p align="center">
+    <a href="https://github.com/laravel/framework/actions"><img alt="Build Status" src="https://github.com/catfan/Medoo/actions/workflows/php.yml/badge.svg"></a>
     <a href="https://packagist.org/packages/catfan/medoo"><img alt="Total Downloads" src="https://poser.pugx.org/catfan/medoo/downloads"></a>
     <a href="https://packagist.org/packages/catfan/medoo"><img alt="Latest Stable Version" src="https://poser.pugx.org/catfan/medoo/v/stable"></a>
     <a href="https://packagist.org/packages/catfan/medoo"><img alt="License" src="https://poser.pugx.org/catfan/medoo/license"></a>
@@ -14,21 +15,21 @@
 
 ## Features
 
-* **Lightweight** - Less than 100 KB, portable with only one file
+* **Lightweight** - Portable with only one file.
 
-* **Easy** - Extremely easy to learn and use, friendly construction
+* **Easy** - Easy to learn and use, friendly construction.
 
-* **Powerful** - Supports various common and complex SQL queries, data mapping, and prevent SQL injection
+* **Powerful** - Supports various common and complex SQL queries, data mapping and prevents SQL injection.
 
-* **Compatible** - Supports all SQL databases, including MySQL, MSSQL, SQLite, MariaDB, PostgreSQL, Sybase, Oracle and more
+* **Compatible** - Supports MySQL, MSSQL, SQLite, MariaDB, PostgreSQL, Sybase, Oracle, and more.
 
-* **Friendly** - Works well with every PHP frameworks, like Laravel, Codeigniter, Yii, Slim, and framework which supports singleton extension or composer
+* **Friendly** - Works well with every PHP framework, like Laravel, Codeigniter, Yii, Slim, and framework that are supporting singleton extension or composer.
 
-* **Free** - Under MIT license, you can use it anywhere whatever you want
+* **Free** - Under the MIT license, you can use it anywhere, whatever you want.
 
 ## Requirement
 
-PHP 5.4+ and PDO extension installed, recommend PHP 7.0+
+PHP 7.3+ and installed PDO extension.
 
 ## Get Started
 
@@ -45,13 +46,13 @@ $ composer update
 ```
 
 ```php
-// If you installed via composer, just use this code to require autoloader on the top of your projects.
+// Require Composer's autoloader.
 require 'vendor/autoload.php';
 
-// Using Medoo namespace
+// Using Medoo namespace.
 use Medoo\Medoo;
 
-// Initialize
+// Connect the database.
 $database = new Medoo([
     'database_type' => 'mysql',
     'database_name' => 'name',
@@ -75,21 +76,19 @@ $data = $database->select('account', [
 
 echo json_encode($data);
 
-// [
-//     {
-//         "user_name" : "foo",
-//         "email" : "foo@bar.com",
-//     }
-// ]
+// [{
+//     "user_name" : "foo",
+//     "email" : "foo@bar.com",
+// }]
 ```
 
 ## Contribution Guides
 
-For most of time, Medoo is using develop branch for adding feature and fixing bug, and the branch will be merged into master branch while releasing a public version. For contribution, submit your code to the develop branch, and start a pull request into it.
+Most of the time, Medoo uses develop branch for adding features and fixing bugs, and the branch will be merged into the master branch while releasing a public version. For contribution, submit your code to the develop branch, and start a pull request into it.
 
-On develop branch, each commits are started with `[fix]`, `[feature]` or `[update]` tag to indicate the change.
+On develop branch, each commit is started with `[fix]`, `[feature]` or `[update]` tag to indicate the change.
 
-Keep it simple and keep it clear.
+Please keep it simple and keep it clear.
 
 ## License
 
