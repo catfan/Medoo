@@ -19,8 +19,8 @@ namespace Medoo;
 use PDO;
 use Exception;
 use PDOException;
-use InvalidArgumentException;
 use PDOStatement;
+use InvalidArgumentException;
 
 /**
  * The Medoo raw object.
