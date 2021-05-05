@@ -54,9 +54,9 @@ use Medoo\Medoo;
 
 // Connect the database.
 $database = new Medoo([
-    'database_type' => 'mysql',
-    'database_name' => 'name',
-    'server' => 'localhost',
+    'type' => 'mysql',
+    'host' => 'localhost',
+    'database' => 'name',
     'username' => 'your_username',
     'password' => 'your_password'
 ]);
@@ -77,8 +77,8 @@ $data = $database->select('account', [
 echo json_encode($data);
 
 // [{
-//     "user_name" : "foo",
-//     "email" : "foo@bar.com",
+//    "user_name" : "foo",
+//    "email" : "foo@bar.com",
 // }]
 ```
 
