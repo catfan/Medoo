@@ -212,8 +212,11 @@ class Medoo
         }
 
         $options['type'] = $options['type'] ?? $options['database_type'];
-        $options['database'] = $options['database'] ?? $options['database_name'];
-        $options['host'] = $options['host'] ?? $options['server'];
+
+        if (!isset($options['pdo'])) {
+            $options['database'] = $options['database'] ?? $options['database_name'];
+            $options['host'] = $options['host'] ?? $options['server'];
+        }
 
         if (isset($options['type'])) {
             $this->type = strtolower($options['type']);
