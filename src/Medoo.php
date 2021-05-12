@@ -215,7 +215,10 @@ class Medoo
 
         if (!isset($options['pdo'])) {
             $options['database'] = $options['database'] ?? $options['database_name'];
-            $options['host'] = $options['host'] ?? $options['server'];
+
+            if (!isset($options['socket'])) {
+                $options['host'] = $options['host'] ?? $options['server'];
+            }
         }
 
         if (isset($options['type'])) {
