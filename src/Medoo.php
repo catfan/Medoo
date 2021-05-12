@@ -1469,7 +1469,7 @@ class Medoo
     {
         $stack = [];
         $tableOption = '';
-        $tableName = $this->tableQuote($this->prefix . $table);
+        $tableName = $this->tableQuote($table);
 
         foreach ($columns as $name => $definition) {
             if (is_int($name)) {
