@@ -944,12 +944,15 @@ class Medoo
                                 $column .= ' NOT';
                             }
 
-                            $stack[] = "({$column} BETWEEN {$mapKey}a AND {$mapKey}b)";
+                            if ($this->isRaw($value[0]) && $this->isRaw($value[1])) {
+                                $stack[] = "({$column} BETWEEN {$this->buildRaw($value[0], $map)} AND {$this->buildRaw($value[1], $map)})";
+                            } else {
+                                $stack[] = "({$column} BETWEEN {$mapKey}a AND {$mapKey}b)";
+                                $dataType = (is_numeric($value[0]) && is_numeric($value[1])) ? PDO::PARAM_INT : PDO::PARAM_STR;
 
-                            $dataType = (is_numeric($value[0]) && is_numeric($value[1])) ? PDO::PARAM_INT : PDO::PARAM_STR;
-
-                            $map[$mapKey . 'a'] = [$value[0], $dataType];
-                            $map[$mapKey . 'b'] = [$value[1], $dataType];
+                                $map[$mapKey . 'a'] = [$value[0], $dataType];
+                                $map[$mapKey . 'b'] = [$value[1], $dataType];
+                            }
                         }
                     } elseif ($operator === 'REGEXP') {
                         $stack[] = "{$column} REGEXP {$mapKey}";

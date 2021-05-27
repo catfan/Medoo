@@ -111,6 +111,59 @@ class WhereTest extends MedooTestCase
      * @covers ::whereClause()
      * @dataProvider typesProvider
      */
+    public function testBetweenStringWhere($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account", "user_name", [
+            "location[<>]" => ['New York', 'Santo']
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "user_name"
+            FROM "account"
+            WHERE
+            ("location" BETWEEN 'New York' AND 'Santo')
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
+     * @dataProvider typesProvider
+     */
+    public function testBetweenRawWhere($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account", "user_name", [
+            "birthday[<>]" => [
+                Medoo::raw("to_date(:from, 'YYYY-MM-DD')", [":from" => '2015/05/15']),
+                Medoo::raw("to_date(:to, 'YYYY-MM-DD')", [":to" => '2025/05/15'])
+            ]
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "user_name"
+            FROM "account"
+            WHERE
+            ("birthday" BETWEEN to_date('2015/05/15', 'YYYY-MM-DD') AND to_date('2025/05/15', 'YYYY-MM-DD'))
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
+     * @dataProvider typesProvider
+     */
     public function testGreaterDateTimeWhere($type)
     {
         $this->setType($type);
