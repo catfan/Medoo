@@ -1944,7 +1944,7 @@ class Medoo
         }
 
         // @codeCoverageIgnoreStart
-        return $query->fetchColumn();
+        return (string) $query->fetchColumn();
     }
     // @codeCoverageIgnoreEnd
 
