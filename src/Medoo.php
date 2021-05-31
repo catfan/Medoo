@@ -217,7 +217,7 @@ class Medoo
             $options['database'] = $options['database'] ?? $options['database_name'];
 
             if (!isset($options['socket'])) {
-                $options['host'] = $options['host'] ?? $options['server'];
+                $options['host'] = $options['host'] ?? $options['server'] ?? false;
             }
         }
 
@@ -1773,7 +1773,6 @@ class Medoo
                 continue;
             }
 
-            
             preg_match('/(?<column>(?![_\d])[\p{N}\p{L}\-_]+)(\[(?<operator>\+|\-|\*|\/)\])?/u', $key, $match);
 
             if (isset($match['operator'])) {
@@ -1783,7 +1782,7 @@ class Medoo
             } else {
                 $mapKey = $this->mapKey();
                 $fields[] = "{$column} = {$mapKey}";
-                
+
                 switch ($type) {
 
                     case 'array':
