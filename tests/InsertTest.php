@@ -198,7 +198,7 @@ class InsertTest extends MedooTestCase
         );
     }
 
-    public function testOracleWithLOBsObjectInsert()
+    public function testOracleWithLOBsInsert()
     {
         $this->setType("oracle");
 
@@ -219,7 +219,7 @@ class InsertTest extends MedooTestCase
         );
     }
 
-    public function testOracleWithLOBsObjectAndIdInsert()
+    public function testOracleWithLOBsAndIdInsert()
     {
         $this->setType("oracle");
 

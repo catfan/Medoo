@@ -1468,6 +1468,41 @@ class Medoo
     }
 
     /**
+     * Build and execute returning query.
+     *
+     * @param string $query
+     * @param array $map
+     * @param array $data
+     * @return \PDOStatement|null
+     */
+    private function returningQuery($query, &$map, &$data): ?PDOStatement
+    {
+        $returnColumns = array_map(
+            function ($value) {
+                return $value[0];
+            },
+            $data
+        );
+
+        $query .= ' RETURNING ' .
+                    implode(', ', array_map([$this, 'columnQuote'], $returnColumns)) .
+                    ' INTO ' .
+                    implode(', ', array_keys($data));
+
+        return $this->exec($query, $map, function ($statement) use (&$data) {
+            // @codeCoverageIgnoreStart
+            foreach ($data as $key => $return) {
+                if (isset($return[3])) {
+                    $statement->bindParam($key, $data[$key][1], $return[2], $return[3]);
+                } else {
+                    $statement->bindParam($key, $data[$key][1], $return[2]);
+                }
+            }
+            // @codeCoverageIgnoreEnd
+        });
+    }
+
+    /**
      * Create a table.
      *
      * @param string $table
@@ -1697,29 +1732,7 @@ class Medoo
                 $returnings[':RETURNID'] = [$primaryKey, '', PDO::PARAM_INT, 8];
             }
 
-            $returnColumns = array_map(
-                function ($value) {
-                    return $value[0];
-                },
-                $returnings
-            );
-
-            $query .= ' RETURNING ' .
-                        implode(', ', array_map([$this, 'columnQuote'], $returnColumns)) .
-                        ' INTO ' .
-                        implode(', ', array_keys($returnings));
-
-            $statement = $this->exec($query, $map, function ($statement) use (&$returnings) {
-                // @codeCoverageIgnoreStart
-                foreach ($returnings as $key => $return) {
-                    if (isset($return[3])) {
-                        $statement->bindParam($key, $returnings[$key][1], $return[2], $return[3]);
-                    } else {
-                        $statement->bindParam($key, $returnings[$key][1], $return[2]);
-                    }
-                }
-                // @codeCoverageIgnoreEnd
-            });
+            $statement = $this->returningQuery($query, $map, $returnings);
 
             if ($primaryKey) {
                 $this->returnId = $returnings[':RETURNID'][1];
@@ -1743,16 +1756,24 @@ class Medoo
     {
         $fields = [];
         $map = [];
+        $returnings = [];
 
         foreach ($data as $key => $value) {
             $column = $this->columnQuote(preg_replace("/(\s*\[(JSON|\+|\-|\*|\/)\]$)/", '', $key));
+            $type = gettype($value);
+
+            if ($this->type === 'oracle' && $type === 'resource') {
+                $fields[] = "{$column} = EMPTY_BLOB()";
+                $returnings[$this->mapKey()] = [$key, $value, PDO::PARAM_LOB];
+                continue;
+            }
 
             if ($raw = $this->buildRaw($value, $map)) {
                 $fields[] = "{$column} = {$raw}";
                 continue;
             }
 
-            $mapKey = $this->mapKey();
+            
             preg_match('/(?<column>(?![_\d])[\p{N}\p{L}\-_]+)(\[(?<operator>\+|\-|\*|\/)\])?/u', $key, $match);
 
             if (isset($match['operator'])) {
@@ -1760,9 +1781,9 @@ class Medoo
                     $fields[] = "{$column} = {$column} {$match['operator']} {$value}";
                 }
             } else {
+                $mapKey = $this->mapKey();
                 $fields[] = "{$column} = {$mapKey}";
-                $type = gettype($value);
-
+                
                 switch ($type) {
 
                     case 'array':
@@ -1790,7 +1811,13 @@ class Medoo
             }
         }
 
-        return $this->exec('UPDATE ' . $this->tableQuote($table) . ' SET ' . implode(', ', $fields) . $this->whereClause($where, $map), $map);
+        $query = 'UPDATE ' . $this->tableQuote($table) . ' SET ' . implode(', ', $fields) . $this->whereClause($where, $map);
+
+        if ($this->type === 'oracle' && !empty($returnings)) {
+            return $this->returningQuery($query, $map, $returnings);
+        }
+
+        return $this->exec($query, $map);
     }
 
     /**

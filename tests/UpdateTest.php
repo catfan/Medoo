@@ -44,7 +44,7 @@ class UpdateTest extends MedooTestCase
                 "lang" = '["en","fr"]',
                 "is_locked" = 1,
                 "uuid" = UUID(),
-                "object" = :MeD7_mK
+                "object" = :MeD4_mK
                 WHERE "user_id" < 1000
                 EOD,
             'mysql' => <<<EOD
@@ -57,9 +57,32 @@ class UpdateTest extends MedooTestCase
                 "lang" = '[\"en\",\"fr\"]',
                 "is_locked" = 1,
                 "uuid" = UUID(),
-                "object" = :MeD7_mK
+                "object" = :MeD4_mK
                 WHERE "user_id" < 1000
                 EOD,
         ], $this->database->queryString);
+    }
+
+    public function testOracleLOBsUpdate()
+    {
+        $this->setType("oracle");
+
+        $fp = fopen('README.md', 'r');
+
+        $this->database->update("ACCOUNT", [
+            "DATA" => $fp
+        ], [
+            "ID" => 1
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            UPDATE "ACCOUNT"
+            SET "DATA" = EMPTY_BLOB()
+            WHERE "ID" = 1
+            RETURNING "DATA" INTO :MeD0_mK
+            EOD,
+            $this->database->queryString
+        );
     }
 }
