@@ -197,4 +197,46 @@ class InsertTest extends MedooTestCase
             $this->database->queryString
         );
     }
+
+    public function testOracleWithLOBsObjectInsert()
+    {
+        $this->setType("oracle");
+
+        $fp = fopen('README.md', 'r');
+
+        $this->database->insert("ACCOUNT", [
+            "NAME" => "foo",
+            "DATA" => $fp
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            INSERT INTO "ACCOUNT" ("NAME", "DATA")
+            VALUES ('foo', EMPTY_BLOB())
+            RETURNING "DATA" INTO :MeD1_mK
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    public function testOracleWithLOBsObjectAndIdInsert()
+    {
+        $this->setType("oracle");
+
+        $fp = fopen('README.md', 'r');
+
+        $this->database->insert("ACCOUNT", [
+            "NAME" => "foo",
+            "DATA" => $fp
+        ], "ID");
+
+        $this->assertQuery(
+            <<<EOD
+            INSERT INTO "ACCOUNT" ("NAME", "DATA")
+            VALUES ('foo', EMPTY_BLOB())
+            RETURNING "DATA", "ID" INTO :MeD1_mK, :RETURNID
+            EOD,
+            $this->database->queryString
+        );
+    }
 }

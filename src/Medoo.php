@@ -555,10 +555,14 @@ class Medoo
         }
 
         if (is_callable($callback)) {
+            $this->pdo->beginTransaction();
             $callback($statement);
+            $execute = $statement->execute();
+            $this->pdo->commit();
+        } else {
+            $execute = $statement->execute();
         }
 
-        $execute = $statement->execute();
         $errorInfo = $statement->errorInfo();
 
         if ($errorInfo[0] !== '00000') {
@@ -1616,6 +1620,7 @@ class Medoo
         $columns = [];
         $fields = [];
         $map = [];
+        $returnings = [];
 
         if (!isset($values[0])) {
             $values = [$values];
@@ -1633,6 +1638,15 @@ class Medoo
             $values = [];
 
             foreach ($columns as $key) {
+                $value = $data[$key];
+                $type = gettype($value);
+
+                if ($this->type === 'oracle' && $type === 'resource') {
+                    $values[] = 'EMPTY_BLOB()';
+                    $returnings[$this->mapKey()] = [$key, $value, PDO::PARAM_LOB];
+                    continue;
+                }
+
                 if ($raw = $this->buildRaw($data[$key], $map)) {
                     $values[] = $raw;
                     continue;
@@ -1640,8 +1654,6 @@ class Medoo
 
                 $mapKey = $this->mapKey();
                 $values[] = $mapKey;
-                $value = $data[$key];
-                $type = gettype($value);
 
                 switch ($type) {
 
@@ -1678,21 +1690,42 @@ class Medoo
 
         $query = 'INSERT INTO ' . $this->tableQuote($table) . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $stack);
 
-        if ($this->type === 'oracle') {
+        if (
+            $this->type === 'oracle' && (!empty($returnings) || isset($primaryKey))
+        ) {
             if ($primaryKey) {
-                $returning = "";
-                $query .= ' RETURNING ' . $this->columnQuote($primaryKey) . ' INTO :RETURNID';
-
-                $statement = $this->exec($query, $map, function ($statement) use (&$returning) {
-                    // @codeCoverageIgnoreStart
-                    $statement->bindParam('RETURNID', $returning, PDO::PARAM_INT, 8);
-                    // @codeCoverageIgnoreEnd
-                });
-
-                $this->returnId = "${returning}";
-
-                return $statement;
+                $returnings[':RETURNID'] = [$primaryKey, '', PDO::PARAM_INT, 8];
             }
+
+            $returnColumns = array_map(
+                function ($value) {
+                    return $value[0];
+                },
+                $returnings
+            );
+
+            $query .= ' RETURNING ' .
+                        implode(', ', array_map([$this, 'columnQuote'], $returnColumns)) .
+                        ' INTO ' .
+                        implode(', ', array_keys($returnings));
+
+            $statement = $this->exec($query, $map, function ($statement) use (&$returnings) {
+                // @codeCoverageIgnoreStart
+                foreach ($returnings as $key => $return) {
+                    if (isset($return[3])) {
+                        $statement->bindParam($key, $returnings[$key][1], $return[2], $return[3]);
+                    } else {
+                        $statement->bindParam($key, $returnings[$key][1], $return[2]);
+                    }
+                }
+                // @codeCoverageIgnoreEnd
+            });
+
+            if ($primaryKey) {
+                $this->returnId = $returnings[':RETURNID'][1];
+            }
+
+            return $statement;
         }
 
         return $this->exec($query, $map);
