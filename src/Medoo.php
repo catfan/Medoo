@@ -853,120 +853,42 @@ class Medoo
             }
 
             $mapKey = $this->mapKey();
+            $isIndex = is_int($key);
 
-            if (
-                is_int($key) &&
-                preg_match('/([\p{N}\p{L}\-_\.]+)\[(?<operator>\>\=?|\<\=?|\!?\=)\]([\p{N}\p{L}\-_\.]+)/u', $value, $match)
-            ) {
-                $stack[] = $this->columnQuote($match[1]) . ' ' . $match['operator'] . ' ' . $this->columnQuote($match[3]);
-            } else {
-                preg_match('/([\p{N}\p{L}\-_\.]+)(\[(?<operator>\>\=?|\<\=?|\!|\<\>|\>\<|\!?~|REGEXP)\])?/u', $key, $match);
-                $column = $this->columnQuote($match[1]);
+            preg_match(
+                '/([\p{N}\p{L}\-_\.]+)(\[(?<operator>\>\=?|\<\=?|\!|\<\>|\>\<|\!?~|REGEXP)\])?([\p{N}\p{L}\-_\.]+)?/u',
+                $isIndex ? $value : $key,
+                $match
+            );
 
-                if (isset($match['operator'])) {
-                    $operator = $match['operator'];
+            $column = $this->columnQuote($match[1]);
+            $operator = $match['operator'] ?? null;
 
-                    if (in_array($operator, ['>', '>=', '<', '<='])) {
-                        $condition = "{$column} {$operator} ";
+            if ($isIndex && isset($match[4]) && in_array($operator, ['>', '>=', '<', '<=', '=', '!='])) {
+                $stack[] = "${column} ${operator} " . $this->columnQuote($match[4]);
+                continue;
+            }
 
-                        if (is_numeric($value)) {
-                            $condition .= $mapKey;
-                            $map[$mapKey] = [$value, is_float($value) ? PDO::PARAM_STR : PDO::PARAM_INT];
-                        } elseif ($raw = $this->buildRaw($value, $map)) {
-                            $condition .= $raw;
-                        } else {
-                            $condition .= $mapKey;
-                            $map[$mapKey] = [$value, PDO::PARAM_STR];
-                        }
+            if ($operator) {
+                if (in_array($operator, ['>', '>=', '<', '<='])) {
+                    $condition = "{$column} {$operator} ";
 
-                        $stack[] = $condition;
-                    } elseif ($operator === '!') {
-                        switch ($type) {
-
-                            case 'NULL':
-                                $stack[] = $column . ' IS NOT NULL';
-                                break;
-
-                            case 'array':
-                                $placeholders = [];
-
-                                foreach ($value as $index => $item) {
-                                    $stackKey = $mapKey . $index . '_i';
-                                    $placeholders[] = $stackKey;
-                                    $map[$stackKey] = $this->typeMap($item, gettype($item));
-                                }
-
-                                $stack[] = $column . ' NOT IN (' . implode(', ', $placeholders) . ')';
-                                break;
-
-                            case 'object':
-                                if ($raw = $this->buildRaw($value, $map)) {
-                                    $stack[] = "{$column} != {$raw}";
-                                }
-                                break;
-
-                            case 'integer':
-                            case 'double':
-                            case 'boolean':
-                            case 'string':
-                                $stack[] = "{$column} != {$mapKey}";
-                                $map[$mapKey] = $this->typeMap($value, $type);
-                                break;
-                        }
-                    } elseif ($operator === '~' || $operator === '!~') {
-                        if ($type !== 'array') {
-                            $value = [$value];
-                        }
-
-                        $connector = ' OR ';
-                        $data = array_values($value);
-
-                        if (is_array($data[0])) {
-                            if (isset($value['AND']) || isset($value['OR'])) {
-                                $connector = ' ' . array_keys($value)[0] . ' ';
-                                $value = $data[0];
-                            }
-                        }
-
-                        $likeClauses = [];
-
-                        foreach ($value as $index => $item) {
-                            $item = strval($item);
-
-                            if (!preg_match('/((?<!\\\)\[.+(?<!\\\)\]|(?<!\\\)[\*\?\!\%\-#^_]|%.+|.+%)/', $item)) {
-                                $item = '%' . $item . '%';
-                            }
-
-                            $likeClauses[] = $column . ($operator === '!~' ? ' NOT' : '') . " LIKE {$mapKey}L{$index}";
-                            $map["{$mapKey}L{$index}"] = [$item, PDO::PARAM_STR];
-                        }
-
-                        $stack[] = '(' . implode($connector, $likeClauses) . ')';
-                    } elseif ($operator === '<>' || $operator === '><') {
-                        if ($type === 'array') {
-                            if ($operator === '><') {
-                                $column .= ' NOT';
-                            }
-
-                            if ($this->isRaw($value[0]) && $this->isRaw($value[1])) {
-                                $stack[] = "({$column} BETWEEN {$this->buildRaw($value[0], $map)} AND {$this->buildRaw($value[1], $map)})";
-                            } else {
-                                $stack[] = "({$column} BETWEEN {$mapKey}a AND {$mapKey}b)";
-                                $dataType = (is_numeric($value[0]) && is_numeric($value[1])) ? PDO::PARAM_INT : PDO::PARAM_STR;
-
-                                $map[$mapKey . 'a'] = [$value[0], $dataType];
-                                $map[$mapKey . 'b'] = [$value[1], $dataType];
-                            }
-                        }
-                    } elseif ($operator === 'REGEXP') {
-                        $stack[] = "{$column} REGEXP {$mapKey}";
+                    if (is_numeric($value)) {
+                        $condition .= $mapKey;
+                        $map[$mapKey] = [$value, is_float($value) ? PDO::PARAM_STR : PDO::PARAM_INT];
+                    } elseif ($raw = $this->buildRaw($value, $map)) {
+                        $condition .= $raw;
+                    } else {
+                        $condition .= $mapKey;
                         $map[$mapKey] = [$value, PDO::PARAM_STR];
                     }
-                } else {
+
+                    $stack[] = $condition;
+                } elseif ($operator === '!') {
                     switch ($type) {
 
                         case 'NULL':
-                            $stack[] = $column . ' IS NULL';
+                            $stack[] = $column . ' IS NOT NULL';
                             break;
 
                         case 'array':
@@ -974,17 +896,16 @@ class Medoo
 
                             foreach ($value as $index => $item) {
                                 $stackKey = $mapKey . $index . '_i';
-
                                 $placeholders[] = $stackKey;
                                 $map[$stackKey] = $this->typeMap($item, gettype($item));
                             }
 
-                            $stack[] = $column . ' IN (' . implode(', ', $placeholders) . ')';
+                            $stack[] = $column . ' NOT IN (' . implode(', ', $placeholders) . ')';
                             break;
 
                         case 'object':
                             if ($raw = $this->buildRaw($value, $map)) {
-                                $stack[] = "{$column} = {$raw}";
+                                $stack[] = "{$column} != {$raw}";
                             }
                             break;
 
@@ -992,11 +913,95 @@ class Medoo
                         case 'double':
                         case 'boolean':
                         case 'string':
-                            $stack[] = "{$column} = {$mapKey}";
+                            $stack[] = "{$column} != {$mapKey}";
                             $map[$mapKey] = $this->typeMap($value, $type);
                             break;
                     }
+                } elseif ($operator === '~' || $operator === '!~') {
+                    if ($type !== 'array') {
+                        $value = [$value];
+                    }
+
+                    $connector = ' OR ';
+                    $data = array_values($value);
+
+                    if (is_array($data[0])) {
+                        if (isset($value['AND']) || isset($value['OR'])) {
+                            $connector = ' ' . array_keys($value)[0] . ' ';
+                            $value = $data[0];
+                        }
+                    }
+
+                    $likeClauses = [];
+
+                    foreach ($value as $index => $item) {
+                        $item = strval($item);
+
+                        if (!preg_match('/((?<!\\\)\[.+(?<!\\\)\]|(?<!\\\)[\*\?\!\%\-#^_]|%.+|.+%)/', $item)) {
+                            $item = '%' . $item . '%';
+                        }
+
+                        $likeClauses[] = $column . ($operator === '!~' ? ' NOT' : '') . " LIKE {$mapKey}L{$index}";
+                        $map["{$mapKey}L{$index}"] = [$item, PDO::PARAM_STR];
+                    }
+
+                    $stack[] = '(' . implode($connector, $likeClauses) . ')';
+                } elseif ($operator === '<>' || $operator === '><') {
+                    if ($type === 'array') {
+                        if ($operator === '><') {
+                            $column .= ' NOT';
+                        }
+
+                        if ($this->isRaw($value[0]) && $this->isRaw($value[1])) {
+                            $stack[] = "({$column} BETWEEN {$this->buildRaw($value[0], $map)} AND {$this->buildRaw($value[1], $map)})";
+                        } else {
+                            $stack[] = "({$column} BETWEEN {$mapKey}a AND {$mapKey}b)";
+                            $dataType = (is_numeric($value[0]) && is_numeric($value[1])) ? PDO::PARAM_INT : PDO::PARAM_STR;
+
+                            $map[$mapKey . 'a'] = [$value[0], $dataType];
+                            $map[$mapKey . 'b'] = [$value[1], $dataType];
+                        }
+                    }
+                } elseif ($operator === 'REGEXP') {
+                    $stack[] = "{$column} REGEXP {$mapKey}";
+                    $map[$mapKey] = [$value, PDO::PARAM_STR];
                 }
+
+                continue;
+            }
+
+            switch ($type) {
+
+                case 'NULL':
+                    $stack[] = $column . ' IS NULL';
+                    break;
+
+                case 'array':
+                    $placeholders = [];
+
+                    foreach ($value as $index => $item) {
+                        $stackKey = $mapKey . $index . '_i';
+
+                        $placeholders[] = $stackKey;
+                        $map[$stackKey] = $this->typeMap($item, gettype($item));
+                    }
+
+                    $stack[] = $column . ' IN (' . implode(', ', $placeholders) . ')';
+                    break;
+
+                case 'object':
+                    if ($raw = $this->buildRaw($value, $map)) {
+                        $stack[] = "{$column} = {$raw}";
+                    }
+                    break;
+
+                case 'integer':
+                case 'double':
+                case 'boolean':
+                case 'string':
+                    $stack[] = "{$column} = {$mapKey}";
+                    $map[$mapKey] = $this->typeMap($value, $type);
+                    break;
             }
         }
 
