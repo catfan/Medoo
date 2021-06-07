@@ -158,7 +158,7 @@ class Medoo
      *
      * @var string
      */
-    public $returnId = "";
+    public $returnId = '';
 
     /**
      * Error Message.
@@ -801,7 +801,7 @@ class Medoo
 
                 preg_match('/(?<column>[\p{N}\p{L}\-_\.]+)(?:\s*\((?<alias>.+)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/u', $value, $match);
 
-                $columnString = "";
+                $columnString = '';
 
                 if (!empty($match['alias'])) {
                     $columnString = "{$this->columnQuote($match['column'])} AS {$this->columnQuote($match['alias'])}";
@@ -1389,7 +1389,7 @@ class Medoo
 
             if (count($columnsKey) === 1 && is_array($columns[$columnsKey[0]])) {
                 $indexKey = array_keys($columns)[0];
-                $dataKey = preg_replace("/^[\p{L}_][\p{L}\p{N}@$#\-_]+\./u", "", $indexKey);
+                $dataKey = preg_replace("/^[\p{L}_][\p{L}\p{N}@$#\-_]+\./u", '', $indexKey);
                 $currentStack = [];
 
                 foreach ($data as $item) {
@@ -1940,11 +1940,12 @@ class Medoo
         $map = [];
         $column = null;
 
-        if ($this->type === 'mssql') {
-            $query = $this->exec($this->selectContext($table, $map, $join, $column, $where, Medoo::raw('TOP 1 1')), $map);
-        } else {
-            $query = $this->exec('SELECT EXISTS(' . $this->selectContext($table, $map, $join, $column, $where, 1) . ')', $map);
-        }
+        $query = $this->exec(
+            $this->type === 'mssql' ?
+                $this->selectContext($table, $map, $join, $column, $where, Medoo::raw('TOP 1 1')) :
+                'SELECT EXISTS(' . $this->selectContext($table, $map, $join, $column, $where, 1) . ')',
+            $map
+        );
 
         if (!$this->statement) {
             return false;
@@ -1968,11 +1969,11 @@ class Medoo
      */
     public function rand(string $table, $join = null, $columns = null, $where = null): array
     {
-        $order = ($this->type === 'mysql' ? 'RAND()'
+        $orderRaw = $this->raw(
+            ($this->type === 'mysql' ? 'RAND()'
                 : $this->type === 'mssql') ? 'NEWID()'
-                : 'RANDOM()';
-
-        $orderRaw = $this->raw($order);
+                : 'RANDOM()'
+        );
 
         if ($where === null) {
             if ($this->isJoin($join)) {
