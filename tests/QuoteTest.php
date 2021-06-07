@@ -49,6 +49,8 @@ class QuoteTest extends MedooTestCase
         $this->assertEquals('"ColumnName"', $this->database->columnQuote("ColumnName"));
         $this->assertEquals('"Column"."name"', $this->database->columnQuote("Column.name"));
         $this->assertEquals('"Column"."Name"', $this->database->columnQuote("Column.Name"));
+
+        $this->assertEquals('"ネーム"', $this->database->columnQuote("ネーム"));
     }
 
     public function columnNamesProvider(): array
@@ -58,7 +60,6 @@ class QuoteTest extends MedooTestCase
             ["@ColumnName"],
             [".ColumnName"],
             ["ColumnName."],
-            ["_ColumnName"],
             ["ColumnName (alias)"]
         ];
     }
@@ -80,6 +81,9 @@ class QuoteTest extends MedooTestCase
     public function testTableQuote()
     {
         $this->assertEquals('"TableName"', $this->database->tableQuote("TableName"));
+        $this->assertEquals('"_table"', $this->database->tableQuote("_table"));
+
+        $this->assertEquals('"アカウント"', $this->database->tableQuote("アカウント"));
     }
 
     /**
@@ -102,7 +106,6 @@ class QuoteTest extends MedooTestCase
             ["@TableName"],
             [".TableName"],
             ["TableName."],
-            ["_TableName"],
             ["Table.name"]
         ];
     }
