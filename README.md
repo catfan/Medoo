@@ -84,9 +84,11 @@ echo json_encode($data);
 
 ## Contribution Guides
 
-Most of the time, Medoo uses develop branch for adding features and fixing bugs, and the branch will be merged into the master branch while releasing a public version. For contribution, submit your code to the develop branch, and start a pull request into it.
+For starting a new pull request, please make sure it's compatible with other databases and write a unit test as possible.
 
-On develop branch, each commit is started with `[fix]`, `[feature]` or `[update]` tag to indicate the change.
+Run `phpunit tests` for unit testing and `php-cs-fixer fix` for fixing code style.
+
+Each commit is started with `[fix]`, `[feature]` or `[update]` tag to indicate the change.
 
 Please keep it simple and keep it clear.
 
