@@ -687,4 +687,29 @@ class SelectTest extends MedooTestCase
             $this->database->queryString
         );
     }
+
+    /**
+     * @covers ::columnMap()
+     * @covers ::columnPush()
+     * @dataProvider typesProvider
+     */
+    public function testSelectWithSingleCharacter($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("a", [
+            "[>]e" => ["f"]
+        ], [
+            "b (c)"
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "b" AS "c"
+            FROM "a"
+            LEFT JOIN "e" USING ("f")
+            EOD,
+            $this->database->queryString
+        );
+    }
 }
