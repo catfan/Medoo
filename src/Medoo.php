@@ -965,6 +965,9 @@ class Medoo
                 } elseif ($operator === 'REGEXP') {
                     $stack[] = "{$column} REGEXP {$mapKey}";
                     $map[$mapKey] = [$value, PDO::PARAM_STR];
+                } elseif ($operator === 'NOT REGEXP') {
+                    $stack[] = "{$column} NOT REGEXP {$mapKey}";
+                    $map[$mapKey] = [$value, PDO::PARAM_STR]; 
                 }
 
                 continue;
