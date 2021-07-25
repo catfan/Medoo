@@ -28,7 +28,7 @@ class RandTest extends MedooTestCase
             'mysql' => <<<EOD
                 SELECT `user_name`
                 FROM `account`
-                ORDER BY NEWID()
+                ORDER BY RAND()
                 EOD,
             'mssql' => <<<EOD
                 SELECT [user_name]
@@ -63,7 +63,7 @@ class RandTest extends MedooTestCase
                 SELECT `user_name`
                 FROM `account`
                 WHERE `location` = 'Tokyo'
-                ORDER BY NEWID()
+                ORDER BY RAND()
                 EOD,
             'mssql' => <<<EOD
                 SELECT [user_name]
@@ -103,7 +103,7 @@ class RandTest extends MedooTestCase
                 FROM `account`
                 LEFT JOIN `album` USING (`user_id`)
                 WHERE `album`.`location` = 'Tokyo'
-                ORDER BY NEWID()
+                ORDER BY RAND()
                 EOD,
             'mssql' => <<<EOD
                 SELECT [account].[user_name]
@@ -140,7 +140,7 @@ class RandTest extends MedooTestCase
                 SELECT `account`.`user_name`
                 FROM `account`
                 LEFT JOIN `album` USING (`user_id`)
-                ORDER BY NEWID()
+                ORDER BY RAND()
                 EOD,
             'mssql' => <<<EOD
                 SELECT [account].[user_name]

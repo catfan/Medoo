@@ -1970,9 +1970,9 @@ class Medoo
     public function rand(string $table, $join = null, $columns = null, $where = null): array
     {
         $orderRaw = $this->raw(
-            ($this->type === 'mysql' ? 'RAND()'
-                : $this->type === 'mssql') ? 'NEWID()'
-                : 'RANDOM()'
+            $this->type === 'mysql' ? 'RAND()'
+                : ($this->type === 'mssql' ? 'NEWID()'
+                : 'RANDOM()')
         );
 
         if ($where === null) {
