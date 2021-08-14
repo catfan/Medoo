@@ -856,7 +856,7 @@ class Medoo
             $isIndex = is_int($key);
 
             preg_match(
-                '/([\p{L}_][\p{L}\p{N}@$#\-_\.]*)(\[(?<operator>\>\=?|\<\=?|\!|\<\>|\>\<|\!?~|REGEXP)\])?([\p{L}_][\p{L}\p{N}@$#\-_\.]*)?/u',
+                '/([\p{L}_][\p{L}\p{N}@$#\-_\.]*)(\[(?<operator>\>\=?|\<\=?|\!|\<\>|\>\<|\!?~|REGEXP|FIND_IN_SET)\])?([\p{L}_][\p{L}\p{N}@$#\-_\.]*)?/u',
                 $isIndex ? $value : $key,
                 $match
             );
@@ -965,6 +965,10 @@ class Medoo
                 } elseif ($operator === 'REGEXP') {
                     $stack[] = "{$column} REGEXP {$mapKey}";
                     $map[$mapKey] = [$value, PDO::PARAM_STR];
+                } elseif ($operator === 'FIND_IN_SET')
+                {
+                    $stack[] = " FIND_IN_SET($mapKey , $column)";
+                    $map[ $mapKey ] = [$value, PDO::PARAM_STR];
                 }
 
                 continue;
