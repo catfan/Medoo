@@ -850,13 +850,17 @@ class Medoo
             ) {
                 $stack[] = '(' . $this->dataImplode($value, $map, ' ' . $relationMatch[1]) . ')';
                 continue;
+            }else if ($type === 'object' && $this->isRaw($value) ) {
+                $raw_result = $this->buildRaw($value, $map);
+                $stack[] = $raw_result;
+                continue;
             }
 
             $mapKey = $this->mapKey();
             $isIndex = is_int($key);
 
             preg_match(
-                '/([\p{L}_][\p{L}\p{N}@$#\-_\.]*)(\[(?<operator>\>\=?|\<\=?|\!|\<\>|\>\<|\!?~|REGEXP|RAW)\])?([\p{L}_][\p{L}\p{N}@$#\-_\.]*)?/u',
+                '/([\p{L}_][\p{L}\p{N}@$#\-_\.]*)(\[(?<operator>\>\=?|\<\=?|\!|\<\>|\>\<|\!?~|REGEXP)\])?([\p{L}_][\p{L}\p{N}@$#\-_\.]*)?/u',
                 $isIndex ? $value : $key,
                 $match
             );
@@ -964,9 +968,6 @@ class Medoo
                 } elseif ($operator === 'REGEXP') {
                     $stack[] = "{$column} REGEXP {$mapKey}";
                     $map[$mapKey] = [$value, PDO::PARAM_STR];
-                } elseif ($operator === 'RAW' && $this->isRaw($value)) {
-                    $raw_result = $this->buildRaw($value, $map);
-                    $stack[] = $raw_result;
                 }
 
                 continue;
