@@ -850,6 +850,10 @@ class Medoo
             ) {
                 $stack[] = '(' . $this->dataImplode($value, $map, ' ' . $relationMatch[1]) . ')';
                 continue;
+            }else if ($type === 'object' && $this->isRaw($value) ) {
+                $raw_result = $this->buildRaw($value, $map);
+                $stack[] = $raw_result;
+                continue;
             }
 
             $mapKey = $this->mapKey();
@@ -868,7 +872,6 @@ class Medoo
                 $stack[] = "${column} ${operator} " . $this->columnQuote($match[4]);
                 continue;
             }
-
             if ($operator) {
                 if (in_array($operator, ['>', '>=', '<', '<='])) {
                     $condition = "{$column} {$operator} ";
