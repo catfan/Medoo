@@ -1039,4 +1039,53 @@ class WhereTest extends MedooTestCase
             $this->database->queryString
         );
     }
+
+    
+    /**
+     * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
+     * @dataProvider typesProvider
+     */
+    public function testRawWhereOneClause($type)
+    {
+        $this->setType($type);
+
+        $this->database->select(
+            "account",
+            "user_name",
+            [
+                Medoo::raw("ROUND(<float_val>) = :round_value", [':round_value'=>10]),
+                'LIMIT' => [20, 100],
+                'LIMIT' => [20, 100],
+                "ORDER" => "user_id",
+            ]
+        );
+
+        $this->assertQuery([
+            'default' => <<<EOD
+                SELECT "user_name"
+                FROM "account"
+                WHERE ROUND("float_val") = 10
+                ORDER BY "user_id"
+                LIMIT 100 OFFSET 20
+                EOD,
+            'mssql' => <<<EOD
+                SELECT "user_name"
+                FROM "account"
+                WHERE ROUND("float_val") = 10
+                ORDER BY "user_id"
+                OFFSET 20 ROWS FETCH NEXT 100 ROWS ONLY
+                EOD,
+            'oracle' => <<<EOD
+                SELECT "user_name"
+                FROM "account"
+                WHERE ROUND("float_val") = 10
+                ORDER BY "user_id"
+                OFFSET 20 ROWS FETCH NEXT 100 ROWS ONLY
+                EOD,
+        ],
+            $this->database->queryString
+        );
+    }
 }
