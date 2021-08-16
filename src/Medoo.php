@@ -850,7 +850,7 @@ class Medoo
             ) {
                 $stack[] = '(' . $this->dataImplode($value, $map, ' ' . $relationMatch[1]) . ')';
                 continue;
-            }else if ($type === 'object' && $this->isRaw($value) ) {
+            }else if ($type === 'object' && $this->isRaw($value) && is_int($key) ) {
                 $raw_result = $this->buildRaw($value, $map);
                 $stack[] = $raw_result;
                 continue;
