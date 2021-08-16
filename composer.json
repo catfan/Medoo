@@ -1,5 +1,5 @@
 {
-	"name": "zsth/medoo",
+	"name": "catfan/medoo",
 	"type": "framework",
 	"description": "The lightweight PHP database framework to accelerate development",
 	"keywords": ["database", "database library", "lightweight", "PHP framework", "SQL", "MySQL", "MSSQL", "SQLite", "PostgreSQL", "MariaDB", "Oracle"],
