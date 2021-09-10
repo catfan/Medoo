@@ -1346,7 +1346,7 @@ class Medoo
                     [$columnKey, $keyMatch['type']] :
                     [$columnKey, 'String'];
             } elseif ($this->isRaw($value)) {
-                preg_match('/([\p{L}_][\p{L}\p{N}@$#\-_]*\.)?(?<column>[\p{L}_][\p{L}\p{N}@$#\-_]*)(\s*\[(?<type>(String|Bool|Int|Number))\])?/u', $key, $keyMatch);
+                preg_match('/([\p{L}_][\p{L}\p{N}@$#\-_]*\.)?(?<column>[\p{L}_][\p{L}\p{N}@$#\-_]*)(\s*\[(?<type>(String|Bool|Int|Number|Object|JSON))\])?/u', $key, $keyMatch);
                 $columnKey = $keyMatch['column'];
 
                 $stack[$key] = isset($keyMatch['type']) ?
