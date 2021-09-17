@@ -1828,10 +1828,10 @@ class Medoo
      * Delete data from the table.
      *
      * @param string $table
-     * @param array $where
+     * @param array|Raw $where
      * @return \PDOStatement|null
      */
-    public function delete(string $table, array $where): ?PDOStatement
+    public function delete(string $table, $where): ?PDOStatement
     {
         $map = [];
 
