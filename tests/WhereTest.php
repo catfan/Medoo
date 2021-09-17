@@ -435,7 +435,8 @@ class WhereTest extends MedooTestCase
         ], [
             "post.content"
         ], [
-            "post.restrict[<]account.age"
+            "post.restrict[<]account.age",
+            "post.type[=]account.type"
         ]);
 
         $this->assertQuery(
@@ -444,7 +445,9 @@ class WhereTest extends MedooTestCase
             FROM "post"
             LEFT JOIN "account"
             USING ("user_id")
-            WHERE "post"."restrict" < "account"."age"
+            WHERE
+            "post"."restrict" < "account"."age" AND
+            "post"."type" = "account"."type"
             EOD,
             $this->database->queryString
         );
