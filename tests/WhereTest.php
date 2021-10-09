@@ -464,7 +464,8 @@ class WhereTest extends MedooTestCase
         $this->setType($type);
 
         $this->database->select("account", "user_name", [
-            "city[~]" => "lon"
+            "city[~]" => "lon",
+            "name[~]" => "some-name"
         ]);
 
         $this->assertQuery(
@@ -472,7 +473,8 @@ class WhereTest extends MedooTestCase
             SELECT "user_name"
             FROM "account"
             WHERE
-            ("city" LIKE '%lon%')
+            ("city" LIKE '%lon%') AND
+            ("name" LIKE '%some-name%')
             EOD,
             $this->database->queryString
         );
@@ -541,7 +543,8 @@ class WhereTest extends MedooTestCase
         $this->setType($type);
 
         $this->database->select("account", "user_name", [
-            "city[~]" => "some_where"
+            "city[~]" => "some_where",
+            "county[~]" => "[a-f]stan"
         ]);
 
         $this->assertQuery(
@@ -549,7 +552,8 @@ class WhereTest extends MedooTestCase
             SELECT "user_name"
             FROM "account"
             WHERE
-            ("city" LIKE 'some_where')
+            ("city" LIKE 'some_where') AND
+            ("county" LIKE '[a-f]stan')
             EOD,
             $this->database->queryString
         );
