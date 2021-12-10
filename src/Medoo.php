@@ -1229,7 +1229,7 @@ class Medoo
      * Determine the array is with join syntax.
      *
      * @param mixed $join
-     * @return string
+     * @return bool
      */
     protected function isJoin($join): bool
     {
