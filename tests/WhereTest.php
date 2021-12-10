@@ -1046,4 +1046,33 @@ class WhereTest extends MedooTestCase
             $this->database->queryString
         );
     }
+
+    /**
+     * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
+     * @dataProvider typesProvider
+     */
+    public function testRawWhereWithJoinClause($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("post", [
+                "[>]account" => "user_id",
+            ], [
+                "post.content"
+            ],
+            Medoo::raw("WHERE <id> => 10")
+        );
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "post"."content"
+            FROM "post"
+            LEFT JOIN "account" USING ("user_id")
+            WHERE "id" => 10
+            EOD,
+            $this->database->queryString
+        );
+    }
 }

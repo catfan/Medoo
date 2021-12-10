@@ -1165,7 +1165,7 @@ class Medoo
         array &$map,
         $join,
         &$columns = null,
-        array $where = null,
+        $where = null,
         $columnFn = null
     ): string {
         preg_match('/(?<table>[\p{L}_][\p{L}\p{N}@$#\-_]*)\s*\((?<alias>[\p{L}_][\p{L}\p{N}@$#\-_]*)\)/u', $table, $tableMatch);
