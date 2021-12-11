@@ -77,6 +77,19 @@ class Medoo
     public $type;
 
     /**
+     * The type of select to be return.
+     *
+     * @var string
+     */
+    protected $returnType = PDO::FETCH_ASSOC;
+    /**
+     * The type of select to be return.
+     *
+     * @var string
+     */
+    private $isReturnObject = false;
+
+    /**
      * Table prefix.
      *
      * @var string
@@ -471,6 +484,20 @@ class Medoo
         }
     }
 
+    public function setReturnType($type){
+
+        switch($type){
+            case PDO::FETCH_OBJ:
+                $this->isReturnObject = true;
+                $this->returnType = PDO::FETCH_OBJ;
+                break;
+            case PDO::FETCH_ASSOC:
+                $this->isReturnObject = false;
+                $this->returnType = PDO::FETCH_ASSOC;
+                break;
+        }
+
+    }
     /**
      * Generate a new map key for placeholder.
      *
@@ -1359,20 +1386,24 @@ class Medoo
      * @return void
      */
     protected function dataMap(
-        array $data,
+         $data,
         array $columns,
         array $columnMap,
-        array &$stack,
+         &$stack,
         bool $root,
         array &$result = null
     ): void {
+        
         if ($root) {
             $columnsKey = array_keys($columns);
-
             if (count($columnsKey) === 1 && is_array($columns[$columnsKey[0]])) {
+                
                 $indexKey = array_keys($columns)[0];
                 $dataKey = preg_replace("/^(?![_\d])[\p{N}\p{L}\-_]+\./u", "", $indexKey);
-                $currentStack = [];
+                if($this->isReturnObject)
+                    $currentStack = (object)[];
+                else
+                    $currentStack = [];
 
                 foreach ($data as $item) {
                     $this->dataMap($data, $columns[$indexKey], $columnMap, $currentStack, false, $result);
@@ -1381,13 +1412,19 @@ class Medoo
                     if (isset($result)) {
                         $result[$index] = $currentStack;
                     } else {
-                        $stack[$index] = $currentStack;
+                        if($this->isReturnObject)        
+                            $stack->$index = $currentStack;
+                        else
+                            $stack[$index] = $currentStack;
                     }
                 }
             } else {
-                $currentStack = [];
+                if($this->isReturnObject)
+                    $currentStack = (object)[];
+                else
+                    $currentStack = [];
                 $this->dataMap($data, $columns, $columnMap, $currentStack, false, $result);
-
+                
                 if (isset($result)) {
                     $result[] = $currentStack;
                 } else {
@@ -1400,56 +1437,93 @@ class Medoo
 
         foreach ($columns as $key => $value) {
             $isRaw = $this->isRaw($value);
-
             if (is_int($key) || $isRaw) {
                 $map = $columnMap[$isRaw ? $key : $value];
+                
                 $columnKey = $map[0];
-                $item = $data[$columnKey];
+                //check if its object
+                if($this->isReturnObject)
+                    $item = $data->$columnKey;
+                else
+                    $item = $data[$columnKey];
 
+                
                 if (isset($map[1])) {
                     if ($isRaw && in_array($map[1], ['Object', 'JSON'])) {
                         continue;
                     }
 
                     if (is_null($item)) {
-                        $stack[$columnKey] = null;
+                        if($this->isReturnObject)
+                            $stack->$columnKey = null;
+                        else
+                            $stack[$columnKey] = null;
                         continue;
                     }
 
                     switch ($map[1]) {
 
                         case 'Number':
-                            $stack[$columnKey] = (float) $item;
+                            if($this->isReturnObject)
+                                $stack->$columnKey = (float) $item;
+                            else
+                                $stack[$columnKey] = (float) $item;
                             break;
 
                         case 'Int':
-                            $stack[$columnKey] = (int) $item;
+                            if($this->isReturnObject)
+                                $stack->$columnKey = (int) $item;
+                            else
+                                $stack[$columnKey] = (int) $item;
                             break;
 
                         case 'Bool':
-                            $stack[$columnKey] = (bool) $item;
+                            if($this->isReturnObject)
+                                $stack->$columnKey = (bool) $item;
+                            else
+                                $stack[$columnKey] = (bool) $item;
                             break;
 
                         case 'Object':
-                            $stack[$columnKey] = unserialize($item);
+                            if($this->isReturnObject)
+                                $stack->$columnKey = unserialize($item);
+                            else
+                                $stack[$columnKey] = unserialize($item);
                             break;
 
                         case 'JSON':
-                            $stack[$columnKey] = json_decode($item, true);
+                            if($this->isReturnObject)
+                                $stack->$columnKey = json_decode($item, true);
+                            else
+                                $stack[$columnKey] = json_decode($item, true);
                             break;
 
                         case 'String':
-                            $stack[$columnKey] = $item;
+                            if($this->isReturnObject)
+                                $stack->$columnKey = $item;
+                            else
+                                $stack[$columnKey] = $item;
+                                
                             break;
                     }
                 } else {
-                    $stack[$columnKey] = $item;
+                    
+                    if($this->isReturnObject)
+                        $stack->$columnKey = $item;
+                    else
+                        $stack[$columnKey] = $item;
                 }
             } else {
-                $currentStack = [];
+                
+                if($this->isReturnObject)
+                    $currentStack = (object)[];
+                else
+                    $currentStack = [];
                 $this->dataMap($data, $value, $columnMap, $currentStack, false, $result);
-
-                $stack[$key] = $currentStack;
+                if($this->isReturnObject)
+                    $stack->$key = $currentStack;
+                else
+                    $stack[$key] = $currentStack;
             }
         }
     }
@@ -1548,18 +1622,21 @@ class Medoo
         // @codeCoverageIgnoreStart
         if ($columns === '*') {
             if (isset($callback)) {
-                while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
+                while ($data = $statement->fetch($this->returnType)) {
                     $callback($data);
                 }
 
                 return null;
             }
 
-            return $statement->fetchAll(PDO::FETCH_ASSOC);
+            return $statement->fetchAll($this->returnType);
         }
 
-        while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
-            $currentStack = [];
+        while ($data = $statement->fetch($this->returnType)) {
+            if($this->isReturnObject)
+                $currentStack = (object)[];
+            else
+                $currentStack = [];
 
             if (isset($callback)) {
                 $this->dataMap($data, $columns, $columnMap, $currentStack, true);
@@ -1835,7 +1912,7 @@ class Medoo
         }
 
         // @codeCoverageIgnoreStart
-        $data = $query->fetchAll(PDO::FETCH_ASSOC);
+        $data = $query->fetchAll($this->returnType);
 
         if (isset($data[0])) {
             if ($column === '*') {
