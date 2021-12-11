@@ -79,13 +79,13 @@ class Medoo
     /**
      * The type of select to be return.
      *
-     * @var string
+     * @var int
      */
     protected $returnType = PDO::FETCH_ASSOC;
     /**
-     * The type of select to be return.
+     * Define whether select return type is object or not
      *
-     * @var string
+     * @var bool
      */
     private $isReturnObject = false;
 
