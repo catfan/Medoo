@@ -1057,9 +1057,12 @@ class WhereTest extends MedooTestCase
     {
         $this->setType($type);
 
-        $this->database->select("post", [
+        $this->database->select(
+            "post",
+            [
                 "[>]account" => "user_id",
-            ], [
+            ],
+            [
                 "post.content"
             ],
             Medoo::raw("WHERE <id> => 10")
