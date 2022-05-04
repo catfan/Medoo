@@ -60,6 +60,30 @@ class QueryTest extends MedooTestCase
      * @covers ::query()
      * @covers ::isRaw()
      * @covers ::buildRaw()
+     */
+    public function testQueryTableWithPrefix()
+    {
+        $database = new Medoo([
+            'testMode' => true,
+            'prefix' => 'PREFIX_'
+        ]);
+
+        $database->type = "sqlite";
+
+        $database->query("DROP TABLE IF EXISTS <account>");
+
+        $this->assertQuery(
+            <<<EOD
+            DROP TABLE IF EXISTS "PREFIX_account"
+            EOD,
+            $database->queryString
+        );
+    }
+
+    /**
+     * @covers ::query()
+     * @covers ::isRaw()
+     * @covers ::buildRaw()
      * @dataProvider typesProvider
      */
     public function testPreparedStatementQuery($type)
