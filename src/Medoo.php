@@ -105,7 +105,7 @@ class Medoo
     protected $logs = [];
 
     /**
-     * Determine should log or not.
+     * Determine should log the query or not.
      *
      * @var bool
      */
@@ -119,7 +119,7 @@ class Medoo
     protected $testMode = false;
 
     /**
-     * The query string last generated in test mode.
+     * The last query string was generated in test mode.
      *
      * @var string
      */
@@ -133,7 +133,7 @@ class Medoo
     protected $debugMode = false;
 
     /**
-     * Determine should saving debug logging.
+     * Determine should save debug logging.
      *
      * @var bool
      */
@@ -478,7 +478,7 @@ class Medoo
     }
 
     /**
-     * Generate a new map key for placeholder.
+     * Generate a new map key for the placeholder.
      *
      * @return string
      */
@@ -830,7 +830,7 @@ class Medoo
     }
 
     /**
-     * Implode where conditions.
+     * Implode the Where conditions.
      *
      * @param array $data
      * @param array $map
@@ -1228,7 +1228,7 @@ class Medoo
     }
 
     /**
-     * Determine the array is with join syntax.
+     * Determine the array with join syntax.
      *
      * @param mixed $join
      * @return bool
