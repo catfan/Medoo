@@ -2171,7 +2171,7 @@ class Medoo
     /**
      * Register a callback function and call it after the transaction is successfully committed.
      *
-     * @param callable $callback 
+     * @param callable $callback `function(Medoo $medoo): void`
      * @return void
      */
     public function onActionCommitted(callable $callback): void
@@ -2182,7 +2182,7 @@ class Medoo
     /**
      * Register a callback function and call it after the transaction is rolled back.
      *
-     * @param callable $callback 
+     * @param callable $callback `function(Medoo $medoo): void`
      * @return void
      */
     public function onActionRolledBack(callable $callback): void
@@ -2193,7 +2193,7 @@ class Medoo
     /**
      * Register a callback function and call it when the transaction is finished.
      *
-     * @param callable $callback 
+     * @param callable $callback `function(Medoo $medoo, bool $committed): void`
      * @return void
      */
     public function onActionFinished(callable $callback): void
