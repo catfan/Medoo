@@ -2147,7 +2147,7 @@ class Medoo
             $callback($this);
         }
         foreach ($this->onActionFinished as $callback) {
-            $callback($this);
+            $callback($this, true);
         }
         $this->onActionCommitted = $this->onActionRolledBack = $this->onActionFinished = [];
     }
@@ -2163,7 +2163,7 @@ class Medoo
             $callback($this);
         }
         foreach ($this->onActionFinished as $callback) {
-            $callback($this);
+            $callback($this, false);
         }
         $this->onActionCommitted = $this->onActionRolledBack = $this->onActionFinished = [];
     }

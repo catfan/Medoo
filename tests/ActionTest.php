@@ -49,7 +49,7 @@ class ActionTest extends MedooTestCase
     {
         return [
             'return null' => [null],
-            'return bool' => [true],
+            'return true' => [true],
             'return string' => ['string'],
             'return object' => [new \stdClass],
             'return 1' => [1],
@@ -61,7 +61,7 @@ class ActionTest extends MedooTestCase
     public function rollBackReturnsProvider(): array
     {
         return [
-            'return bool' => [false],
+            'return false' => [false],
             'throw exception' => [new \Exception]
         ];
     }
@@ -81,22 +81,27 @@ class ActionTest extends MedooTestCase
         $onActionFinished = 0;
 
         $this->database->action(function (Medoo $database) use ($return, &$onActionCommitted, &$onActionRolledBack, &$onActionFinished) {
-            $database->onActionCommitted(function () use (&$onActionCommitted) {
+            $this->assertEquals($database, $this->database);
+            $database->onActionCommitted(function ($database) use (&$onActionCommitted) {
                 $onActionCommitted++;
+                $this->assertEquals($database, $this->database);
             });
             $database->onActionCommitted(function () use (&$onActionCommitted) {
                 $onActionCommitted++;
             });
 
-            $database->onActionRolledBack(function () use (&$onActionRolledBack) {
+            $database->onActionRolledBack(function ($database) use (&$onActionRolledBack) {
                 $onActionRolledBack++;
+                $this->assertEquals($database, $this->database);
             });
-            $database->onActionRolledBack(function () use (&$onActionRolledBack) {
+            $database->onActionRolledBack(function ($database) use (&$onActionRolledBack) {
                 $onActionRolledBack++;
             });
 
-            $database->onActionFinished(function () use (&$onActionFinished) {
+            $database->onActionFinished(function ($database, $commited) use (&$onActionFinished) {
                 $onActionFinished++;
+                $this->assertEquals($database, $this->database);
+                $this->assertEquals($commited, true);
             });
             $database->onActionFinished(function () use (&$onActionFinished) {
                 $onActionFinished++;
@@ -131,22 +136,27 @@ class ActionTest extends MedooTestCase
 
         try {
             $this->database->action(function (Medoo $database) use ($return, &$onActionCommitted, &$onActionRolledBack, &$onActionFinished) {
-                $database->onActionCommitted(function () use (&$onActionCommitted) {
+                $this->assertEquals($database, $this->database);
+                $database->onActionCommitted(function ($database) use (&$onActionCommitted) {
                     $onActionCommitted++;
+                    $this->assertEquals($database, $this->database);
                 });
                 $database->onActionCommitted(function () use (&$onActionCommitted) {
                     $onActionCommitted++;
                 });
 
-                $database->onActionRolledBack(function () use (&$onActionRolledBack) {
+                $database->onActionRolledBack(function ($database) use (&$onActionRolledBack) {
                     $onActionRolledBack++;
+                    $this->assertEquals($database, $this->database);
                 });
                 $database->onActionRolledBack(function () use (&$onActionRolledBack) {
                     $onActionRolledBack++;
                 });
 
-                $database->onActionFinished(function () use (&$onActionFinished) {
+                $database->onActionFinished(function ($database, $commited) use (&$onActionFinished) {
                     $onActionFinished++;
+                    $this->assertEquals($database, $this->database);
+                    $this->assertEquals($commited, false);
                 });
                 $database->onActionFinished(function () use (&$onActionFinished) {
                     $onActionFinished++;
