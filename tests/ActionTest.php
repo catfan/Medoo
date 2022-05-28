@@ -70,7 +70,7 @@ class ActionTest extends MedooTestCase
      * @covers ::action()
      * @covers ::onActionCommitted()
      * @covers ::onActionRolledBack()
-     * @covers ::onActionFinish()
+     * @covers ::onActionFinished()
      * @covers ::callActionCommitted()
      * @dataProvider commitReturnsProvider
      */
@@ -78,9 +78,9 @@ class ActionTest extends MedooTestCase
     {
         $onActionCommitted = 0;
         $onActionRolledBack = 0;
-        $onActionFinish = 0;
+        $onActionFinished = 0;
 
-        $this->database->action(function (Medoo $database) use ($return, &$onActionCommitted, &$onActionRolledBack, &$onActionFinish) {
+        $this->database->action(function (Medoo $database) use ($return, &$onActionCommitted, &$onActionRolledBack, &$onActionFinished) {
             $database->onActionCommitted(function () use (&$onActionCommitted) {
                 $onActionCommitted++;
             });
@@ -95,11 +95,11 @@ class ActionTest extends MedooTestCase
                 $onActionRolledBack++;
             });
 
-            $database->onActionFinish(function () use (&$onActionFinish) {
-                $onActionFinish++;
+            $database->onActionFinished(function () use (&$onActionFinished) {
+                $onActionFinished++;
             });
-            $database->onActionFinish(function () use (&$onActionFinish) {
-                $onActionFinish++;
+            $database->onActionFinished(function () use (&$onActionFinished) {
+                $onActionFinished++;
             });
 
             return $return;
@@ -107,7 +107,7 @@ class ActionTest extends MedooTestCase
 
         $this->assertEquals($onActionCommitted, 2);
         $this->assertEquals($onActionRolledBack, 0);
-        $this->assertEquals($onActionFinish, 2);
+        $this->assertEquals($onActionFinished, 2);
 
         $this->assertEquals($this->database->pdo->testBeginTransaction, 1);
         $this->assertEquals($this->database->pdo->testRollBack, 0);
@@ -118,7 +118,7 @@ class ActionTest extends MedooTestCase
      * @covers ::action()
      * @covers ::onActionCommitted()
      * @covers ::onActionRolledBack()
-     * @covers ::onActionFinish()
+     * @covers ::onActionFinished()
      * @covers ::callActionRolledBack()
      * @dataProvider rollBackReturnsProvider
      */
@@ -126,11 +126,11 @@ class ActionTest extends MedooTestCase
     {
         $onActionCommitted = 0;
         $onActionRolledBack = 0;
-        $onActionFinish = 0;
+        $onActionFinished = 0;
         $throwException = 0;
 
         try {
-            $this->database->action(function (Medoo $database) use ($return, &$onActionCommitted, &$onActionRolledBack, &$onActionFinish) {
+            $this->database->action(function (Medoo $database) use ($return, &$onActionCommitted, &$onActionRolledBack, &$onActionFinished) {
                 $database->onActionCommitted(function () use (&$onActionCommitted) {
                     $onActionCommitted++;
                 });
@@ -145,11 +145,11 @@ class ActionTest extends MedooTestCase
                     $onActionRolledBack++;
                 });
 
-                $database->onActionFinish(function () use (&$onActionFinish) {
-                    $onActionFinish++;
+                $database->onActionFinished(function () use (&$onActionFinished) {
+                    $onActionFinished++;
                 });
-                $database->onActionFinish(function () use (&$onActionFinish) {
-                    $onActionFinish++;
+                $database->onActionFinished(function () use (&$onActionFinished) {
+                    $onActionFinished++;
                 });
 
                 if ($return instanceof \Throwable) {
@@ -163,7 +163,7 @@ class ActionTest extends MedooTestCase
 
         $this->assertEquals($onActionCommitted, 0);
         $this->assertEquals($onActionRolledBack, 2);
-        $this->assertEquals($onActionFinish, 2);
+        $this->assertEquals($onActionFinished, 2);
 
         if ($return instanceof \Throwable) {
             $this->assertEquals($throwException, 1);

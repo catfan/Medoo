@@ -193,7 +193,7 @@ class Medoo
      *
      * @var callable[]
      */
-    public $onActionFinish = [];
+    public $onActionFinished = [];
     
     /**
      * Connect the database.
@@ -2146,10 +2146,10 @@ class Medoo
         foreach ($this->onActionCommitted as $callback) {
             $callback($this);
         }
-        foreach ($this->onActionFinish as $callback) {
+        foreach ($this->onActionFinished as $callback) {
             $callback($this);
         }
-        $this->onActionCommitted = $this->onActionRolledBack = $this->onActionFinish = [];
+        $this->onActionCommitted = $this->onActionRolledBack = $this->onActionFinished = [];
     }
 
     /**
@@ -2162,10 +2162,10 @@ class Medoo
         foreach ($this->onActionRolledBack as $callback) {
             $callback($this);
         }
-        foreach ($this->onActionFinish as $callback) {
+        foreach ($this->onActionFinished as $callback) {
             $callback($this);
         }
-        $this->onActionCommitted = $this->onActionRolledBack = $this->onActionFinish = [];
+        $this->onActionCommitted = $this->onActionRolledBack = $this->onActionFinished = [];
     }
 
     /**
@@ -2196,9 +2196,9 @@ class Medoo
      * @param callable $callback 
      * @return void
      */
-    public function onActionFinish(callable $callback): void
+    public function onActionFinished(callable $callback): void
     {
-        $this->onActionFinish[] = $callback;
+        $this->onActionFinished[] = $callback;
     }
 
     /**
