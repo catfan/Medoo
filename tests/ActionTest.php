@@ -49,7 +49,7 @@ class ActionTest extends MedooTestCase
     {
         return [
             'return null' => [null],
-            'return bool' => [true],
+            'return true' => [true],
             'return string' => ['string'],
             'return object' => [new \stdClass],
             'return 1' => [1],
@@ -61,7 +61,7 @@ class ActionTest extends MedooTestCase
     public function rollBackReturnsProvider(): array
     {
         return [
-            'return bool' => [false],
+            'return false' => [false],
             'throw exception' => [new \Exception]
         ];
     }
