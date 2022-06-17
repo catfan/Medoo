@@ -234,9 +234,7 @@ class Medoo
         }
 
         $option = $options['option'] ?? [];
-        $commands = (isset($options['command']) && is_array($options['command'])) ?
-            $options['command'] :
-            [];
+        $commands = [];
 
         switch ($this->type) {
 
@@ -467,6 +465,10 @@ class Medoo
                     $options['error'] :
                     PDO::ERRMODE_SILENT
                 );
+            }
+
+            if (isset($options['command']) && is_array($options['command'])) {
+                $commands = array_merge($commands, $options['command']);
             }
 
             foreach ($commands as $value) {
