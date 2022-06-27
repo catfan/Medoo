@@ -1776,8 +1776,8 @@ class Medoo
                 /** @var \DateTime $value */
                 $value = $value
                     ->setTimezone(new \DateTimeZone('UTC'))
-                    ->format('Y-m-d h:m:s');
-                // Timezone and milliseconds (Y-m-d h:m:s.U e) are not supported by now by mysql/mariadb
+                    ->format('Y-m-d H:m:s');
+                // Timezone and milliseconds (Y-m-d H:m:s.U e) are not supported by now by mysql/mariadb
                 // (https://dev.mysql.com/doc/refman/8.0/en/datetime.html)
             }
 
