@@ -2225,7 +2225,11 @@ class Medoo
         ];
 
         foreach ($output as $key => $value) {
-            $output[$key] = @$this->pdo->getAttribute(constant('PDO::ATTR_' . $value));
+            try {
+                $output[$key] = $this->pdo->getAttribute(constant('PDO::ATTR_' . $value));
+            } catch (PDOException $e) {
+                $output[$key] = $e->getMessage();
+            }
         }
 
         $output['dsn'] = $this->dsn;
