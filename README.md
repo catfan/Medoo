@@ -61,7 +61,6 @@ $database = new Medoo([
     'password' => 'your_password'
 ]);
 
-// Enjoy
 $database->insert('account', [
     'user_name' => 'foo',
     'email' => 'foo@bar.com'
@@ -88,7 +87,7 @@ For starting a new pull request, please make sure it's compatible with other dat
 
 Run `phpunit tests` for unit testing and `php-cs-fixer fix` for fixing code style.
 
-Each commit is started with `[fix]`, `[feature]` or `[update]` tag to indicate the change.
+Each commit should start with `[fix]`, `[feature]` or `[update]` tag to indicate the change.
 
 Please keep it simple and keep it clear.
 
@@ -103,3 +102,5 @@ Medoo is under the MIT license.
 * Documentation: [https://medoo.in/doc](https://medoo.in/doc)
 
 * Twitter: [https://twitter.com/MedooPHP](https://twitter.com/MedooPHP)
+
+* Open Collective: [https://opencollective.com/medoo](https://opencollective.com/medoo)
