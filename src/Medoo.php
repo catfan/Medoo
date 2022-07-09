@@ -967,6 +967,9 @@ class Medoo
                 } elseif ($operator === 'REGEXP') {
                     $stack[] = "{$column} REGEXP {$mapKey}";
                     $map[$mapKey] = [$value, PDO::PARAM_STR];
+		} elseif ($operator === 'REGEXP_LIKE') {
+		    $stack[] = "{$column} REGEXP_LIKE {$mapKey}";
+		    $map[$mapKey] = [$value, PDO::PARAM_STR];
                 } else {
                     throw new InvalidArgumentException("Invalid operator [{$operator}] for column {$column} supplied.");
                 }
