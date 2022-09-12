@@ -756,7 +756,7 @@ class Medoo
     {
         if (preg_match('/^[\p{L}_][\p{L}\p{N}@$#\-_]*(\.?[\p{L}_][\p{L}\p{N}@$#\-_]*)?$/u', $column)) {
             return strpos($column, '.') !== false ?
-                $this->identifierDelimiter[0] . $this->prefix . str_replace('.', $this->identifierDelimiter[0] . '.' . $this->identifierDelimiter[1], $column) . $this->identifierDelimiter[1] :
+                $this->identifierDelimiter[0] . $this->prefix . str_replace('.', $this->identifierDelimiter[1] . '.' . $this->identifierDelimiter[0], $column) . $this->identifierDelimiter[1] :
                 $this->identifierDelimiter[0] . $column . $this->identifierDelimiter[1];
         }
 
