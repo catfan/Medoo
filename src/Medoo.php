@@ -728,7 +728,7 @@ class Medoo
             $this->identifierDelimiter = $identifierDelimiter . $identifierDelimiter;
         }
 
-		return $this;
+        return $this;
     }
 
     /**
