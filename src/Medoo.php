@@ -718,15 +718,17 @@ class Medoo
      * like SQL Server where square brackets are used rather than a single character.
      *
      * @param string $identifierDelimiter
-     * @return void
+     * @return Medoo
      */
-    public function setIdentifierDelimiter(string $identifierDelimiter): void
+    public function setIdentifierDelimiter(string $identifierDelimiter): self
     {
         if (strlen($identifierDelimiter) === 2) {
             $this->identifierDelimiter = $identifierDelimiter;
         } elseif (strlen($identifierDelimiter) === 1) {
             $this->identifierDelimiter = $identifierDelimiter . $identifierDelimiter;
         }
+
+		return $this;
     }
 
     /**
@@ -754,7 +756,7 @@ class Medoo
     {
         if (preg_match('/^[\p{L}_][\p{L}\p{N}@$#\-_]*(\.?[\p{L}_][\p{L}\p{N}@$#\-_]*)?$/u', $column)) {
             return strpos($column, '.') !== false ?
-                $this->identifierDelimiter[0] . $this->prefix . str_replace('.', '"."', $column) . $this->identifierDelimiter[1] :
+                $this->identifierDelimiter[0] . $this->prefix . str_replace('.', $this->identifierDelimiter[0] . '.' . $this->identifierDelimiter[1], $column) . $this->identifierDelimiter[1] :
                 $this->identifierDelimiter[0] . $column . $this->identifierDelimiter[1];
         }
 
