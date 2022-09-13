@@ -2002,7 +2002,7 @@ class Medoo
      * @param array $where
      * @return string|null
      */
-    private function aggregate(string $type, string $table, $join = null, $column = null, $where = null): ?string
+    private function aggregate(string $type, string $table, $join = null, $column = null, $where = null): null|string|int
     {
         $map = [];
 
