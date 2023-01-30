@@ -969,8 +969,10 @@ class Medoo
                     $map[$mapKey] = [$value, PDO::PARAM_STR];
                 } elseif ($operator === 'FIND_IN_SET') {
                     $stack[] = "FIND_IN_SET ({$mapKey},{$column})";
-                    $map[$mapKey] = [$value, PDO::PARAM_STR]; 
-                } else {
+                    $map[$mapKey] = [(string)$value, PDO::PARAM_STR]; 
+                } elseif ($operator === 'RAW' && $this->isRaw($value)) { 
+                    $stack[] = $this->buildRaw($value, $map); 
+                }else {
                     throw new InvalidArgumentException("Invalid operator [{$operator}] for column {$column} supplied.");
                 }
 
