@@ -972,7 +972,7 @@ class Medoo
                     $map[$mapKey] = [(string)$value, PDO::PARAM_STR]; 
                 } elseif ($operator === 'RAW' && $this->isRaw($value)) { 
                     $stack[] = $this->buildRaw($value, $map); 
-                }else {
+                } else {
                     throw new InvalidArgumentException("Invalid operator [{$operator}] for column {$column} supplied.");
                 }
 
