@@ -51,14 +51,14 @@ class Raw
  * @method bool has(string $table, array $where)
  * @method mixed rand(string $table, array|string $column, array $where)
  * @method int count(string $table, array $where)
- * @method int max(string $table, string $column)
- * @method int min(string $table, string $column)
- * @method int avg(string $table, string $column)
- * @method int sum(string $table, string $column)
- * @method int max(string $table, string $column, array $where)
- * @method int min(string $table, string $column, array $where)
- * @method int avg(string $table, string $column, array $where)
- * @method int sum(string $table, string $column, array $where)
+ * @method string max(string $table, string $column)
+ * @method string min(string $table, string $column)
+ * @method string avg(string $table, string $column)
+ * @method string sum(string $table, string $column)
+ * @method string max(string $table, string $column, array $where)
+ * @method string min(string $table, string $column, array $where)
+ * @method string avg(string $table, string $column, array $where)
+ * @method string sum(string $table, string $column, array $where)
  */
 class Medoo
 {
