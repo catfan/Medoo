@@ -11,23 +11,23 @@
     <a href="https://opencollective.com/medoo"><img alt="Sponsors on Open Collective" src="https://opencollective.com/Medoo/sponsors/badge.svg"> </a>
 </p>
 
-> The lightweight PHP database framework to accelerate development
+> The lightweight PHP database framework to accelerate development.
 
 ## Features
 
 * **Lightweight** - Portable with only one file.
 
-* **Easy** - Easy to learn and use, friendly construction.
+* **Easy** - Easy to learn and use, with a friendly construction.
 
 * **Powerful** - Supports various common and complex SQL queries, data mapping and prevents SQL injection.
 
 * **Compatible** - Supports MySQL, MSSQL, SQLite, MariaDB, PostgreSQL, Sybase, Oracle, and more.
 
-* **Friendly** - Works well with every PHP framework, like Laravel, Codeigniter, Yii, Slim, and frameworks that are supporting singleton extension or composer.
+* **Friendly** - Works well with every PHP framework, such as Laravel, Codeigniter, Yii, Slim, and frameworks that support singleton extension or composer.
 
-* **Free** - Under the MIT license, you can use it anywhere, whatever you want.
+* **Free** - Under the MIT license, you can use it anywhere, for whatever purpose.
 
-## Requirement
+## Requirements
 
 PHP 7.3+ and installed PDO extension.
 
@@ -49,10 +49,10 @@ $ composer update
 // Require Composer's autoloader.
 require 'vendor/autoload.php';
 
-// Using Medoo namespace.
+// Use the Medoo namespace.
 use Medoo\Medoo;
 
-// Connect the database.
+// Connect to the database.
 $database = new Medoo([
     'type' => 'mysql',
     'host' => 'localhost',
@@ -83,17 +83,17 @@ echo json_encode($data);
 
 ## Contribution Guides
 
-For starting a new pull request, please make sure it's compatible with other databases and write a unit test as possible.
+Before starting a new pull request, please ensure compatibility with other databases and write unit tests whenever possible.
 
-Run `phpunit tests` for unit testing and `php-cs-fixer fix` for fixing code style.
+Run `phpunit tests` for unit testing and `php-cs-fixer fix` to fix code style.
 
-Each commit should start with `[fix]`, `[feature]` or `[update]` tag to indicate the change.
+Each commit should start with a tag indicating the type of change: `[fix]`, `[feature]`, or `[update]`.
 
 Please keep it simple and keep it clear.
 
 ## License
 
-Medoo is under the MIT license.
+Medoo is released under the MIT license.
 
 ## Links
 
@@ -104,3 +104,8 @@ Medoo is under the MIT license.
 * Twitter: [https://twitter.com/MedooPHP](https://twitter.com/MedooPHP)
 
 * Open Collective: [https://opencollective.com/medoo](https://opencollective.com/medoo)
+
+## Support Our Other Product
+[Gear Browser - Web Browser for Geek](https://gear4.app)
+
+[![Gear Browser](https://github-production-user-asset-6210df.s3.amazonaws.com/1467904/240102839-a597972c-458a-4f0e-9ef8-d4ad10ba0690.png)](https://gear4.app)
