@@ -1461,7 +1461,7 @@ class Medoo
                             break;
 
                         case 'String':
-                            $stack[$columnKey] = $item;
+                            $stack[$columnKey] = (string) $item;
                             break;
                     }
                 } else {
