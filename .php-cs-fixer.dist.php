@@ -1,6 +1,7 @@
 <?php
+$config = new PhpCsFixer\Config();
 
-return PhpCsFixer\Config::create()
+$config
     ->setRules([
         '@PSR2' => true,
         '@PSR12' => true,
@@ -12,3 +13,5 @@ return PhpCsFixer\Config::create()
             ->in(__DIR__ . '/tests')
     )
 ;
+
+return $config;
