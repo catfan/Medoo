@@ -47,6 +47,7 @@ class Raw
  * @method null select(string $table, array $columns, callable $callback)
  * @method null select(string $table, array $columns, array $where, callable $callback)
  * @method null select(string $table, array $join, array $columns, array $where, callable $callback)
+ * @method mixed select(string $table, array|string $columns, array $where)
  * @method mixed get(string $table, array|string $columns, array $where)
  * @method bool has(string $table, array $where)
  * @method mixed rand(string $table, array|string $column, array $where)
