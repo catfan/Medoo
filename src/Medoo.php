@@ -710,8 +710,8 @@ class Medoo
      */
     public function tableQuote(string $table): string
     {
-        if (preg_match('/^[\p{L}_][\p{L}\p{N}@$#\-_]*$/u', $table)) {
-            return '"' . $this->prefix . $table . '"';
+        if (preg_match('/^[\p{L}_][\p{L}\p{N}@$#\-_\.]*$/u', $table)) {
+            return '`' . $this->prefix . $table . '`';
         }
 
         throw new InvalidArgumentException("Incorrect table name: {$table}.");
