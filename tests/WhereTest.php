@@ -648,6 +648,44 @@ class WhereTest extends MedooTestCase
      * @covers ::whereClause()
      * @dataProvider typesProvider
      */
+    public function testMultipleLikeWhere($type)
+    {
+        $this->setType($type);
+
+        $words = [
+            "one",
+            "two",
+            "three",
+            "four",
+            "five",
+            "six",
+            "seven",
+            "eight",
+            "nine",
+            "ten",
+            "eleven",
+            "twelve"
+        ];
+
+        $this->database->select("account", ["title"], ["title[~]" => $words]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "title"
+            FROM "account"
+            WHERE
+            ("title" LIKE '%one%' OR "title" LIKE '%two%' OR "title" LIKE '%three%' OR "title" LIKE '%four%' OR "title" LIKE '%five%' OR "title" LIKE '%six%' OR "title" LIKE '%seven%' OR "title" LIKE '%eight%' OR "title" LIKE '%nine%' OR "title" LIKE '%ten%' OR "title" LIKE '%eleven%' OR "title" LIKE '%twelve%')
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
+     * @dataProvider typesProvider
+     */
     public function testBasicOrderWhere($type)
     {
         $this->setType($type);
