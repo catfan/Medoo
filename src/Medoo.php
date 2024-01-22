@@ -604,7 +604,7 @@ class Medoo
 
         foreach ($map as $key => $value) {
             if ($value[1] === PDO::PARAM_STR) {
-                $replace = $this->quote($value[0]);
+                $replace = $this->quote("{$value[0]}");
             } elseif ($value[1] === PDO::PARAM_NULL) {
                 $replace = 'NULL';
             } elseif ($value[1] === PDO::PARAM_LOB) {

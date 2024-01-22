@@ -21,6 +21,7 @@ class UpdateTest extends MedooTestCase
 
         $this->database->update("account", [
             "type" => "user",
+            "money" => 23.2,
             "age[+]" => 1,
             "level[-]" => 5,
             "score[*]" => 2,
@@ -37,6 +38,7 @@ class UpdateTest extends MedooTestCase
             'default' => <<<EOD
                 UPDATE "account"
                 SET "type" = 'user',
+                "money" = '23.2',
                 "age" = "age" + 1,
                 "level" = "level" - 5,
                 "score" = "score" * 2,
@@ -44,12 +46,13 @@ class UpdateTest extends MedooTestCase
                 "lang" = '["en","fr"]',
                 "is_locked" = 1,
                 "uuid" = UUID(),
-                "object" = :MeD4_mK
+                "object" = :MeD5_mK
                 WHERE "user_id" < 1000
                 EOD,
             'mysql' => <<<EOD
                 UPDATE "account"
                 SET "type" = 'user',
+                "money" = '23.2',
                 "age" = "age" + 1,
                 "level" = "level" - 5,
                 "score" = "score" * 2,
@@ -57,7 +60,7 @@ class UpdateTest extends MedooTestCase
                 "lang" = '[\"en\",\"fr\"]',
                 "is_locked" = 1,
                 "uuid" = UUID(),
-                "object" = :MeD4_mK
+                "object" = :MeD5_mK
                 WHERE "user_id" < 1000
                 EOD,
         ], $this->database->queryString);
