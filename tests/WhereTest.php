@@ -238,6 +238,62 @@ class WhereTest extends MedooTestCase
      * @covers ::whereClause()
      * @dataProvider typesProvider
      */
+    public function testRawArrayValuesWhere($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account", "user_name", [
+            'id' => [
+                Medoo::raw('LOWER("FOO")'),
+                Medoo::raw('LOWER("BAR")')
+            ]
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "user_name"
+            FROM "account"
+            WHERE
+            "id" IN (LOWER("FOO"), LOWER("BAR"))
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
+     * @dataProvider typesProvider
+     */
+    public function testRawNotInArrayValuesWhere($type)
+    {
+        $this->setType($type);
+
+        $this->database->select("account", "user_name", [
+            'id[!]' => [
+                Medoo::raw('LOWER("FOO")'),
+                Medoo::raw('LOWER("BAR")')
+            ]
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "user_name"
+            FROM "account"
+            WHERE
+            "id" NOT IN (LOWER("FOO"), LOWER("BAR"))
+            EOD,
+            $this->database->queryString
+        );
+    }
+
+    /**
+     * @covers ::select()
+     * @covers ::dataImplode()
+     * @covers ::whereClause()
+     * @dataProvider typesProvider
+     */
     public function testNegativeWhere($type)
     {
         $this->setType($type);

@@ -894,15 +894,20 @@ class Medoo
                             break;
 
                         case 'array':
-                            $placeholders = [];
+                            $values = [];
 
                             foreach ($value as $index => $item) {
-                                $stackKey = $mapKey . $index . '_i';
-                                $placeholders[] = $stackKey;
-                                $map[$stackKey] = $this->typeMap($item, gettype($item));
+                                if ($raw = $this->buildRaw($item, $map)) {
+                                    $values[] = $raw;
+                                } else {
+                                    $stackKey = $mapKey . $index . '_i';
+
+                                    $values[] = $stackKey;
+                                    $map[$stackKey] = $this->typeMap($item, gettype($item));
+                                }
                             }
 
-                            $stack[] = $column . ' NOT IN (' . implode(', ', $placeholders) . ')';
+                            $stack[] = $column . ' NOT IN (' . implode(', ', $values) . ')';
                             break;
 
                         case 'object':
@@ -981,16 +986,20 @@ class Medoo
                     break;
 
                 case 'array':
-                    $placeholders = [];
+                    $values = [];
 
                     foreach ($value as $index => $item) {
-                        $stackKey = $mapKey . $index . '_i';
+                        if ($raw = $this->buildRaw($item, $map)) {
+                            $values[] = $raw;
+                        } else {
+                            $stackKey = $mapKey . $index . '_i';
 
-                        $placeholders[] = $stackKey;
-                        $map[$stackKey] = $this->typeMap($item, gettype($item));
+                            $values[] = $stackKey;
+                            $map[$stackKey] = $this->typeMap($item, gettype($item));
+                        }
                     }
 
-                    $stack[] = $column . ' IN (' . implode(', ', $placeholders) . ')';
+                    $stack[] = $column . ' IN (' . implode(', ', $values) . ')';
                     break;
 
                 case 'object':
