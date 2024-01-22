@@ -897,9 +897,13 @@ class Medoo
                             $placeholders = [];
 
                             foreach ($value as $index => $item) {
-                                $stackKey = $mapKey . $index . '_i';
-                                $placeholders[] = $stackKey;
-                                $map[$stackKey] = $this->typeMap($item, gettype($item));
+                                if ($this->isRaw($item)) {
+									$placeholders[] = $this->buildRaw($item, $map);
+								} else {
+									$stackKey = $mapKey . $index . '_i';
+									$placeholders[] = $stackKey;
+									$map[$stackKey] = $this->typeMap($item, gettype($item));
+								}
                             }
 
                             $stack[] = $column . ' NOT IN (' . implode(', ', $placeholders) . ')';
@@ -984,10 +988,13 @@ class Medoo
                     $placeholders = [];
 
                     foreach ($value as $index => $item) {
-                        $stackKey = $mapKey . $index . '_i';
-
-                        $placeholders[] = $stackKey;
-                        $map[$stackKey] = $this->typeMap($item, gettype($item));
+                        if ($this->isRaw($item)) {
+							$placeholders[] = $this->buildRaw($item, $map);
+						} else {
+							$stackKey = $mapKey . $index . '_i';
+							$placeholders[] = $stackKey;
+							$map[$stackKey] = $this->typeMap($item, gettype($item));
+						}
                     }
 
                     $stack[] = $column . ' IN (' . implode(', ', $placeholders) . ')';
