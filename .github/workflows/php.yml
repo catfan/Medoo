@@ -4,11 +4,9 @@ on:
   push:
     branches:
       - master
-      - develop
   pull_request:
     branches:
       - master
-      - develop
 
 jobs:
   build:
@@ -17,7 +15,7 @@ jobs:
     
     strategy:
       matrix:
-        php: ['7.3', '7.4', '8.2']
+        php: ['7.3', '7.4', '8.2', '8.3']
 
     steps:
     - uses: actions/checkout@v3.3.0
