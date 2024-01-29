@@ -6,10 +6,10 @@ declare(strict_types=1);
  *
  * The Lightweight PHP Database Framework to Accelerate Development.
  *
- * @version 2.1.10
+ * @version 2.1.11
  * @author Angel Lai
  * @package Medoo
- * @copyright Copyright 2023 Medoo Project, Angel Lai.
+ * @copyright Copyright 2024 Medoo Project, Angel Lai.
  * @license https://opensource.org/licenses/MIT
  * @link https://medoo.in
  */
