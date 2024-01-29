@@ -29,19 +29,20 @@
 
 ## Requirements
 
-PHP 7.3+ and installed PDO extension.
+- PHP 7.3+
+- Installed PDO extension
 
 ## Get Started
 
 ### Install via composer
 
-Add Medoo to the composer.json configuration file.
-```
+Add Medoo to the `composer.json` configuration file.
+```bash
 $ composer require catfan/medoo
 ```
 
 And update the composer
-```
+```bash
 $ composer update
 ```
 
@@ -81,7 +82,7 @@ echo json_encode($data);
 // }]
 ```
 
-## Contribution Guides
+## Contribution Guidelines
 
 Before starting a new pull request, please ensure compatibility with other databases and write unit tests whenever possible.
 
@@ -108,4 +109,4 @@ Medoo is released under the MIT license.
 ## Support Our Other Product
 [Gear Browser - Web Browser for Geek](https://gear4.app)
 
-[![Gear Browser](https://github-production-user-asset-6210df.s3.amazonaws.com/1467904/240102839-a597972c-458a-4f0e-9ef8-d4ad10ba0690.png)](https://gear4.app)
+[![Gear Browser](https://github.com/catfan/Medoo/assets/1467904/bc5059d4-6a2d-4bbf-90d9-a9f71bae3335)](https://gear4.app)
