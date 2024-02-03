@@ -84,6 +84,15 @@ class Medoo
     protected $prefix;
 
     /**
+     * The identifier delimiter used for quoting table and column names.
+     *
+     * Defaults to the SQL-92 standard delimiter.
+     *
+     * @var string
+     */
+    protected $identifierDelimiter = '""';
+
+    /**
      * The PDO statement object.
      *
      * @var \PDOStatement
@@ -703,6 +712,26 @@ class Medoo
     }
 
     /**
+     * Sets the identifier delimiter for use when quoting tables or columns.
+     *
+     * Ensures it is set to a two-character string for usage with databases
+     * like SQL Server where square brackets are used rather than a single character.
+     *
+     * @param string $identifierDelimiter
+     * @return Medoo
+     */
+    public function setIdentifierDelimiter(string $identifierDelimiter): self
+    {
+        if (strlen($identifierDelimiter) === 2) {
+            $this->identifierDelimiter = $identifierDelimiter;
+        } elseif (strlen($identifierDelimiter) === 1) {
+            $this->identifierDelimiter = $identifierDelimiter . $identifierDelimiter;
+        }
+
+        return $this;
+    }
+
+    /**
      * Quote table name for use in a query.
      *
      * @param string $table
@@ -711,7 +740,7 @@ class Medoo
     public function tableQuote(string $table): string
     {
         if (preg_match('/^[\p{L}_][\p{L}\p{N}@$#\-_]*$/u', $table)) {
-            return '"' . $this->prefix . $table . '"';
+            return $this->identifierDelimiter[0] . $this->prefix . $table . $this->identifierDelimiter[1];
         }
 
         throw new InvalidArgumentException("Incorrect table name: {$table}.");
@@ -727,8 +756,8 @@ class Medoo
     {
         if (preg_match('/^[\p{L}_][\p{L}\p{N}@$#\-_]*(\.?[\p{L}_][\p{L}\p{N}@$#\-_]*)?$/u', $column)) {
             return strpos($column, '.') !== false ?
-                '"' . $this->prefix . str_replace('.', '"."', $column) . '"' :
-                '"' . $column . '"';
+                $this->identifierDelimiter[0] . $this->prefix . str_replace('.', $this->identifierDelimiter[1] . '.' . $this->identifierDelimiter[0], $column) . $this->identifierDelimiter[1] :
+                $this->identifierDelimiter[0] . $column . $this->identifierDelimiter[1];
         }
 
         throw new InvalidArgumentException("Incorrect column name: {$column}.");
