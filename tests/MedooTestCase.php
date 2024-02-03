@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class MedooTestCase extends TestCase
 {
+    /** @var Medoo */
     protected $database;
 
     public function setUp(): void
@@ -42,7 +43,7 @@ class MedooTestCase extends TestCase
         return preg_replace(
             '/(?!\'[^\s]+\s?)"([\p{L}_][\p{L}\p{N}@$#\-_]*)"(?!\s?[^\s]+\')/u',
             $identifier[$this->database->type] ?? '"$1"',
-            str_replace("\n", " ", $expected)
+            str_replace(["\r\n", "\n"], " ", $expected)
         );
     }
 

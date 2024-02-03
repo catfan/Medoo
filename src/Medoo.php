@@ -175,6 +175,27 @@ class Medoo
     public $errorInfo = null;
 
     /**
+     * Call callback when the transaction has committed.
+     *
+     * @var callable[]
+     */
+    public $onActionCommitted = [];
+    
+    /**
+     * Call callback when the transaction has rolled back.
+     *
+     * @var callable[]
+     */
+    public $onActionRolledBack = [];
+    
+    /**
+     * Call callback when the transaction has finished.
+     *
+     * @var callable[]
+     */
+    public $onActionFinished = [];
+    
+    /**
      * Connect the database.
      *
      * ```
@@ -2114,14 +2135,82 @@ class Medoo
 
                 if ($result === false) {
                     $this->pdo->rollBack();
+                    $this->callActionRolledBack();
                 } else {
                     $this->pdo->commit();
+                    $this->callActionCommitted();
                 }
             } catch (Exception $e) {
                 $this->pdo->rollBack();
+                $this->callActionRolledBack();
                 throw $e;
             }
         }
+    }
+
+    /**
+     * Call callback when the transaction has committed.
+     *
+     * @return void
+     */
+    protected function callActionCommitted(): void
+    {
+        foreach ($this->onActionCommitted as $callback) {
+            $callback($this);
+        }
+        foreach ($this->onActionFinished as $callback) {
+            $callback($this, true);
+        }
+        $this->onActionCommitted = $this->onActionRolledBack = $this->onActionFinished = [];
+    }
+
+    /**
+     * Call callback when the transaction has rolled back.
+     *
+     * @return void
+     */
+    protected function callActionRolledBack(): void
+    {
+        foreach ($this->onActionRolledBack as $callback) {
+            $callback($this);
+        }
+        foreach ($this->onActionFinished as $callback) {
+            $callback($this, false);
+        }
+        $this->onActionCommitted = $this->onActionRolledBack = $this->onActionFinished = [];
+    }
+
+    /**
+     * Register a callback function and call it after the transaction is successfully committed.
+     *
+     * @param callable $callback `function(Medoo $medoo): void`
+     * @return void
+     */
+    public function onActionCommitted(callable $callback): void
+    {
+        $this->onActionCommitted[] = $callback;
+    }
+
+    /**
+     * Register a callback function and call it after the transaction is rolled back.
+     *
+     * @param callable $callback `function(Medoo $medoo): void`
+     * @return void
+     */
+    public function onActionRolledBack(callable $callback): void
+    {
+        $this->onActionRolledBack[] = $callback;
+    }
+
+    /**
+     * Register a callback function and call it when the transaction is finished.
+     *
+     * @param callable $callback `function(Medoo $medoo, bool $committed): void`
+     * @return void
+     */
+    public function onActionFinished(callable $callback): void
+    {
+        $this->onActionFinished[] = $callback;
     }
 
     /**
