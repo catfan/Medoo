@@ -942,14 +942,15 @@ class Medoo
                     $likeClauses = [];
 
                     foreach ($value as $index => $item) {
+                        $likeKey = "{$mapKey}_{$index}_i";
                         $item = strval($item);
 
                         if (!preg_match('/((?<!\\\)\[.+(?<!\\\)\]|(?<!\\\)[\*\?\!\%#^_]|%.+|.+%)/', $item)) {
                             $item = '%' . $item . '%';
                         }
 
-                        $likeClauses[] = $column . ($operator === '!~' ? ' NOT' : '') . " LIKE {$mapKey}L{$index}$";
-                        $map["{$mapKey}L{$index}$"] = [$item, PDO::PARAM_STR];
+                        $likeClauses[] = $column . ($operator === '!~' ? ' NOT' : '') . " LIKE {$likeKey}";
+                        $map[$likeKey] = [$item, PDO::PARAM_STR];
                     }
 
                     $stack[] = '(' . implode($connector, $likeClauses) . ')';

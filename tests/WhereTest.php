@@ -679,6 +679,7 @@ class WhereTest extends MedooTestCase
 
         $this->database->select("account", "user_name", [
             "city[~]" => "%stan",
+            "company[~]" => "Goo%",
             "location[~]" => "Londo_",
             "name[~]" => "[BCR]at",
             "nickname[~]" => "[!BCR]at"
@@ -690,6 +691,7 @@ class WhereTest extends MedooTestCase
             FROM "account"
             WHERE
             ("city" LIKE '%stan') AND
+            ("company" LIKE 'Goo%') AND
             ("location" LIKE 'Londo_') AND
             ("name" LIKE '[BCR]at') AND
             ("nickname" LIKE '[!BCR]at')
