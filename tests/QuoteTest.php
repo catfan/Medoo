@@ -49,7 +49,8 @@ class QuoteTest extends MedooTestCase
         $this->assertEquals('"ColumnName"', $this->database->columnQuote("ColumnName"));
         $this->assertEquals('"Column"."name"', $this->database->columnQuote("Column.name"));
         $this->assertEquals('"Column"."Name"', $this->database->columnQuote("Column.Name"));
-
+        $this->assertEquals('"Column Name"', $this->database->columnQuote("Column Name"));
+        
         $this->assertEquals('"ネーム"', $this->database->columnQuote("ネーム"));
     }
 
