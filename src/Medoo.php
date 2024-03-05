@@ -725,7 +725,7 @@ class Medoo
      */
     public function columnQuote(string $column): string
     {
-        if (preg_match('/^[\p{L}\p{N}_][\p{L}\p{N}@$#\-_ ]*(\.?[\p{L}_][\p{L}\p{N}@$#\-_]*)?$/u', $column)) {
+        if (preg_match('/^[\p{L}_][\p{L}\p{N}@$#\-_ ]*(\.?[\p{L}_][\p{L}\p{N}@$#\-_]*)?$/u', $column)) {
             return strpos($column, '.') !== false ?
                 '"' . $this->prefix . str_replace('.', '"."', $column) . '"' :
                 '"' . $column . '"';
