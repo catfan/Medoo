@@ -175,7 +175,7 @@ class Medoo
     public $errorInfo = null;
 
     /**
-     * The schema of table.
+     * Table schema.
      *
      * @var string|null
      */
