@@ -721,9 +721,16 @@ class Medoo
      */
     public function tableQuote(string $table): string
     {
+        $schema = null;
+        if(strpos($table, '.') !== false && empty($this->schema)) {
+            [$schema, $table] = explode('.', $table);
+        }
+        if(!empty($this->schema)) {
+            $schema = $this->schema;
+        }
         if (preg_match('/^[\p{L}_][\p{L}\p{N}@$#\-_]*$/u', $table)) {
-            if(!empty($this->schema)) {
-                return $this->schema . '."' . $this->prefix . $table . '"';
+            if($schema !== null) {
+                return $schema . '."' . $this->prefix . $table . '"';
             }
             return '"' . $this->prefix . $table . '"';
         }
