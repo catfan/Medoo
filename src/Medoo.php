@@ -175,6 +175,13 @@ class Medoo
     public $errorInfo = null;
 
     /**
+     * Table schema.
+     *
+     * @var string|null
+     */
+    public $schema = null;
+
+    /**
      * Connect the database.
      *
      * ```
@@ -204,6 +211,10 @@ class Medoo
     {
         if (isset($options['prefix'])) {
             $this->prefix = $options['prefix'];
+        }
+
+        if (isset($options['schema'])) {
+            $this->schema = $options['schema'];
         }
 
         if (isset($options['testMode']) && $options['testMode'] == true) {
@@ -710,7 +721,17 @@ class Medoo
      */
     public function tableQuote(string $table): string
     {
+        $schema = null;
+        if(strpos($table, '.') !== false && empty($this->schema)) {
+            [$schema, $table] = explode('.', $table);
+        }
+        if(!empty($this->schema)) {
+            $schema = $this->schema;
+        }
         if (preg_match('/^[\p{L}_][\p{L}\p{N}@$#\-_]*$/u', $table)) {
+            if($schema !== null) {
+                return $schema . '."' . $this->prefix . $table . '"';
+            }
             return '"' . $this->prefix . $table . '"';
         }
 
