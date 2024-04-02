@@ -725,7 +725,9 @@ class Medoo
      */
     public function columnQuote(string $column): string
     {
-        if (preg_match('/^[\p{L}_][\p{L}\p{N}@$#\-_ ]*(\.?[\p{L}_][\p{L}\p{N}@$#\-_]*)?$/u', $column)) {
+        if (preg_match('/^["?\p{L}_][\p{L}\p{N}@$#\-_ ]*(\.?[\p{L}_][\p{L}\p{N}@$#\-_]*)?"?$/u', $column)) {
+            $column = trim($column, '"');
+
             return strpos($column, '.') !== false ?
                 '"' . $this->prefix . str_replace('.', '"."', $column) . '"' :
                 '"' . $column . '"';
@@ -801,12 +803,12 @@ class Medoo
                     throw new InvalidArgumentException('Cannot use table.* to select all columns while joining table.');
                 }
 
-                preg_match('/(?<column>[\p{L}_][\p{L}\p{N}@$#\-_\.]*)(?:\s*\((?<alias>[\p{L}_][\p{L}\p{N}@$#\-_]*)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/u', $value, $match);
+                preg_match('/(?<column>["?\p{L}_][\p{L}\p{N}@$#\-_\.\s]*"?)(?:\s*\((?<alias>[\p{L}_][\p{L}\p{N}@$#\-_]*)\))?(?:\s*\[(?<type>(?:String|Bool|Int|Number|Object|JSON))\])?/u', $value, $match);
 
                 $columnString = '';
 
                 if (!empty($match['alias'])) {
-                    $columnString = "{$this->columnQuote($match['column'])} AS {$this->columnQuote($match['alias'])}";
+                    $columnString = "{$this->columnQuote(trim($match['column']))} AS {$this->columnQuote(trim($match['alias']))}";
                     $columns[$key] = $match['alias'];
 
                     if (!empty($match['type'])) {
@@ -858,7 +860,7 @@ class Medoo
             $isIndex = is_int($key);
 
             preg_match(
-                '/([\p{L}_][\p{L}\p{N}@$#\-_\.]*)(\[(?<operator>.*)\])?([\p{L}_][\p{L}\p{N}@$#\-_\.]*)?/u',
+                '/(["?\p{L}_][\p{L}\p{N}@$#\-_\.\s]*"?)(\[(?<operator>.*)\])?([\p{L}_][\p{L}\p{N}@$#\-_\.]*)?/u',
                 $isIndex ? $value : $key,
                 $match
             );
