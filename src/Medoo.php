@@ -2246,4 +2246,10 @@ class Medoo
 
         return $output;
     }
+    public function __destruct() {
+    ///Close the connection.
+        $this->pdo = Null;
+        #echo "Script finished, object destroyed!";
+            
+    }
 }
