@@ -184,21 +184,21 @@ class Medoo
 
     /**
      * Regular expression pattern for valid table names.
-     * 
+     *
      * @var string
      */
     protected const TABLE_PATTERN = "[\p{L}_][\p{L}\p{N}@$#\-_]*";
 
     /**
      * Regular expression pattern for valid column names.
-     * 
+     *
      * @var string
      */
     protected const COLUMN_PATTERN = "[\p{L}_][\p{L}\p{N}@$#\-_\.]*";
-    
+
     /**
      * Regular expression pattern for valid alias names.
-     * 
+     *
      * @var string
      */
     protected const ALIAS_PATTERN = "[\p{L}_][\p{L}\p{N}@$#\-_]*";
@@ -541,7 +541,7 @@ class Medoo
      * @codeCoverageIgnore
      * @return \PDOStatement|null
      */
-    public function exec(string $statement, array $map = [], callable $callback = null): ?PDOStatement
+    public function exec(string $statement, array $map = [], ?callable $callback = null): ?PDOStatement
     {
         $this->statement = null;
         $this->errorInfo = null;
@@ -1425,7 +1425,7 @@ class Medoo
         array $columnMap,
         array &$stack,
         bool $root,
-        array &$result = null
+        ?array &$result = null
     ): void {
         if ($root) {
             $columnsKey = array_keys($columns);
@@ -1697,7 +1697,7 @@ class Medoo
      * @param string $primaryKey
      * @return \PDOStatement|null
      */
-    public function insert(string $table, array $values, string $primaryKey = null): ?PDOStatement
+    public function insert(string $table, array $values, ?string $primaryKey = null): ?PDOStatement
     {
         $stack = [];
         $columns = [];
@@ -2160,7 +2160,7 @@ class Medoo
      * @codeCoverageIgnore
      * @return string|null
      */
-    public function id(string $name = null): ?string
+    public function id(?string $name = null): ?string
     {
         $type = $this->type;
 
