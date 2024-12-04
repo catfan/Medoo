@@ -900,7 +900,7 @@ class Medoo
                 continue;
             }
 
-            if ($operator && $operator != '=') {
+            if ($operator && $operator !== '=') {
                 if (in_array($operator, ['>', '>=', '<', '<='])) {
                     $condition = "{$column} {$operator} ";
 
