@@ -712,4 +712,30 @@ class SelectTest extends MedooTestCase
             $this->database->queryString
         );
     }
+
+    /**
+     * @covers ::select()
+     * @covers ::selectContext()
+     * @covers ::isJoin()
+     * @covers ::columnMap()
+     * @covers ::columnPush()
+     * @dataProvider typesProvider
+     */
+    public function testFindInSet($type)
+    {
+        $this->setType($type);
+
+
+        $this->database->select("table", 'column', [
+            "column[FIND_IN_SET]" => ["values", "values_two"]
+        ]);
+
+        $this->assertQuery(
+            <<<EOD
+            SELECT "column" FROM "table" WHERE FIND_IN_SET('values,values_two', "column")
+            EOD,
+            $this->database->queryString
+        );
+    }
+
 }

@@ -1002,6 +1002,14 @@ class Medoo
                 } elseif ($operator === 'REGEXP') {
                     $stack[] = "{$column} REGEXP {$mapKey}";
                     $map[$mapKey] = [$value, PDO::PARAM_STR];
+                } elseif ($operator === 'FIND_IN_SET') {
+                    $mapKey = $this->mapKey();
+                    $stack[] = "FIND_IN_SET({$mapKey}, {$column})";
+                    if (is_array($value)) {
+                        $map[$mapKey] = [implode(',', $value), PDO::PARAM_STR];
+                    } else {
+                        $map[$mapKey] = [$value, PDO::PARAM_STR];
+                    }
                 } else {
                     throw new InvalidArgumentException("Invalid operator [{$operator}] for column {$column} supplied.");
                 }
