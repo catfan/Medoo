@@ -1,43 +1,61 @@
 {
-	"name": "catfan/medoo",
-	"type": "framework",
-	"description": "The lightweight PHP database framework to accelerate development",
-	"keywords": ["database", "database library", "lightweight", "PHP framework", "SQL", "MySQL", "MSSQL", "SQLite", "PostgreSQL", "MariaDB", "Oracle"],
-	"homepage": "https://medoo.in",
-	"license": "MIT",
-	"support": {
-		"issues": "https://github.com/catfan/Medoo/issues",
-		"source": "https://github.com/catfan/Medoo"
-	},
-	"authors": [
-		{"name": "Angel Lai", "email": "angel@medoo.in"}
-	],
-	"require": {
-		"php": ">=7.3",
-		"ext-pdo": "*"
-	},
-	"require-dev": {
+    "name": "catfan/medoo",
+    "type": "framework",
+    "description": "The lightweight PHP database framework to accelerate development",
+    "keywords": [
+        "database",
+        "database library",
+        "lightweight",
+        "PHP framework",
+        "SQL",
+        "MySQL",
+        "MSSQL",
+        "SQLite",
+        "PostgreSQL",
+        "MariaDB",
+        "Oracle"
+    ],
+    "homepage": "https://medoo.in",
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/catfan/Medoo/issues",
+        "source": "https://github.com/catfan/Medoo"
+    },
+    "authors": [
+        {
+            "name": "Angel Lai",
+            "email": "angel@medoo.in"
+        }
+    ],
+    "require": {
+        "php": ">=7.3",
+        "ext-pdo": "*"
+    },
+    "require-dev": {
         "phpunit/phpunit": "^9.0"
     },
-	"suggest": {
-		"ext-pdo_mysql": "For MySQL or MariaDB database",
-		"ext-pdo_sqlsrv": "For MSSQL database on both Window/Liunx platform",
-		"ext-pdo_dblib": "For MSSQL or Sybase database on Linux/UNIX platform",
-		"ext-pdo_oci": "For Oracle database",
-		"ext-pdo_pqsql": "For PostgreSQL database",
-		"ext-pdo_sqlite": "For SQLite database"
-	},
-	"autoload": {
-		"psr-4": {
-			"Medoo\\": "src/"
-		}
-	},
-	"autoload-dev": {
+    "suggest": {
+        "ext-pdo_mysql": "For MySQL or MariaDB database",
+        "ext-pdo_sqlsrv": "For MSSQL database on both Window/Liunx platform",
+        "ext-pdo_dblib": "For MSSQL or Sybase database on Linux/UNIX platform",
+        "ext-pdo_oci": "For Oracle database",
+        "ext-pdo_pqsql": "For PostgreSQL database",
+        "ext-pdo_sqlite": "For SQLite database"
+    },
+    "autoload": {
+        "psr-4": {
+            "Medoo\\": "src/"
+        }
+    },
+    "autoload-dev": {
         "psr-4": {
             "Medoo\\Tests\\": "tests/"
         }
-	},
-	"scripts": {
-		"test": "vendor/bin/phpunit tests"
-	}
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit tests"
+    },
+    "config": {
+        "sort-packages": true
+    }
 }
