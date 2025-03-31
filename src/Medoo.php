@@ -240,7 +240,11 @@ class Medoo
             return;
         }
 
-        $options['type'] = $options['type'] ?? $options['database_type'];
+        $options['type'] = $options['type'] ?? $options['database_type'] ?? null;
+
+        if (!$options['type']) {
+            throw new InvalidArgumentException('Database type is required.');
+        }
 
         if (!isset($options['pdo'])) {
             $options['database'] = $options['database'] ?? $options['database_name'];
@@ -250,19 +254,16 @@ class Medoo
             }
         }
 
-        if (isset($options['type'])) {
-            $this->type = strtolower($options['type']);
+        $this->type = strtolower($options['type']);
 
-            if ($this->type === 'mariadb') {
-                $this->type = 'mysql';
-            }
+        if ($this->type === 'mariadb') {
+            $this->type = 'mysql';
         }
 
         if (isset($options['logging']) && is_bool($options['logging'])) {
             $this->logging = $options['logging'];
         }
 
-        $option = $options['option'] ?? [];
         $commands = [];
 
         switch ($this->type) {
@@ -304,10 +305,7 @@ class Medoo
                 throw new InvalidArgumentException('Invalid DSN option supplied.');
             }
         } else {
-            if (
-                isset($options['port']) &&
-                is_int($options['port'] * 1)
-            ) {
+            if (isset($options['port']) && is_numeric($options['port'])) {
                 $port = $options['port'];
             }
 
@@ -480,7 +478,7 @@ class Medoo
                 $dsn,
                 $options['username'] ?? null,
                 $options['password'] ?? null,
-                $option
+                $options['option'] ?? []
             );
 
             if (isset($options['error'])) {
