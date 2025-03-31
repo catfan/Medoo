@@ -9,6 +9,9 @@ class MedooTestCase extends TestCase
 {
     protected $database;
 
+    public $tableAliasConnector = ' AS ';
+    public $quotePattern = '"$1"';
+
     public function setUp(): void
     {
         $this->database = new Medoo([
@@ -29,20 +32,29 @@ class MedooTestCase extends TestCase
 
     public function setType($type): void
     {
-        $this->database->type = $type;
+        $this->database->setupType($type);
+
+        if ($type === 'oracle') {
+            $this->tableAliasConnector = ' ';
+        } elseif ($type === 'mysql') {
+            $this->quotePattern = '`$1`';
+        } elseif ($type === 'mssql') {
+            $this->quotePattern = '[$1]';
+        }
     }
 
     public function expectedQuery($expected): string
     {
-        $identifier = [
-            'mysql' => '`$1`',
-            'mssql' => '[$1]'
-        ];
-
-        return preg_replace(
+        $result = preg_replace(
             '/(?!\'[^\s]+\s?)"([\p{L}_][\p{L}\p{N}@$#\-_]*)"(?!\s?[^\s]+\')/u',
-            $identifier[$this->database->type] ?? '"$1"',
+            $this->quotePattern,
             str_replace("\n", " ", $expected)
+        );
+
+        return str_replace(
+            ' @AS ',
+            $this->tableAliasConnector,
+            $result
         );
     }
 

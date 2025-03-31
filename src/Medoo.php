@@ -183,6 +183,20 @@ class Medoo
     public $errorInfo = null;
 
     /**
+     * The keyword to connect the table alias.
+     *
+     * @var string
+     */
+    protected $tableAliasConnector = ' AS ';
+
+    /**
+     * The quote pattern string.
+     *
+     * @var string
+     */
+    protected $quotePattern = '"$1"';
+
+    /**
      * Regular expression pattern for valid table names.
      *
      * @var string
@@ -254,11 +268,7 @@ class Medoo
             }
         }
 
-        $this->type = strtolower($options['type']);
-
-        if ($this->type === 'mariadb') {
-            $this->type = 'mysql';
-        }
+        $this->setupType($options['type']);
 
         if (isset($options['logging']) && is_bool($options['logging'])) {
             $this->logging = $options['logging'];
@@ -507,6 +517,30 @@ class Medoo
     }
 
     /**
+     * Setup the database type.
+     *
+     * @return void
+     */
+    public function setupType(string $type)
+    {
+        $databaseType = strtolower($type);
+
+        if ($databaseType === 'mariadb') {
+            $databaseType = 'mysql';
+        }
+
+        if ($databaseType === 'oracle') {
+            $this->tableAliasConnector = ' ';
+        } elseif ($databaseType === 'mysql') {
+            $this->quotePattern = '`$1`';
+        } elseif ($databaseType === 'mssql') {
+            $this->quotePattern = '[$1]';
+        }
+
+        $this->type = $databaseType;
+    }
+
+    /**
      * Generate a new map key for the placeholder.
      *
      * @return string
@@ -618,14 +652,9 @@ class Medoo
      */
     protected function generate(string $statement, array $map): string
     {
-        $identifier = [
-            'mysql' => '`$1`',
-            'mssql' => '[$1]'
-        ];
-
         $statement = preg_replace(
-            '/(?!\'[^\s]+\s?)"([\p{L}_][\p{L}\p{N}@$#\-_]*)"(?!\s?[^\s]+\')/u',
-            $identifier[$this->type] ?? '"$1"',
+            '/(?!\'[^\s]+\s?)"(' . $this::COLUMN_PATTERN . ')"(?!\s?[^\s]+\')/u',
+            $this->quotePattern,
             $statement
         );
 
@@ -1214,7 +1243,7 @@ class Medoo
         if (isset($tableMatch['table'], $tableMatch['alias'])) {
             $table = $this->tableQuote($tableMatch['table']);
             $tableAlias = $this->tableQuote($tableMatch['alias']);
-            $tableQuery = "{$table} AS {$tableAlias}";
+            $tableQuery = "{$table}{$this->tableAliasConnector}{$tableAlias}";
         } else {
             $table = $this->tableQuote($table);
             $tableQuery = $table;
@@ -1352,7 +1381,7 @@ class Medoo
             $tableName = $this->tableQuote($match['table']);
 
             if (isset($match['alias'])) {
-                $tableName .= ' AS ' . $this->tableQuote($match['alias']);
+                $tableName .= $this->tableAliasConnector . $this->tableQuote($match['alias']);
             }
 
             $tableJoin[] = $type[$match['join']] . " JOIN {$tableName} {$relation}";
