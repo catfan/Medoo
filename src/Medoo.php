@@ -6,10 +6,10 @@ declare(strict_types=1);
  *
  * The Lightweight PHP Database Framework to Accelerate Development.
  *
- * @version 2.1.12
- * @author Angel Lai
+ * @version 2.2.0
  * @package Medoo
- * @copyright Copyright 2024 Medoo Project, Angel Lai.
+ * @author Angel Lai
+ * @copyright Angel Lai
  * @license https://opensource.org/licenses/MIT
  * @link https://medoo.in
  */
@@ -71,28 +71,28 @@ class Raw
 class Medoo
 {
     /**
-     * The PDO object.
+     * The PDO database connection instance.
      *
      * @var \PDO
      */
     public $pdo;
 
     /**
-     * The type of database.
+     * The database type.
      *
      * @var string
      */
     public $type;
 
     /**
-     * Table prefix.
+     * The table prefix.
      *
      * @var string
      */
     protected $prefix;
 
     /**
-     * The PDO statement object.
+     * Current PDO statement instance.
      *
      * @var \PDOStatement
      */
@@ -106,91 +106,91 @@ class Medoo
     protected $dsn;
 
     /**
-     * The array of logs.
+     * Logged queries.
      *
      * @var array
      */
     protected $logs = [];
 
     /**
-     * Determine should log the query or not.
+     * Whether query logging is enabled.
      *
      * @var bool
      */
     protected $logging = false;
 
     /**
-     * Determine is in test mode.
+     * Whether the database is in test mode.
      *
      * @var bool
      */
     protected $testMode = false;
 
     /**
-     * The last query string was generated in test mode.
+     * The last generated query string in test mode.
      *
      * @var string
      */
     public $queryString;
 
     /**
-     * Determine is in debug mode.
+     * Whether debug mode is enabled.
      *
      * @var bool
      */
     protected $debugMode = false;
 
     /**
-     * Determine should save debug logging.
+     * Whether debug logging is enabled.
      *
      * @var bool
      */
     protected $debugLogging = false;
 
     /**
-     * The array of logs for debugging.
+     * Logged debug queries.
      *
      * @var array
      */
     protected $debugLogs = [];
 
     /**
-     * The unique global id.
+     * The unique global identifier.
      *
-     * @var integer
+     * @var int
      */
     protected $guid = 0;
 
     /**
-     * The returned id for the insert.
+     * The last inserted record ID.
      *
      * @var string
      */
     public $returnId = '';
 
     /**
-     * Error Message.
+     * The last error message.
      *
      * @var string|null
      */
     public $error = null;
 
     /**
-     * The array of error information.
+     * The last error details.
      *
      * @var array|null
      */
     public $errorInfo = null;
 
     /**
-     * The keyword to connect the table alias.
+     * The connector used for table aliases.
      *
      * @var string
      */
     protected $tableAliasConnector = ' AS ';
 
     /**
-     * The quote pattern string.
+     * The pattern used for quoting identifiers.
      *
      * @var string
      */
@@ -218,11 +218,13 @@ class Medoo
     protected const ALIAS_PATTERN = "[\p{L}_][\p{L}\p{N}@$#\-_]*";
 
     /**
-     * Connect the database.
+     * Establish a database connection.
      *
+     * Example usage:
+     * 
      * ```
      * $database = new Medoo([
-     *      // required
+     *      // Required
      *      'type' => 'mysql',
      *      'database' => 'name',
      *      'host' => 'localhost',
@@ -238,7 +240,7 @@ class Medoo
      *
      * @param array $options Connection options
      * @return Medoo
-     * @throws PDOException
+     * @throws PDOException If the connection fails
      * @link https://medoo.in/api/new
      * @codeCoverageIgnore
      */
@@ -519,6 +521,7 @@ class Medoo
     /**
      * Setup the database type.
      *
+     * @param string The database type string.
      * @return void
      */
     public function setupType(string $type)
@@ -744,9 +747,9 @@ class Medoo
     }
 
     /**
-     * Quote a string for use in a query.
+     * Escape and quote a string for use in an SQL query.
      *
-     * @param string $string
+     * @param string $string The string to be quoted.
      * @return string
      */
     public function quote(string $string): string
@@ -759,10 +762,11 @@ class Medoo
     }
 
     /**
-     * Quote table name for use in a query.
+     * Quote a table name for use in an SQL query.
      *
-     * @param string $table
+     * @param string $table The table name to be quoted.
      * @return string
+     * @throws InvalidArgumentException If the table name is invalid.
      */
     public function tableQuote(string $table): string
     {
@@ -774,10 +778,11 @@ class Medoo
     }
 
     /**
-     * Quote column name for use in a query.
+     * Quote a column name for use in an SQL query.
      *
-     * @param string $column
+     * @param string $column The column name to be quoted.
      * @return string
+     * @throws InvalidArgumentException If the column name is invalid.
      */
     public function columnQuote(string $column): string
     {
