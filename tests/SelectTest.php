@@ -46,7 +46,7 @@ class SelectTest extends MedooTestCase
         $this->assertQuery(
             <<<EOD
             SELECT "name"
-            FROM "account" AS "user"
+            FROM "account" @AS "user"
             EOD,
             $this->database->queryString
         );
@@ -385,7 +385,7 @@ class SelectTest extends MedooTestCase
             <<<EOD
             SELECT "account"."name","main_post"."title"
             FROM "account"
-            LEFT JOIN "post" AS "main_post"
+            LEFT JOIN "post" @AS "main_post"
             ON "account"."user_id" = "main_post"."author_id"
             EOD,
             $this->database->queryString

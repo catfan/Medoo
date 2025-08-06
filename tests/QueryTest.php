@@ -43,8 +43,6 @@ class QueryTest extends MedooTestCase
             'prefix' => 'PREFIX_'
         ]);
 
-        $database->type = "sqlite";
-
         $database->query("SELECT <account.name> FROM <account>");
 
         $this->assertQuery(
@@ -68,13 +66,33 @@ class QueryTest extends MedooTestCase
             'prefix' => 'PREFIX_'
         ]);
 
-        $database->type = "sqlite";
-
         $database->query("DROP TABLE IF EXISTS <account>");
 
         $this->assertQuery(
             <<<EOD
             DROP TABLE IF EXISTS "PREFIX_account"
+            EOD,
+            $database->queryString
+        );
+    }
+
+    /**
+     * @covers ::query()
+     * @covers ::isRaw()
+     * @covers ::buildRaw()
+     */
+    public function testQueryShowTableWithPrefix()
+    {
+        $database = new Medoo([
+            'testMode' => true,
+            'prefix' => 'PREFIX_'
+        ]);
+
+        $database->query("SHOW TABLES LIKE <account>");
+
+        $this->assertQuery(
+            <<<EOD
+            SHOW TABLES LIKE "PREFIX_account"
             EOD,
             $database->queryString
         );
@@ -119,8 +137,6 @@ class QueryTest extends MedooTestCase
             'testMode' => true,
             'prefix' => 'PREFIX_'
         ]);
-
-        $database->type = "sqlite";
 
         $database->query("SELECT * FROM <account> WHERE <name> = '<John>'");
 
