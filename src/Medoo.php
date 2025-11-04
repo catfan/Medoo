@@ -55,7 +55,7 @@ class Raw
  * @method null select(string $table, string $column, array $where, callable $callback)
  * @method null select(string $table, array $join, array $columns, array $where, callable $callback)
  * @method null select(string $table, array $join, string $column, array $where, callable $callback)
- * @method mixed get(string $table, array|string $columns, array $where)
+ * @method mixed get(string $table, array|null $join = null, array|string|null $columns  = null, array|null $where = null)
  * @method bool has(string $table, array $where)
  * @method mixed rand(string $table, array|string $column, array $where)
  * @method int count(string $table, array $where)
