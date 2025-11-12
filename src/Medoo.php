@@ -43,18 +43,7 @@ class Raw
 }
 
 /**
- * @method array select(string $table, array $columns)
- * @method mixed select(string $table, string $column)
- * @method array select(string $table, array $columns, array $where)
- * @method mixed select(string $table, string $column, array $where)
- * @method array select(string $table, array $join, array $columns)
- * @method mixed select(string $table, array $join, string $column)
- * @method null select(string $table, array $columns, callable $callback)
- * @method null select(string $table, string $column, callable $callback)
- * @method null select(string $table, array $columns, array $where, callable $callback)
- * @method null select(string $table, string $column, array $where, callable $callback)
- * @method null select(string $table, array $join, array $columns, array $where, callable $callback)
- * @method null select(string $table, array $join, string $column, array $where, callable $callback)
+ * @method mixed select(string $table, array<mixed>|string|null $join = null, array<mixed>|string|null $columns  = null, array<mixed>|null $where = null)
  * @method mixed get(string $table, array|null $join = null, array|string|null $columns  = null, array|null $where = null)
  * @method bool has(string $table, array $where)
  * @method mixed rand(string $table, array|string $column, array $where)
