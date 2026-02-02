@@ -1166,7 +1166,13 @@ class Medoo
                             $valueStack = [];
 
                             foreach ($value as $item) {
-                                $valueStack[] = is_int($item) ? $item : $this->quote($item);
+                                if (is_int($item)) {
+                                    $valueStack[] = $item;
+                                } else {
+                                    $fieldKey = $this->mapKey();
+                                    $valueStack[] = $fieldKey;
+                                    $map[$fieldKey] = [$item, PDO::PARAM_STR];
+                                }
                             }
 
                             $valueString = implode(',', $valueStack);
