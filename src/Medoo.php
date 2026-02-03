@@ -805,7 +805,7 @@ class Medoo
         $map = [
             'NULL' => PDO::PARAM_NULL,
             'integer' => PDO::PARAM_INT,
-            'double' => PDO::PARAM_STR,
+            'double' => PDO::PARAM_INT,
             'boolean' => PDO::PARAM_BOOL,
             'string' => PDO::PARAM_STR,
             'object' => PDO::PARAM_STR,
