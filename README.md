@@ -25,7 +25,7 @@
 
 * **Friendly** - Integrates seamlessly with Laravel, CodeIgniter, Yii, Slim, and other PHP frameworks.
 
-* **Free** - Licensed under MIT, free to use for any purpose.
+* **Free** - Licensed under MIT, completely free to use for any purpose.
 
 ## Requirements
 - PHP 7.3 or later
@@ -98,7 +98,7 @@ Each commit should begin with a tag indicating the type of change:
 Keep contributions simple and well-documented.
 
 ## License
-Medoo is released under the MIT License.
+Medoo is released under the [MIT](https://opensource.org/licenses/MIT) License.
 
 ## Links
 * Official website: [https://medoo.in](https://medoo.in)
@@ -106,8 +106,9 @@ Medoo is released under the MIT License.
 * X.com: [https://x.com/MedooPHP](https://x.com/MedooPHP)
 * Open Collective: [https://opencollective.com/medoo](https://opencollective.com/medoo)
 
-## Support Our Other Product
-[Gear Browser - AI Extension Web Browser](https://gear4.app)
-[App Store](https://apps.apple.com/us/app/id1458962238)
+## [More Products We Build]
+### Gear Browser - AI Extension Web Browser
+- [Website](https://gear4.app)
+- [App Store](https://apps.apple.com/us/app/id1458962238)
 
-[![Gear Browser](https://github.com/user-attachments/assets/460df1c3-eb6d-4ac1-8ee6-8af2b427a9fa)](https://gear4.app)
+[![Gear Browser](https://github.com/user-attachments/assets/9dfaf39e-8e79-4ef2-b2dd-f7af87a729c0)](https://gear4.app)
