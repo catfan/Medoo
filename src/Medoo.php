@@ -917,12 +917,18 @@ class Medoo
             $isIndex = is_int($key);
 
             preg_match(
-                "/(?<column>" . $this::COLUMN_PATTERN . ")(\[(?<operator>.*)\])?(?<comparison>" . $this::COLUMN_PATTERN . ")?/u",
+                "/((?<function>.*)\:)?(?<column>" . $this::COLUMN_PATTERN . ")(\[(?<operator>.*)\])?(?<comparison>" . $this::COLUMN_PATTERN . ")?/u",
                 $isIndex ? $value : $key,
                 $match
             );
 
             $column = $this->columnQuote($match['column']);
+            
+            $function = $match['function'] ?? null;
+            if ($function) {
+                $column = "{$function}({$column})";
+            }
+            
             $operator = $match['operator'] ?? null;
 
             if ($isIndex && isset($match['comparison']) && in_array($operator, ['>', '>=', '<', '<=', '=', '!='])) {
