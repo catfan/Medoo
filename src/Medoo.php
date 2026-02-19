@@ -1846,6 +1846,16 @@ class Medoo
             $column = $this->columnQuote(preg_replace("/(\s*\[(JSON|\+|\-|\*|\/)\]$)/", '', $key));
             $type = gettype($value);
 
+            if($type === 'object' && $value instanceof \DateTime) {
+                $type = 'string';
+                /** @var \DateTime $value */
+                $value = $value
+                    ->setTimezone(new \DateTimeZone('UTC'))
+                    ->format('Y-m-d H:m:s');
+                // Timezone and milliseconds (Y-m-d H:m:s.U e) are not supported by now by mysql/mariadb
+                // (https://dev.mysql.com/doc/refman/8.0/en/datetime.html)
+            }
+
             if ($this->type === 'oracle' && $type === 'resource') {
                 $fields[] = "{$column} = EMPTY_BLOB()";
                 $returnings[$this->mapKey()] = [$key, $value, PDO::PARAM_LOB];
