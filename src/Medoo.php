@@ -180,6 +180,14 @@ class Medoo
      */
     public $errorInfo = null;
 
+
+    /**
+     * The array of lockSql.
+     *
+     * @var array|null
+     */
+    protected $lockSql = null;
+
     /**
      * The connector used for table aliases.
      *
@@ -617,7 +625,6 @@ class Medoo
         foreach ($map as $key => $value) {
             $statement->bindValue($key, $value[0], $value[1]);
         }
-
         if (is_callable($callback)) {
             $this->pdo->beginTransaction();
             $callback($statement);
@@ -1091,10 +1098,10 @@ class Medoo
     protected function whereClause($where, array &$map): string
     {
         $clause = '';
-
+        $this->lockSql = null;
         if (is_array($where)) {
             $conditions = array_diff_key($where, array_flip(
-                ['GROUP', 'ORDER', 'HAVING', 'LIMIT', 'LIKE', 'MATCH']
+                ['GROUP', 'ORDER', 'HAVING', 'LIMIT', 'LIKE', 'MATCH', 'LOCK']
             ));
 
             if (!empty($conditions)) {
@@ -1221,6 +1228,32 @@ class Medoo
                     }
                 }
             }
+            
+            if (isset($where['LOCK'])) {
+            	$lock = '';
+            	if (is_bool($where['LOCK'])) {
+		            $lock =  $where['LOCK'] ? 'FOR UPDATE' : '';
+		            switch($this->type){
+		            	case 'mssql':
+		            		$lock = '';
+		            		$this->lockSql =  $where['LOCK'] ? 'WITH(rowlock,updlock,holdlock)' : '';
+		            	break;
+		            	case 'oracle':
+		            		$lock =  $where['LOCK'] ? 'FOR UPDATE NOWAIT' : '';
+		            	break;
+		            }
+		        }else{
+		        	if (is_string($where['LOCK']) && !empty($where['LOCK'])) {
+		        		if($this->type==='mssql'){
+		        			$this->lockSql =  $where['LOCK'] ? 'WITH('.trim($lock).')' : '';
+		        		}else{
+		        			$lock = trim($lock);
+		        		}
+			        }
+		        }
+		        $clause .= $lock ? ' ' . $lock : '';
+            }
+
         } elseif ($raw = $this->buildRaw($where, $map)) {
             $clause .= ' ' . $raw;
         }
@@ -1257,7 +1290,7 @@ class Medoo
             $table = $this->tableQuote($table);
             $tableQuery = $table;
         }
-
+        
         $isJoin = $this->isJoin($join);
 
         if ($isJoin) {
@@ -1300,8 +1333,22 @@ class Medoo
         } else {
             $column = $this->columnPush($columns, $map, true, $isJoin);
         }
-
-        return 'SELECT ' . $column . ' FROM ' . $tableQuery . $this->whereClause($where, $map);
+        $whereClause = $this->whereClause($where, $map);
+        if($this->lockSql){
+        	$explode = explode(' ',$tableQuery);
+        	if(count($explode)==1){
+        		$tableQuery.= $this->lockSql ? ' '.$this->lockSql : '';
+        	}else{
+        		if($this->lockSql){
+        			if($explode[1]=='AS'){
+        				$tableQuery = str_replace($explode[0].' AS '.$explode[2],$explode[0].' AS '.$explode[2].' '.$this->lockSql,$tableQuery);
+        			}else{
+        				$tableQuery = str_replace($explode[0].' ',$explode[0].' '.$this->lockSql,$tableQuery);
+        			}
+        		}
+        	}
+        }
+        return 'SELECT ' . $column . ' FROM ' . $tableQuery . $whereClause;
     }
 
     /**
