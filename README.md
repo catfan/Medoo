@@ -13,19 +13,38 @@
 
 > The lightweight PHP database framework to accelerate development.
 
+## Documentation
+
+* [English](https://medoo.in)
+* [العربية](https://medoo.in/ar)
+* [Deutsch](https://medoo.in/de)
+* [Español](https://medoo.in/es)
+* [Français](https://medoo.in/fr)
+* [हिन्दी](https://medoo.in/hi)
+* [Italiano](https://medoo.in/it)
+* [日本語](https://medoo.in/ja)
+* [한국어](https://medoo.in/ko)
+* [Português](https://medoo.in/pt-BR)
+* [Русский](https://medoo.in/ru)
+* [ไทย](https://medoo.in/th)
+* [Українська](https://medoo.in/uk)
+* [Tiếng Việt](https://medoo.in/vi)
+* [简体中文](https://medoo.in/zh-Hans)
+* [繁體中文](https://medoo.in/zh-Hant)
+
 ## Features
 
-* **Lightweight** - Single-file framework with minimal dependencies.
+* **Lightweight** - A lightweight single-file package that keeps dependencies to a minimum.
 
-* **Easy** - Simple and intuitive API for quick integration.
+* **Easy** - A clean, intuitive API that helps you get started quickly.
 
-* **Powerful** - Supports complex SQL queries, data mapping, and SQL injection prevention.
+* **Powerful** - Designed for complex SQL, data mapping, and prepared statements without sacrificing readability.
 
-* **Compatible** - Works with MySQL, MariaDB, PostgreSQL, SQLite, MSSQL, Oracle, Sybase, and more.
+* **Compatible** - Works smoothly with MySQL, MariaDB, PostgreSQL, SQLite, MSSQL, Oracle, Sybase, and more.
 
-* **Friendly** - Integrates seamlessly with Laravel, CodeIgniter, Yii, Slim, and other PHP frameworks.
+* **Friendly** - Fits naturally into Laravel, CodeIgniter, Yii, Slim, and other PHP frameworks.
 
-* **Free** - Licensed under MIT, completely free to use for any purpose.
+* **Free** - Released under the MIT license and free to use in personal or commercial projects.
 
 ## Requirements
 - PHP 7.3 or later
@@ -44,13 +63,13 @@ $ composer update
 ```
 
 ```php
-// Require Composer's autoloader
+// Load Composer's autoloader.
 require 'vendor/autoload.php';
 
-// Import Medoo namespace
+// Import the Medoo namespace.
 use Medoo\Medoo;
 
-// Initialize database connection
+// Create a database connection.
 $database = new Medoo([
     'type' => 'mysql',
     'host' => 'localhost',
@@ -59,13 +78,13 @@ $database = new Medoo([
     'password' => 'your_password'
 ]);
 
-// Insert data
+// Insert data.
 $database->insert('account', [
     'user_name' => 'foo',
     'email' => 'foo@bar.com'
 ]);
 
-// Retrieve data
+// Retrieve data.
 $data = $database->select('account', [
     'user_name',
     'email'
@@ -102,7 +121,6 @@ Medoo is released under the [MIT](https://opensource.org/licenses/MIT) License.
 
 ## Links
 * Official website: [https://medoo.in](https://medoo.in)
-* Documentation: [https://medoo.in/doc](https://medoo.in/doc)
 * X.com: [https://x.com/MedooPHP](https://x.com/MedooPHP)
 * Open Collective: [https://opencollective.com/medoo](https://opencollective.com/medoo)
 
