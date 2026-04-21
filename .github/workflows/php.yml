@@ -10,29 +10,36 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-    
+
     strategy:
+      fail-fast: false
       matrix:
         php: ['8.4', '8.5']
 
     steps:
-    - uses: actions/checkout@v3.3.0
+    - uses: actions/checkout@v4
 
-    - name: Validate composer.json and composer.lock
-      run: composer validate --strict
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        tools: composer:v2
+        coverage: none
+
+    - name: Validate composer.json
+      run: composer validate --strict --no-check-lock
 
     - name: Cache dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: vendor
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        key: ${{ runner.os }}-php-${{ matrix.php }}-composer-${{ hashFiles('composer.json', 'composer.lock') }}
         restore-keys: |
-          ${{ runner.os }}-composer-
+          ${{ runner.os }}-php-${{ matrix.php }}-composer-
 
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+      run: composer install --prefer-dist --no-interaction --no-progress
 
     - name: Run test suite
       run: composer run-script test
