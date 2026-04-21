@@ -4,15 +4,10 @@ namespace Medoo\Tests;
 
 use Medoo\Medoo;
 
-/**
- * @coversDefaultClass \Medoo\Medoo
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\Medoo\Medoo::class)]
 class DropTest extends MedooTestCase
 {
-    /**
-     * @covers ::drop()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testDrop($type)
     {
         $this->setType($type);
@@ -27,9 +22,6 @@ class DropTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::drop()
-     */
     public function testDropWithPrefix()
     {
         $database = new Medoo([

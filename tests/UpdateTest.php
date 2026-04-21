@@ -4,15 +4,10 @@ namespace Medoo\Tests;
 
 use Medoo\Medoo;
 
-/**
- * @coversDefaultClass \Medoo\Medoo
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\Medoo\Medoo::class)]
 class UpdateTest extends MedooTestCase
 {
-    /**
-     * @covers \Medoo\Medoo::update()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testUpdate($type)
     {
         $this->setType($type);

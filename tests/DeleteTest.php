@@ -4,15 +4,10 @@ namespace Medoo\Tests;
 
 use Medoo\Medoo;
 
-/**
- * @coversDefaultClass \Medoo\Medoo
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\Medoo\Medoo::class)]
 class DeleteTest extends MedooTestCase
 {
-    /**
-     * @covers ::delete()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testDelete($type)
     {
         $this->setType($type);
@@ -33,10 +28,7 @@ class DeleteTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::delete()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testDeleteRaw($type)
     {
         $this->setType($type);

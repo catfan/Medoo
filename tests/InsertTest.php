@@ -4,16 +4,10 @@ namespace Medoo\Tests;
 
 use Medoo\Medoo;
 
-/**
- * @coversDefaultClass \Medoo\Medoo
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\Medoo\Medoo::class)]
 class InsertTest extends MedooTestCase
 {
-    /**
-     * @covers ::insert()
-     * @covers ::typeMap()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testInsert($type)
     {
         $this->setType($type);
@@ -32,11 +26,7 @@ class InsertTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::insert()
-     * @covers ::typeMap()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testInsertWithArray($type)
     {
         $this->setType($type);
@@ -58,11 +48,7 @@ class InsertTest extends MedooTestCase
         ], $this->database->queryString);
     }
 
-    /**
-     * @covers ::insert()
-     * @covers ::typeMap()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testInsertWithJSON($type)
     {
         $this->setType($type);
@@ -84,10 +70,7 @@ class InsertTest extends MedooTestCase
         ], $this->database->queryString);
     }
 
-    /**
-     * @covers ::insert()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testInsertWithRaw($type)
     {
         $this->setType($type);
@@ -105,11 +88,7 @@ class InsertTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::insert()
-     * @covers ::typeMap()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testInsertWithNull($type)
     {
         $this->setType($type);
@@ -127,11 +106,7 @@ class InsertTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::insert()
-     * @covers ::typeMap()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testInsertWithObject($type)
     {
         $this->setType($type);
@@ -151,10 +126,7 @@ class InsertTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::insert()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testMultiInsert($type)
     {
         $this->setType($type);

@@ -2,16 +2,10 @@
 
 namespace Medoo\Tests;
 
-/**
- * @coversDefaultClass \Medoo\Medoo
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\Medoo\Medoo::class)]
 class HasTest extends MedooTestCase
 {
-    /**
-     * @covers ::has()
-     * @covers ::selectContext()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testHas($type)
     {
         $this->setType($type);

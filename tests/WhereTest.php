@@ -4,18 +4,10 @@ namespace Medoo\Tests;
 
 use Medoo\Medoo;
 
-/**
- * @coversDefaultClass \Medoo\Medoo
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\Medoo\Medoo::class)]
 class WhereTest extends MedooTestCase
 {
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::typeMap()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testBasicWhere($type)
     {
         $this->setType($type);
@@ -55,12 +47,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testBetweenDateTimeWhere($type)
     {
         $this->setType($type);
@@ -80,12 +67,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testNotBetweenDateTimeWhere($type)
     {
         $this->setType($type);
@@ -105,12 +87,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testBetweenStringWhere($type)
     {
         $this->setType($type);
@@ -130,12 +107,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testBetweenRawWhere($type)
     {
         $this->setType($type);
@@ -158,12 +130,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testGreaterDateTimeWhere($type)
     {
         $this->setType($type);
@@ -182,12 +149,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testArrayIntValuesWhere($type)
     {
         $this->setType($type);
@@ -207,12 +169,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testArrayStringValuesWhere($type)
     {
         $this->setType($type);
@@ -232,12 +189,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testRawArrayValuesWhere($type)
     {
         $this->setType($type);
@@ -260,12 +212,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testRawNotInArrayValuesWhere($type)
     {
         $this->setType($type);
@@ -288,12 +235,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testNegativeWhere($type)
     {
         $this->setType($type);
@@ -325,12 +267,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testBasicAndRelativityWhere($type)
     {
         $this->setType($type);
@@ -353,12 +290,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testBasicSingleRelativityWhere($type)
     {
         $this->setType($type);
@@ -379,12 +311,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testBasicOrRelativityWhere($type)
     {
         $this->setType($type);
@@ -410,12 +337,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testCompoundRelativityWhere($type)
     {
         $this->setType($type);
@@ -441,12 +363,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testCompoundDuplicatedKeysWhere($type)
     {
         $this->setType($type);
@@ -476,12 +393,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testColumnsRelationshipWhere($type)
     {
         $this->setType($type);
@@ -509,12 +421,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testBasicLikeWhere($type)
     {
         $this->setType($type);
@@ -536,12 +443,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testGroupedLikeWhere($type)
     {
         $this->setType($type);
@@ -563,12 +465,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testNegativeLikeWhere($type)
     {
         $this->setType($type);
@@ -588,12 +485,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testNonEscapeLikeWhere($type)
     {
         $this->setType($type);
@@ -615,12 +507,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testEscapeLikeWhere($type)
     {
         $this->setType($type);
@@ -640,12 +527,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testCompoundLikeWhere($type)
     {
         $this->setType($type);
@@ -667,12 +549,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testWildcardLikeWhere($type)
     {
         $this->setType($type);
@@ -700,12 +577,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testMultipleLikeWhere($type)
     {
         $this->setType($type);
@@ -738,12 +610,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testBasicOrderWhere($type)
     {
         $this->setType($type);
@@ -762,12 +629,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testMultipleOrderWhere($type)
     {
         $this->setType($type);
@@ -798,12 +660,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testOrderWithRawWhere($type)
     {
         $this->setType($type);
@@ -822,11 +679,6 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     */
     public function testFullTextSearchWhere()
     {
         $this->setType("mysql");
@@ -849,12 +701,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testRegularExpressionWhere($type)
     {
         $this->setType($type);
@@ -873,12 +720,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testRawWhere($type)
     {
         $this->setType($type);
@@ -897,12 +739,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testLimitWhere($type)
     {
         $this->setType($type);
@@ -931,12 +768,7 @@ class WhereTest extends MedooTestCase
         ], $this->database->queryString);
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testLimitOffsetWhere($type)
     {
         $this->setType($type);
@@ -965,12 +797,7 @@ class WhereTest extends MedooTestCase
         ], $this->database->queryString);
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testGroupWhere($type)
     {
         $this->setType($type);
@@ -989,12 +816,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testGroupWithArrayWhere($type)
     {
         $this->setType($type);
@@ -1017,12 +839,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testGroupWithRawWhere($type)
     {
         $this->setType($type);
@@ -1041,12 +858,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testHavingWhere($type)
     {
         $this->setType($type);
@@ -1067,12 +879,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testHavingWithRawWhere($type)
     {
         $this->setType($type);
@@ -1091,12 +898,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testHavingWithAggregateRawWhere($type)
     {
         $this->setType($type);
@@ -1117,12 +919,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testRawWhereClause($type)
     {
         $this->setType($type);
@@ -1143,12 +940,7 @@ class WhereTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::dataImplode()
-     * @covers ::whereClause()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testRawWhereWithJoinClause($type)
     {
         $this->setType($type);

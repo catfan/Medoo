@@ -2,15 +2,10 @@
 
 namespace Medoo\Tests;
 
-/**
- * @coversDefaultClass \Medoo\Medoo
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\Medoo\Medoo::class)]
 class CreateTest extends MedooTestCase
 {
-    /**
-     * @covers ::create()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testCreate($type)
     {
         $this->setType($type);
@@ -59,10 +54,7 @@ class CreateTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::create()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testCreateWithStringDefinition($type)
     {
         $this->setType($type);
@@ -94,10 +86,7 @@ class CreateTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::create()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testCreateWithSingleOption($type)
     {
         $this->setType($type);

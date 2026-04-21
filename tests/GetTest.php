@@ -2,15 +2,10 @@
 
 namespace Medoo\Tests;
 
-/**
- * @coversDefaultClass \Medoo\Medoo
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\Medoo\Medoo::class)]
 class GetTest extends MedooTestCase
 {
-    /**
-     * @covers ::get()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testGet($type)
     {
         $this->setType($type);
@@ -42,10 +37,7 @@ class GetTest extends MedooTestCase
         ], $this->database->queryString);
     }
 
-    /**
-     * @covers ::get()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testGetWithColumns($type)
     {
         $this->setType($type);
@@ -80,10 +72,7 @@ class GetTest extends MedooTestCase
         ], $this->database->queryString);
     }
 
-    /**
-     * @covers ::get()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testGetWithJoin($type)
     {
         $this->setType($type);
@@ -118,10 +107,7 @@ class GetTest extends MedooTestCase
         ], $this->database->queryString);
     }
 
-    /**
-     * @covers ::get()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testGetWithJoinAndWhere($type)
     {
         $this->setType($type);

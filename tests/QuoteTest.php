@@ -5,15 +5,10 @@ namespace Medoo\Tests;
 use Medoo\Medoo;
 use InvalidArgumentException;
 
-/**
- * @coversDefaultClass \Medoo\Medoo
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\Medoo\Medoo::class)]
 class QuoteTest extends MedooTestCase
 {
-    /**
-     * @covers ::quote()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testQuote($type)
     {
         $this->setType($type);
@@ -41,9 +36,6 @@ class QuoteTest extends MedooTestCase
         $this->assertEquals($expected[$type], $quotedString);
     }
 
-    /**
-     * @covers ::columnQuote()
-     */
     public function testColumnQuote()
     {
         $this->assertEquals('"ColumnName"', $this->database->columnQuote("ColumnName"));
@@ -53,7 +45,7 @@ class QuoteTest extends MedooTestCase
         $this->assertEquals('"ネーム"', $this->database->columnQuote("ネーム"));
     }
 
-    public function columnNamesProvider(): array
+    public static function columnNamesProvider(): array
     {
         return [
             ["9ColumnName"],
@@ -64,10 +56,7 @@ class QuoteTest extends MedooTestCase
         ];
     }
 
-    /**
-     * @covers ::columnQuote()
-     * @dataProvider columnNamesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('columnNamesProvider')]
     public function testIncorrectColumnQuote($column)
     {
         $this->expectException(InvalidArgumentException::class);
@@ -75,9 +64,6 @@ class QuoteTest extends MedooTestCase
         $this->database->columnQuote($column);
     }
 
-    /**
-     * @covers ::tableQuote()
-     */
     public function testTableQuote()
     {
         $this->assertEquals('"TableName"', $this->database->tableQuote("TableName"));
@@ -86,9 +72,6 @@ class QuoteTest extends MedooTestCase
         $this->assertEquals('"アカウント"', $this->database->tableQuote("アカウント"));
     }
 
-    /**
-     * @covers ::tableQuote()
-     */
     public function testPrefixTableQuote()
     {
         $database = new Medoo([
@@ -99,7 +82,7 @@ class QuoteTest extends MedooTestCase
         $this->assertEquals('"PREFIX_TableName"', $database->tableQuote("TableName"));
     }
 
-    public function tableNamesProvider(): array
+    public static function tableNamesProvider(): array
     {
         return [
             ["9TableName"],
@@ -110,10 +93,7 @@ class QuoteTest extends MedooTestCase
         ];
     }
 
-    /**
-     * @covers ::tableQuote()
-     * @dataProvider tableNamesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('tableNamesProvider')]
     public function testIncorrectTableQuote($table)
     {
         $this->expectException(InvalidArgumentException::class);

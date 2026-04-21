@@ -4,17 +4,10 @@ namespace Medoo\Tests;
 
 use Medoo\Medoo;
 
-/**
- * @coversDefaultClass \Medoo\Medoo
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\Medoo\Medoo::class)]
 class RawTest extends MedooTestCase
 {
-    /**
-     * @covers ::raw()
-     * @covers ::isRaw()
-     * @covers ::buildRaw()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testRawWithPlaceholder($type)
     {
         $this->setType($type);
@@ -32,12 +25,7 @@ class RawTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::raw()
-     * @covers ::isRaw()
-     * @covers ::buildRaw()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testRawWithSamePlaceholderName($type)
     {
         $this->setType($type);

@@ -4,17 +4,10 @@ namespace Medoo\Tests;
 
 use Medoo\Medoo;
 
-/**
- * @coversDefaultClass \Medoo\Medoo
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\Medoo\Medoo::class)]
 class QueryTest extends MedooTestCase
 {
-    /**
-     * @covers ::query()
-     * @covers ::isRaw()
-     * @covers ::buildRaw()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testQuery($type)
     {
         $this->setType($type);
@@ -31,11 +24,6 @@ class QueryTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::query()
-     * @covers ::isRaw()
-     * @covers ::buildRaw()
-     */
     public function testQueryWithPrefix()
     {
         $database = new Medoo([
@@ -54,11 +42,6 @@ class QueryTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::query()
-     * @covers ::isRaw()
-     * @covers ::buildRaw()
-     */
     public function testQueryTableWithPrefix()
     {
         $database = new Medoo([
@@ -76,11 +59,6 @@ class QueryTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::query()
-     * @covers ::isRaw()
-     * @covers ::buildRaw()
-     */
     public function testQueryShowTableWithPrefix()
     {
         $database = new Medoo([
@@ -98,12 +76,7 @@ class QueryTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::query()
-     * @covers ::isRaw()
-     * @covers ::buildRaw()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testPreparedStatementQuery($type)
     {
         $this->setType($type);
@@ -126,11 +99,6 @@ class QueryTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::query()
-     * @covers ::isRaw()
-     * @covers ::buildRaw()
-     */
     public function testQueryEscape()
     {
         $database = new Medoo([

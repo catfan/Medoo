@@ -4,15 +4,10 @@ namespace Medoo\Tests;
 
 use InvalidArgumentException;
 
-/**
- * @coversDefaultClass \Medoo\Medoo
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\Medoo\Medoo::class)]
 class ReplaceTest extends MedooTestCase
 {
-    /**
-     * @covers ::replace()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testReplace($type)
     {
         $this->setType($type);
@@ -41,9 +36,6 @@ class ReplaceTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::replace()
-     */
     public function testReplaceEmptyColumns()
     {
         $this->expectException(InvalidArgumentException::class);

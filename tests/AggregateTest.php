@@ -2,17 +2,10 @@
 
 namespace Medoo\Tests;
 
-/**
- * @coversDefaultClass \Medoo\Medoo
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\Medoo\Medoo::class)]
 class AggregateTest extends MedooTestCase
 {
-    /**
-     * @covers ::count()
-     * @covers ::aggregate()
-     * @covers ::selectContext()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testCount($type)
     {
         $this->setType($type);
@@ -31,12 +24,7 @@ class AggregateTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::max()
-     * @covers ::aggregate()
-     * @covers ::selectContext()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testMax($type)
     {
         $this->setType($type);
@@ -52,12 +40,7 @@ class AggregateTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::min()
-     * @covers ::aggregate()
-     * @covers ::selectContext()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testMin($type)
     {
         $this->setType($type);
@@ -73,12 +56,7 @@ class AggregateTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::avg()
-     * @covers ::aggregate()
-     * @covers ::selectContext()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testAvg($type)
     {
         $this->setType($type);
@@ -94,12 +72,7 @@ class AggregateTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::sum()
-     * @covers ::aggregate()
-     * @covers ::selectContext()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSum($type)
     {
         $this->setType($type);

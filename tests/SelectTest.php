@@ -5,19 +5,10 @@ namespace Medoo\Tests;
 use Medoo\Medoo;
 use InvalidArgumentException;
 
-/**
- * @coversDefaultClass \Medoo\Medoo
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\Medoo\Medoo::class)]
 class SelectTest extends MedooTestCase
 {
-    /**
-     * @covers ::select()
-     * @covers ::selectContext()
-     * @covers ::isJoin()
-     * @covers ::columnMap()
-     * @covers ::columnPush()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectAll($type)
     {
         $this->setType($type);
@@ -32,11 +23,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::selectContext()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectTableWithAlias($type)
     {
         $this->setType($type);
@@ -52,11 +39,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::columnMap()
-     * @covers ::columnPush()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectSingleColumn($type)
     {
         $this->setType($type);
@@ -72,11 +55,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::columnMap()
-     * @covers ::columnPush()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectColumns($type)
     {
         $this->setType($type);
@@ -92,11 +71,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::columnMap()
-     * @covers ::columnPush()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectColumnsWithAlias($type)
     {
         $this->setType($type);
@@ -112,11 +87,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::columnMap()
-     * @covers ::columnPush()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectColumnsWithType($type)
     {
         $this->setType($type);
@@ -132,11 +103,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::columnMap()
-     * @covers ::columnPush()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectColumnsWithAliasAndType($type)
     {
         $this->setType($type);
@@ -152,11 +119,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::columnMap()
-     * @covers ::columnPush()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectColumnsWithRaw($type)
     {
         $this->setType($type);
@@ -174,12 +137,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::selectContext()
-     * @covers ::isJoin()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithWhere($type)
     {
         $this->setType($type);
@@ -201,13 +159,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::select()
-     * @covers ::selectContext()
-     * @covers ::isJoin()
-     * @covers ::buildJoin()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithLeftJoin($type)
     {
         $this->setType($type);
@@ -230,11 +182,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::isJoin()
-     * @covers ::buildJoin()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithRightJoin($type)
     {
         $this->setType($type);
@@ -257,11 +205,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::isJoin()
-     * @covers ::buildJoin()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithFullJoin($type)
     {
         $this->setType($type);
@@ -284,11 +228,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::isJoin()
-     * @covers ::buildJoin()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithInnerJoin($type)
     {
         $this->setType($type);
@@ -311,11 +251,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::isJoin()
-     * @covers ::buildJoin()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithSameKeysJoin($type)
     {
         $this->setType($type);
@@ -338,11 +274,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::isJoin()
-     * @covers ::buildJoin()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithKeyJoin($type)
     {
         $this->setType($type);
@@ -365,11 +297,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::isJoin()
-     * @covers ::buildJoin()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithAliasJoin($type)
     {
         $this->setType($type);
@@ -392,11 +320,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::isJoin()
-     * @covers ::buildJoin()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithReferJoin($type)
     {
         $this->setType($type);
@@ -423,11 +347,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::isJoin()
-     * @covers ::buildJoin()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithMultipleConditionJoin($type)
     {
         $this->setType($type);
@@ -458,11 +378,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::isJoin()
-     * @covers ::buildJoin()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithAdditionalConditionJoin($type)
     {
         $this->setType($type);
@@ -491,11 +407,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::isJoin()
-     * @covers ::buildJoin()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectRawJoin($type)
     {
         $this->setType($type);
@@ -518,11 +430,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::columnMap()
-     * @covers ::columnPush()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectAllWithJoin($type)
     {
         $this->setType($type);
@@ -536,11 +444,7 @@ class SelectTest extends MedooTestCase
         ]);
     }
 
-    /**
-     * @covers ::columnMap()
-     * @covers ::columnPush()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithDataMapping($type)
     {
         $this->setType($type);
@@ -572,11 +476,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::columnMap()
-     * @covers ::columnPush()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithIndexMapping($type)
     {
         $this->setType($type);
@@ -597,11 +497,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::columnMap()
-     * @covers ::columnPush()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithDistinct($type)
     {
         $this->setType($type);
@@ -620,11 +516,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::columnMap()
-     * @covers ::columnPush()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithDistinctDiffOrder($type)
     {
         $this->setType($type);
@@ -643,11 +535,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::columnMap()
-     * @covers ::columnPush()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithUnicodeCharacter($type)
     {
         $this->setType($type);
@@ -666,11 +554,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::columnMap()
-     * @covers ::columnPush()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithHyphenCharacter($type)
     {
         $this->setType($type);
@@ -688,11 +572,7 @@ class SelectTest extends MedooTestCase
         );
     }
 
-    /**
-     * @covers ::columnMap()
-     * @covers ::columnPush()
-     * @dataProvider typesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testSelectWithSingleCharacter($type)
     {
         $this->setType($type);

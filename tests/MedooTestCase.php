@@ -19,7 +19,7 @@ class MedooTestCase extends TestCase
         ]);
     }
 
-    public function typesProvider(): array
+    public static function typesProvider(): array
     {
         return [
             'MySQL' => ['mysql'],
