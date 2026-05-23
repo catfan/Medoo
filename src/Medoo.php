@@ -946,6 +946,11 @@ class Medoo
             $mapKey = $this->mapKey();
             $isIndex = is_int($key);
 
+            if($isIndex && $value instanceof Raw){
+                $stack[] = $this->buildRaw($value, $map);
+                continue;
+            }
+
             preg_match(
                 "/(?<column>" . $this::COLUMN_PATTERN . ")(\[(?<operator>.*)\])?(?<comparison>" . $this::COLUMN_PATTERN . ")?/u",
                 $isIndex ? $value : $key,
