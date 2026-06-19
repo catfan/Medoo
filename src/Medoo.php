@@ -256,12 +256,12 @@ class Medoo
 
         $options['type'] = $options['type'] ?? $options['database_type'] ?? null;
 
-        if (!$options['type']) {
+        if (!is_string($options['type']) || $options['type'] === '') {
             throw new InvalidArgumentException('Database type is required.');
         }
 
         if (!isset($options['pdo'])) {
-            $options['database'] = $options['database'] ?? $options['database_name'];
+            $options['database'] = $options['database'] ?? $options['database_name'] ?? null;
 
             if (!isset($options['socket'])) {
                 $options['host'] = $options['host'] ?? $options['server'] ?? false;
@@ -308,18 +308,25 @@ class Medoo
             return;
         }
 
+        $dsn = null;
+        $attr = null;
+
         if (isset($options['dsn'])) {
-            if (is_array($options['dsn']) && isset($options['dsn']['driver'])) {
+            if (is_string($options['dsn']) && $options['dsn'] !== '') {
+                $dsn = $options['dsn'];
+            } elseif (is_array($options['dsn']) && isset($options['dsn']['driver'])) {
                 $attr = $options['dsn'];
             } else {
                 throw new InvalidArgumentException('Invalid DSN option supplied.');
             }
         } else {
+            $port = null;
+
             if (isset($options['port']) && is_numeric($options['port'])) {
                 $port = $options['port'];
             }
 
-            $isPort = isset($port);
+            $isPort = $port !== null;
 
             switch ($this->type) {
 
@@ -328,6 +335,10 @@ class Medoo
                         'driver' => 'mysql',
                         'dbname' => $options['database']
                     ];
+
+                    if (isset($options['charset'])) {
+                        $attr['charset'] = $options['charset'];
+                    }
 
                     if (isset($options['socket'])) {
                         $attr['unix_socket'] = $options['socket'];
@@ -360,6 +371,10 @@ class Medoo
                         'host' => $options['host'],
                         'dbname' => $options['database']
                     ];
+
+                    if (isset($options['charset'])) {
+                        $attr['charset'] = $options['charset'];
+                    }
 
                     if ($isPort) {
                         $attr['port'] = $port;
@@ -444,41 +459,45 @@ class Medoo
                 case 'sqlite':
                     $attr = [
                         'driver' => 'sqlite',
-                        $options['database']
+                        $options['database'] ?? ''
                     ];
 
                     break;
             }
         }
 
-        if (!isset($attr)) {
-            throw new InvalidArgumentException('Incorrect connection options.');
+        if ($dsn === null) {
+            if ($attr === null) {
+                throw new InvalidArgumentException('Incorrect connection options.');
+            }
+
+            if (!isset($attr['driver']) || !is_string($attr['driver']) || $attr['driver'] === '') {
+                throw new InvalidArgumentException('Invalid DSN option supplied.');
+            }
+
+            $driver = $attr['driver'];
+
+            if (!in_array($driver, PDO::getAvailableDrivers(), true)) {
+                throw new InvalidArgumentException("Unsupported PDO driver: {$driver}.");
+            }
+
+            unset($attr['driver']);
+
+            $stack = [];
+
+            foreach ($attr as $key => $value) {
+                $stack[] = is_int($key) ? $value : $key . '=' . $value;
+            }
+
+            $dsn = $driver . ':' . implode(';', $stack);
         }
 
-        $driver = $attr['driver'];
-
-        if (!in_array($driver, PDO::getAvailableDrivers())) {
-            throw new InvalidArgumentException("Unsupported PDO driver: {$driver}.");
-        }
-
-        unset($attr['driver']);
-
-        $stack = [];
-
-        foreach ($attr as $key => $value) {
-            $stack[] = is_int($key) ? $value : $key . '=' . $value;
-        }
-
-        $dsn = $driver . ':' . implode(';', $stack);
-
-        if (
-            in_array($this->type, ['mysql', 'pgsql', 'sybase', 'mssql']) &&
-            isset($options['charset'])
-        ) {
-            $commands[] = "SET NAMES '{$options['charset']}'" . (
-                $this->type === 'mysql' && isset($options['collation']) ?
-                " COLLATE '{$options['collation']}'" : ''
-            );
+        if (isset($options['charset'])) {
+            if ($this->type === 'pgsql') {
+                $commands[] = "SET NAMES '{$options['charset']}'";
+            } elseif ($this->type === 'mysql' && isset($options['collation'])) {
+                $commands[] = "SET NAMES '{$options['charset']}' COLLATE '{$options['collation']}'";
+            }
         }
 
         $this->dsn = $dsn;
