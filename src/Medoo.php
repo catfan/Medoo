@@ -2084,11 +2084,25 @@ class Medoo
      */
     public function rand(string $table, $join = null, $columns = null, $where = null): array
     {
-        $orderRaw = $this->raw(
-            $this->type === 'mysql' ? 'RAND()'
-                : ($this->type === 'mssql' ? 'NEWID()'
-                : 'RANDOM()')
-        );
+        switch ($this->type) {
+            case 'mysql':
+            case 'sybase':
+                $random = 'RAND()';
+                break;
+
+            case 'mssql':
+                $random = 'NEWID()';
+                break;
+
+            case 'oracle':
+                $random = 'DBMS_RANDOM.VALUE';
+                break;
+
+            default:
+                $random = 'RANDOM()';
+        }
+
+        $orderRaw = $this->raw($random);
 
         if ($where === null) {
             if ($this->isJoin($join)) {

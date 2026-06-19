@@ -5,6 +5,21 @@ namespace Medoo\Tests;
 #[\PHPUnit\Framework\Attributes\CoversClass(\Medoo\Medoo::class)]
 class RandTest extends MedooTestCase
 {
+    public function testSybaseRand()
+    {
+        $this->setType('sybase');
+
+        $this->database->rand("account", [
+            "user_name"
+        ]);
+
+        $this->assertQuery(<<<EOD
+            SELECT "user_name"
+            FROM "account"
+            ORDER BY RAND()
+            EOD, $this->database->queryString);
+    }
+
     #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testRand($type)
     {
@@ -29,6 +44,11 @@ class RandTest extends MedooTestCase
                 SELECT [user_name]
                 FROM [account]
                 ORDER BY NEWID()
+                EOD,
+            'oracle' => <<<EOD
+                SELECT "user_name"
+                FROM "account"
+                ORDER BY DBMS_RANDOM.VALUE
                 EOD
         ], $this->database->queryString);
     }
@@ -62,6 +82,12 @@ class RandTest extends MedooTestCase
                 FROM [account]
                 WHERE [location] = 'Tokyo'
                 ORDER BY NEWID()
+                EOD,
+            'oracle' => <<<EOD
+                SELECT "user_name"
+                FROM "account"
+                WHERE "location" = 'Tokyo'
+                ORDER BY DBMS_RANDOM.VALUE
                 EOD
         ], $this->database->queryString);
     }
@@ -100,6 +126,13 @@ class RandTest extends MedooTestCase
                 LEFT JOIN [album] USING ([user_id])
                 WHERE [album].[location] = 'Tokyo'
                 ORDER BY NEWID()
+                EOD,
+            'oracle' => <<<EOD
+                SELECT "account"."user_name"
+                FROM "account"
+                LEFT JOIN "album" USING ("user_id")
+                WHERE "album"."location" = 'Tokyo'
+                ORDER BY DBMS_RANDOM.VALUE
                 EOD
         ], $this->database->queryString);
     }
@@ -133,6 +166,12 @@ class RandTest extends MedooTestCase
                 FROM [account]
                 LEFT JOIN [album] USING ([user_id])
                 ORDER BY NEWID()
+                EOD,
+            'oracle' => <<<EOD
+                SELECT "account"."user_name"
+                FROM "account"
+                LEFT JOIN "album" USING ("user_id")
+                ORDER BY DBMS_RANDOM.VALUE
                 EOD
         ], $this->database->queryString);
     }
