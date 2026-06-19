@@ -2252,13 +2252,23 @@ class Medoo
 
         if ($type === 'oracle') {
             return $this->returnId;
-        } elseif ($type === 'pgsql') {
-            $id = $this->pdo->query('SELECT LASTVAL()')->fetchColumn();
-
-            return (string) $id ?: null;
         }
 
-        return $this->pdo->lastInsertId($name);
+        if (!$this->pdo) {
+            return null;
+        }
+
+        if ($type === 'pgsql' && $name === null) {
+            $statement = $this->pdo->query('SELECT LASTVAL()');
+            $id = $statement ? $statement->fetchColumn() : false;
+        } elseif ($type === 'sybase') {
+            $statement = $this->pdo->query('SELECT @@IDENTITY');
+            $id = $statement ? $statement->fetchColumn() : false;
+        } else {
+            $id = $this->pdo->lastInsertId($name);
+        }
+
+        return $id === false ? null : (string) $id;
     }
 
     /**
