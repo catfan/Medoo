@@ -44,20 +44,7 @@ class Raw
 /**
  * Core Medoo database class.
  *
- * @method array select(string $table, array $columns)
- * @method mixed select(string $table, string $column)
- * @method array select(string $table, array $columns, array $where)
- * @method mixed select(string $table, string $column, array $where)
- * @method array select(string $table, array $join, array $columns)
- * @method mixed select(string $table, array $join, string $column)
- * @method array select(string $table, array $join, array $columns, array $where)
- * @method mixed select(string $table, array $join, string $column, array $where)
- * @method null select(string $table, array $columns, callable $callback)
- * @method null select(string $table, string $column, callable $callback)
- * @method null select(string $table, array $columns, array $where, callable $callback)
- * @method null select(string $table, string $column, array $where, callable $callback)
- * @method null select(string $table, array $join, array $columns, array $where, callable $callback)
- * @method null select(string $table, array $join, string $column, array $where, callable $callback)
+ * @method array|null select(string $table, array|string $join, array|string|callable|null $columns = null, array|callable|null $where = null, callable|null $callback = null)
  * @method mixed get(string $table, array|string|null $join = null, array|string|null $columns = null, array|null $where = null)
  * @method bool has(string $table, array $join, array|null $where = null)
  * @method array rand(string $table, array|string|null $join = null, array|string|null $columns = null, array|null $where = null)
