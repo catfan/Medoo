@@ -2330,7 +2330,7 @@ class Medoo
      * @param Condition|null $where The WHERE clause definition.
      * @return string|null
      */
-    private function aggregate(string $type, string $table, $join = null, $column = null, $where = null): ?string
+    private function aggregate(string $type, string $table, $join = null, $column = null, $where = null): null|string|int
     {
         $map = [];
 
