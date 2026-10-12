@@ -1951,7 +1951,8 @@ class Medoo
         }
 
         $this->columnMap($columns, $columnMap, true);
-        $resultKey = $isSingle ? $columnMap[$column][0] : null;
+        $columnKey = array_key_first($columnMap);
+        $resultKey = $isSingle && $columnKey !== null ? $columnMap[$columnKey][0] : null;
 
         $statement = $this->statement;
 
@@ -1962,10 +1963,8 @@ class Medoo
         // @codeCoverageIgnoreStart
         if ($columns === '*') {
             if (isset($callback)) {
-                while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
-                    if (is_array($data)) {
-                        $callback($data);
-                    }
+                while (($data = $statement->fetch(PDO::FETCH_ASSOC)) !== false) {
+                    $callback($data);
                 }
 
                 return null;
@@ -1980,11 +1979,7 @@ class Medoo
             return $result;
         }
 
-        while ($data = $statement->fetch(PDO::FETCH_ASSOC)) {
-            if (!is_array($data)) {
-                continue;
-            }
-
+        while (($data = $statement->fetch(PDO::FETCH_ASSOC)) !== false) {
             $currentStack = [];
 
             if (isset($callback)) {
