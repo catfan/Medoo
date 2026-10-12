@@ -570,16 +570,17 @@ class Medoo
             );
 
             if (isset($options['error'])) {
-                $this->pdo->setAttribute(
-                    PDO::ATTR_ERRMODE,
-                    in_array($options['error'], [
+                if (
+                    !in_array($options['error'], [
                         PDO::ERRMODE_SILENT,
                         PDO::ERRMODE_WARNING,
                         PDO::ERRMODE_EXCEPTION
-                    ]) ?
-                    $options['error'] :
-                    PDO::ERRMODE_SILENT
-                );
+                    ])
+                ) {
+                    throw new InvalidArgumentException("Unsupported PDO error mode: {$options['error']}.");
+                }
+
+                $this->pdo->setAttribute(PDO::ATTR_ERRMODE, $options['error']);
             }
 
             if (isset($options['command']) && is_array($options['command'])) {
