@@ -1684,7 +1684,7 @@ class Medoo
      * @codeCoverageIgnore
      * @return void
      */
-    protected function dataMap(
+    final protected function dataMap(
         array $data,
         array $columns,
         array $columnMap,
@@ -1932,7 +1932,6 @@ class Medoo
     {
         $map = [];
         $result = [];
-        $columnMap = [];
 
         $args = func_get_args();
         $lastArgs = end($args);
@@ -1945,14 +1944,6 @@ class Medoo
         $isSingle = (is_string($column) && $column !== '*');
 
         $this->exec($this->selectContext($table, $map, $join, $columns, $where), $map);
-
-        if (!is_array($columns) && !is_string($columns)) {
-            return $result;
-        }
-
-        $this->columnMap($columns, $columnMap, true);
-        $columnKey = array_key_first($columnMap);
-        $resultKey = $isSingle && $columnKey !== null ? $columnMap[$columnKey][0] : null;
 
         $statement = $this->statement;
 
@@ -1979,31 +1970,74 @@ class Medoo
             return $result;
         }
 
-        while (($data = $statement->fetch(PDO::FETCH_ASSOC)) !== false) {
-            $currentStack = [];
+        $data = $statement->fetch(PDO::FETCH_ASSOC);
+
+        if ($data === false) {
+            return isset($callback) ? null : $result;
+        }
+
+        $columnMap = [];
+        $this->columnMap($columns, $columnMap, true);
+        $resultKey = $isSingle ? ($columnMap[array_key_first($columnMap)][0] ?? null) : null;
+        $columnKeys = [];
+
+        foreach ($columns as $key => $value) {
+            if (
+                !is_int($key) || !is_string($value) ||
+                !isset($columnMap[$value]) || isset($columnMap[$value][1])
+            ) {
+                $columnKeys = null;
+                break;
+            }
+
+            $columnKeys[$columnMap[$value][0]] = true;
+        }
+
+        $direct = $columnKeys !== null &&
+            (!$isSingle || $resultKey !== null) && array_keys($data) === array_keys($columnKeys);
+
+        if ($direct) {
+            $fetchMode = PDO::FETCH_ASSOC;
+
+            if ($isSingle && $statement->columnCount() === 1) {
+                $fetchMode = PDO::FETCH_NUM;
+                $data = [$data[$resultKey]];
+                $resultKey = 0;
+            }
 
             if (isset($callback)) {
-                $this->dataMap($data, $columns, $columnMap, $currentStack, true);
+                do {
+                    $callback($isSingle ? $data[$resultKey] : $data);
+                } while (($data = $statement->fetch($fetchMode)) !== false);
 
-                $callback(
-                    $isSingle ?
-                    ($resultKey !== null ? $currentStack[$resultKey] : null) :
-                    $currentStack
-                );
-            } elseif ($isSingle) {
-                $this->dataMap($data, $columns, $columnMap, $currentStack, true);
+                return null;
+            }
 
-                $result[] = $resultKey !== null ? $currentStack[$resultKey] : null;
+            do {
+                $result[] = $isSingle ? $data[$resultKey] : $data;
+            } while (($data = $statement->fetch($fetchMode)) !== false);
+
+            return $result;
+        }
+
+        do {
+            $currentStack = [];
+
+            if ($isSingle || isset($callback)) {
+                $this->dataMap($data, $columns, $columnMap, $currentStack, true);
+                $row = $isSingle ? ($resultKey !== null ? $currentStack[$resultKey] : null) : $currentStack;
+
+                if (isset($callback)) {
+                    $callback($row);
+                } else {
+                    $result[] = $row;
+                }
             } else {
                 $this->dataMap($data, $columns, $columnMap, $currentStack, true, $result);
             }
-        }
+        } while (($data = $statement->fetch(PDO::FETCH_ASSOC)) !== false);
 
-        if (isset($callback)) {
-            return null;
-        }
-
-        return $result;
+        return isset($callback) ? null : $result;
     }
     // @codeCoverageIgnoreEnd
 
