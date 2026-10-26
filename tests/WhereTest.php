@@ -615,6 +615,57 @@ class WhereTest extends MedooTestCase
         );
     }
 
+    /** @return array<string, array{string, string}> */
+    public static function likePatternsProvider(): array
+    {
+        $plain = str_repeat('a', 8192);
+        $brackets = str_repeat('[', 8192);
+
+        return [
+            'plain text' => ['word', '%word%'],
+            'empty text' => ['', '%%'],
+            'percent' => ['%', '%'],
+            'asterisk' => ['a*b', 'a*b'],
+            'question mark' => ['a?b', 'a?b'],
+            'exclamation mark' => ['a!b', 'a!b'],
+            'hash' => ['a#b', 'a#b'],
+            'caret' => ['a^b', 'a^b'],
+            'underscore' => ['a_b', 'a_b'],
+            'escaped markers' => ['\\*\\?\\!\\#\\^\\_', '%\\*\\?\\!\\#\\^\\_%'],
+            'double backslash' => ['\\\\_', '%\\\\_%'],
+            'escaped percent' => ['a\\%b', 'a\\%b'],
+            'bracket group' => ['[abc]', '[abc]'],
+            'empty bracket group' => ['[]', '%[]%'],
+            'multiple empty groups' => ['[][]', '[][]'],
+            'escaped opening bracket' => ['\\[abc]', '%\\[abc]%'],
+            'escaped closing bracket' => ['[abc\\]', '%[abc\\]%'],
+            'later closing bracket' => ['[abc\\]]', '[abc\\]]'],
+            'line break in group' => ["[a\nb]", "%[a\nb]%"],
+            'group on later line' => ["[a\n[b]", "[a\n[b]"],
+            'plain Unicode' => ['城市', '%城市%'],
+            'Unicode bracket group' => ['[城市]', '[城市]'],
+            'long plain text' => [$plain, '%' . $plain . '%'],
+            'long unmatched brackets' => [$brackets, '%' . $brackets . '%'],
+            'long escaped closing bracket' => [$brackets . '\\]', '%' . $brackets . '\\]%'],
+            'long bracket group' => [$brackets . ']', $brackets . ']'],
+            'late wildcard after plain text' => [$plain . '_', $plain . '_'],
+            'late wildcard after brackets' => [$brackets . '_', $brackets . '_']
+        ];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('likePatternsProvider')]
+    public function testLikePatternDetection(string $pattern, string $expected): void
+    {
+        foreach (['~' => 'LIKE', '!~' => 'NOT LIKE'] as $operator => $keyword) {
+            $this->database->select('account', 'user_name', ["city[{$operator}]" => $pattern]);
+
+            $this->assertSame(
+                'SELECT "user_name" FROM "account" WHERE ("city" ' . $keyword . ' ' . $this->database->quote($expected) . ')',
+                $this->database->queryString
+            );
+        }
+    }
+
     #[\PHPUnit\Framework\Attributes\DataProviderExternal(MedooTestCase::class, 'typesProvider')]
     public function testMultipleLikeWhere(string $type): void
     {

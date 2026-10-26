@@ -1164,7 +1164,34 @@ class Medoo
 
                         $item = (string) $item;
 
-                        if (!preg_match('/((?<!\\\)\[.+(?<!\\\)\]|(?<!\\\)[\*\?\!\%#^_]|%.+|.+%)/', $item)) {
+                        $hasWildcard = strpos($item, '%') !== false ||
+                            preg_match('/(?<!\\\)[*?!#^_]/', $item) === 1;
+
+                        if (
+                            !$hasWildcard &&
+                            ($offset = strpos($item, '[')) !== false &&
+                            strpos($item, ']', $offset) !== false
+                        ) {
+                            $opening = null;
+                            $length = strlen($item);
+
+                            for (; $offset < $length; ++$offset) {
+                                $character = $item[$offset];
+
+                                if ($character === "\n") {
+                                    $opening = null;
+                                } elseif ($offset === 0 || $item[$offset - 1] !== '\\') {
+                                    if ($character === '[' && $opening === null) {
+                                        $opening = $offset;
+                                    } elseif ($character === ']' && $opening !== null && $offset > $opening + 1) {
+                                        $hasWildcard = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (!$hasWildcard) {
                             $item = '%' . $item . '%';
                         }
 
