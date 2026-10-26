@@ -653,15 +653,53 @@ class Medoo
      */
     public function query(string $statement, array $map = []): ?PDOStatement
     {
-        $raw = $this->raw($statement, $map);
         $parameterMap = [];
-        $statement = $this->buildRaw($raw, $parameterMap);
+        $statement = $this->buildRaw($this->raw($statement, $map), $parameterMap);
 
         if ($statement === null) {
             return null;
         }
 
         return $this->exec($statement, $parameterMap);
+    }
+
+    /**
+     * Prepare a raw SQL statement for reuse through PDOStatement::execute().
+     *
+     * @param string $statement The SQL template, supporting <identifier> quoting.
+     * @return \PDOStatement|null Null on failure or in test mode.
+     */
+    public function prepare(string $statement): ?PDOStatement
+    {
+        $this->statement = null;
+        $this->errorInfo = null;
+        $this->error = null;
+
+        $map = [];
+        $statement = $this->buildRaw($this->raw($statement), $map);
+
+        if ($statement === null) {
+            return null;
+        }
+
+        if ($this->testMode) {
+            $this->queryString = $this->generate($statement, []);
+            return null;
+        }
+
+        $pdo = $this->connection();
+        $pdoStatement = $pdo->prepare($statement);
+
+        if ($pdoStatement === false) {
+            /** @var array{2: string|null, ...} $errorInfo */
+            $errorInfo = $pdo->errorInfo();
+            $this->errorInfo = $errorInfo;
+            $this->error = $errorInfo[2];
+
+            return null;
+        }
+
+        return $pdoStatement;
     }
 
     /**
@@ -699,17 +737,12 @@ class Medoo
 
         $pdo = $this->connection();
         $pdoStatement = $pdo->prepare($statement);
-        $errorInfo = $pdo->errorInfo();
 
-        if (!$pdoStatement instanceof PDOStatement) {
+        if ($pdoStatement === false) {
+            /** @var array{2: string|null, ...} $errorInfo */
+            $errorInfo = $pdo->errorInfo();
             $this->errorInfo = $errorInfo;
-            $this->error = isset($errorInfo[2]) && is_string($errorInfo[2]) ? $errorInfo[2] : null;
-            return null;
-        }
-
-        if ($errorInfo[0] !== '00000') {
-            $this->errorInfo = $errorInfo;
-            $this->error = isset($errorInfo[2]) && is_string($errorInfo[2]) ? $errorInfo[2] : null;
+            $this->error = $errorInfo[2];
 
             return null;
         }
@@ -737,18 +770,16 @@ class Medoo
             $this->logs = [$log];
         }
 
-        $errorInfo = $pdoStatement->errorInfo();
-
-        if ($errorInfo[0] !== '00000') {
+        if (!$execute) {
+            /** @var array{2: string|null, ...} $errorInfo */
+            $errorInfo = $pdoStatement->errorInfo();
             $this->errorInfo = $errorInfo;
-            $this->error = isset($errorInfo[2]) && is_string($errorInfo[2]) ? $errorInfo[2] : null;
+            $this->error = $errorInfo[2];
 
             return null;
         }
 
-        if ($execute) {
-            $this->statement = $pdoStatement;
-        }
+        $this->statement = $pdoStatement;
 
         return $pdoStatement;
     }
