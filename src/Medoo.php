@@ -769,6 +769,8 @@ class Medoo
             $statement
         ) ?? $statement;
 
+        $replacements = [];
+
         foreach ($map as $key => $value) {
             if ($value[1] === PDO::PARAM_STR) {
                 $replace = $this->quote(is_scalar($value[0]) ? (string) $value[0] : '');
@@ -780,10 +782,12 @@ class Medoo
                 $replace = is_scalar($value[0]) ? (string) $value[0] : '';
             }
 
-            $statement = str_replace($key, $replace, $statement);
+            if ($key !== '') {
+                $replacements[$key] = $replace;
+            }
         }
 
-        return $statement;
+        return strtr($statement, $replacements);
     }
 
     /**
